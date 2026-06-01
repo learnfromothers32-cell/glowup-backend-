@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import { Booking } from '../models/Booking';
 import { Service } from '../models/Service';
@@ -14,6 +15,16 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
     throw new ApiError(400, 'Stylist ID, Service ID, and Start Time are required');
   }
 
+  if (!mongoose.Types.ObjectId.isValid(stylistId)) {
+    throw new ApiError(400, `Invalid stylist ID format: "${stylistId}"`);
+  }
+  if (!mongoose.Types.ObjectId.isValid(serviceId)) {
+    throw new ApiError(400, `Invalid service ID format: "${serviceId}"`);
+  }
+  if (!clientId || !mongoose.Types.ObjectId.isValid(clientId)) {
+    throw new ApiError(400, 'Invalid user authentication');
+  }
+
   // Verify service exists and belongs to stylist
   const service = await Service.findOne({ _id: serviceId, stylistId });
   if (!service) {
@@ -21,6 +32,9 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
   }
 
   const start = new Date(startTime);
+  if (isNaN(start.getTime())) {
+    throw new ApiError(400, 'Invalid start time format');
+  }
   const end = new Date(start.getTime() + service.duration * 60000);
 
   // Check for conflicts

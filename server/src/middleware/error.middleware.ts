@@ -8,15 +8,28 @@ export const notFound = (req: Request, _res: Response, next: NextFunction) => {
 
 export const errorHandler = (
   error: Error,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ) => {
   const statusCode = error instanceof ApiError ? error.statusCode : 500;
 
+  if (statusCode === 500) {
+    console.error(`[500] ${req.method} ${req.originalUrl}:`, error);
+  }
+
+  const message =
+    error instanceof ApiError
+      ? error.message
+      : error.name === 'CastError'
+        ? `Invalid ID format: ${(error as any).value || error.message}`
+        : error.name === 'ValidationError'
+          ? `Validation failed: ${error.message}`
+          : 'Internal server error';
+
   res.status(statusCode).json({
     success: false,
-    message: error.message || 'Internal server error',
+    message,
     ...(isProduction ? {} : { stack: error.stack })
   });
 };

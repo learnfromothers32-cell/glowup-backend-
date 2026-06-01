@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { Document, Schema, model } from 'mongoose';
+import { Document, Schema, Types, model } from 'mongoose';
 import { UserRole } from '../types/auth';
 
 export interface IUser extends Document {
@@ -20,6 +20,7 @@ export interface IUser extends Document {
     shares: number;
   };
   badges: string[];
+  favorites: Types.ObjectId[];
   refreshTokenHash?: string;
   emailVerified: boolean;
   emailVerificationToken?: string;
@@ -79,6 +80,10 @@ const userSchema = new Schema<IUser>(
     },
     badges: {
       type: [String],
+      default: []
+    },
+    favorites: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'Stylist' }],
       default: []
     },
     refreshTokenHash: {

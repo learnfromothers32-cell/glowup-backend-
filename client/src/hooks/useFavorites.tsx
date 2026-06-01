@@ -1,45 +1,50 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Stylist } from "@/domain/stylist/stylist.types";
-
-const STORAGE_KEY = "glowup_favorites";
-
-function loadInitialFavorites(): Stylist[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-}
+import * as favoritesApi from "../api/favorites";
 
 export function useFavorites() {
-  const [favorites, setFavorites] = useState<Stylist[]>(loadInitialFavorites);
+  const [favorites, setFavorites] = useState<Stylist[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
+    const load = async () => {
+      try {
+        const data = await favoritesApi.getFavorites();
+        setFavorites(data || []);
+      } catch {
+        setFavorites([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const addFavorite = useCallback(async (stylist: Stylist) => {
+    try {
+      await favoritesApi.addFavorite(stylist.id);
+      setFavorites(prev => prev.some(s => s.id === stylist.id) ? prev : [...prev, stylist]);
+    } catch {}
+  }, []);
+
+  const removeFavorite = useCallback(async (stylistId: string) => {
+    try {
+      await favoritesApi.removeFavorite(stylistId);
+      setFavorites(prev => prev.filter(s => s.id !== stylistId));
+    } catch {}
+  }, []);
+
+  const toggleFavorite = useCallback(async (stylist: Stylist) => {
+    if (favorites.some(s => s.id === stylist.id)) {
+      await removeFavorite(stylist.id);
+    } else {
+      await addFavorite(stylist);
+    }
+  }, [favorites, addFavorite, removeFavorite]);
+
+  const isFavorite = useCallback((stylistId: string) => {
+    return favorites.some(s => s.id === stylistId);
   }, [favorites]);
 
-  const addFavorite = (stylist: Stylist) => {
-    setFavorites((prev) => {
-      if (prev.some((s) => s.id === stylist.id)) return prev;
-      return [...prev, stylist];
-    });
-  };
-
-  const removeFavorite = (stylistId: string) => {
-    setFavorites((prev) => prev.filter((s) => s.id !== stylistId));
-  };
-
-  const toggleFavorite = (stylist: Stylist) => {
-    if (favorites.some((s) => s.id === stylist.id)) {
-      removeFavorite(stylist.id);
-    } else {
-      addFavorite(stylist);
-    }
-  };
-
-  const isFavorite = (stylistId: string) =>
-    favorites.some((s) => s.id === stylistId);
-
-  return { favorites, addFavorite, removeFavorite, toggleFavorite, isFavorite };
+  return { favorites, loading, addFavorite, removeFavorite, toggleFavorite, isFavorite };
 }

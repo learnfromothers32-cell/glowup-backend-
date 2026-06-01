@@ -48,3 +48,20 @@ export const getStylistReviews = asyncHandler(async (req: Request, res: Response
 
   return sendSuccess(res, { reviews });
 });
+
+export const deleteReview = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user?.id;
+
+  const review = await Review.findById(id);
+  if (!review) {
+    throw new ApiError(404, 'Review not found');
+  }
+
+  if (review.clientId.toString() !== userId && req.user?.role !== 'admin') {
+    throw new ApiError(403, 'You can only delete your own reviews');
+  }
+
+  await review.deleteOne();
+  return sendSuccess(res, null, 'Review deleted');
+});

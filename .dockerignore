@@ -1,0 +1,18 @@
+cd C:\Users\learn\desktop\startup
+
+$content = "node_modules
+dist
+.env
+.env.*
+!.env.example
+npm-debug.log
+.git
+.github
+*.md
+coverage
+.DS_Store"
+
+$content | Out-File -FilePath "client/.dockerignore" -Encoding utf8
+$content | Out-File -FilePath "server/.dockerignore" -Encoding utf8
+
+Write-Host "Done" -ForegroundColor Green

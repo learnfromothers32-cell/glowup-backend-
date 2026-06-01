@@ -1,0 +1,159 @@
+// src/pages/consumer/components/ServicePage.tsx
+import { useEffect, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowLeft, MapPin, Star, Users, BadgeCheck } from "lucide-react";
+import { getStylists } from "../../../api/stylists";
+import type { Stylist } from "@/domain/stylist/stylist.types";
+import { getLocationString } from "@/utils/location";
+
+export default function ServicePage() {
+  const { service } = useParams<{ service: string }>();
+  const navigate = useNavigate();
+  const [stylists, setStylists] = useState<Stylist[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getStylists()
+      .then((all) => {
+        if (service) {
+          const filtered = all.filter(
+            (s) => s.category?.toLowerCase() === service.toLowerCase(),
+          );
+          setStylists(filtered);
+        } else {
+          setStylists(all);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [service]);
+
+  const categoryName = service
+    ? service.charAt(0).toUpperCase() + service.slice(1)
+    : "All";
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 mb-6"
+        >
+          <ArrowLeft size={14} /> Back
+        </button>
+
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          {categoryName} Stylists
+        </h1>
+        <p className="text-sm text-gray-500 mb-8">
+          {stylists.length} stylist{stylists.length !== 1 && "s"} found
+        </p>
+
+        {stylists.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+              <Users size={24} className="text-gray-300" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-700">
+              No stylists in this category yet
+            </h3>
+            <p className="text-sm text-gray-400 mt-1">
+              Try browsing all stylists or another category.
+            </p>
+            <button
+              onClick={() => navigate("/app")}
+              className="mt-4 text-indigo-600 underline text-sm"
+            >
+              Browse all stylists
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {stylists.map((stylist, i) => (
+              <motion.div
+                key={stylist.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <Link
+                  to={`/app/stylist/${stylist.id}`}
+                  className="group block bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 hover:shadow-lg transition-all duration-200"
+                >
+                  {/* Image */}
+                  <div className="relative aspect-[4/3] bg-gray-100">
+                    {stylist.image ? (
+                      <img
+                        src={stylist.image}
+                        alt={stylist.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xl font-bold text-gray-300">
+                        {stylist.name
+                          .split(" ")
+                          .map((w) => w[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+                    )}
+                    {stylist.isLive && (
+                      <span className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500 text-white text-[10px] font-bold">
+                        <span className="w-1 h-1 rounded-full bg-white animate-pulse" />{" "}
+                        LIVE
+                      </span>
+                    )}
+                    <div className="absolute bottom-2 left-2 flex items-center gap-1">
+                      <Star size={10} fill="#fbbf24" stroke="#fbbf24" />
+                      <span className="text-xs font-bold text-white">
+                        {stylist.rating}
+                      </span>
+                    </div>
+                  </div>
+                  {/* Info */}
+                  <div className="p-4">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {stylist.name}
+                      </p>
+                      {stylist.isVerified && (
+                        <BadgeCheck size={13} className="text-blue-500" />
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+                      <MapPin size={9} />
+                      {getLocationString(stylist.location)}
+                    </div>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {stylist.services?.slice(0, 3).map((svc, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-0.5 rounded-full bg-gray-50 text-[10px] text-gray-500"
+                        >
+                          {typeof svc === "string" ? svc : svc.name}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mt-3 w-full py-2 rounded-lg bg-gray-900 text-white text-xs font-semibold text-center hover:bg-gray-800 transition">
+                      View Profile
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

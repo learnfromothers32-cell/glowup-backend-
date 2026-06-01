@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-scroll {
+  animation: scroll 20s linear infinite;
+}
+
+:root {
+  --color-surface: #ffffff;
+  --color-bg: #f9fafb;
+  --color-bg-secondary: #f3f4f6;
+  --color-bg-tertiary: #e5e7eb;
+  --color-text: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-border: #f3f4f6;
+  --color-border-strong: #e5e7eb;
+  --color-border-active: #d1d5db;
+}
+
+.dark {
+  --color-surface: #1a1a2e;
+  --color-bg: #0b0b14;
+  --color-bg-secondary: #22223a;
+  --color-bg-tertiary: #2e2e4a;
+  --color-text: #f0f0f8;
+  --color-text-secondary: #c8c8dc;
+  --color-text-muted: #9696b0;
+  --color-border: #2a2a44;
+  --color-border-strong: #3c3c5a;
+  --color-border-active: #54547a;
+}
+
+.dark,
+.dark body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.dark .bg-white { background-color: var(--color-surface); }
+.dark .bg-gray-50 { background-color: var(--color-bg); }
+.dark .bg-gray-100 { background-color: var(--color-bg-secondary); }
+.dark .bg-gray-200 { background-color: var(--color-bg-tertiary); }
+
+.dark .text-gray-900 { color: var(--color-text); }
+.dark .text-gray-800 { color: var(--color-text); }
+.dark .text-gray-700 { color: var(--color-text); }
+.dark .text-gray-600 { color: var(--color-text-secondary); }
+.dark .text-gray-500 { color: var(--color-text-secondary); }
+.dark .text-gray-400 { color: var(--color-text-muted); }
+.dark .text-gray-300 { color: var(--color-text-muted); }
+
+.dark .border-gray-50 { border-color: var(--color-border); }
+.dark .border-gray-100 { border-color: var(--color-border); }
+.dark .border-gray-200 { border-color: var(--color-border-strong); }
+.dark .border-gray-300 { border-color: var(--color-border-active); }
+
+.dark .divide-gray-50 { border-color: var(--color-border); }
+.dark .divide-gray-100 { border-color: var(--color-border); }
+.dark .divide-gray-200 { border-color: var(--color-border-strong); }
+.dark .ring-gray-200 { --tw-ring-color: var(--color-border-strong); }
+.dark .ring-offset-gray-50 { --tw-ring-offset-color: var(--color-bg); }
+.dark .placeholder-gray-300::placeholder { color: var(--color-text-muted); }
+.dark .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.4); }
+.dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); }

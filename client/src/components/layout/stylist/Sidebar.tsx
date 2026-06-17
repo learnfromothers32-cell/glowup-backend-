@@ -59,6 +59,7 @@ const navSections: NavSection[] = [
     title: "Marketing",
     items: [
       { path: "/stylist/marketing", label: "Promos & Gifts", icon: Percent },
+      { path: "/stylist/articles", label: "Articles", icon: FileText },
     ],
   },
   {

@@ -2,20 +2,21 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Sparkles, Calendar, Clock, User, ArrowLeft,
-  Share2, Bookmark, BookmarkCheck, Tag,
+  Share2, Bookmark, BookmarkCheck, Tag, Loader2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LandingNavbar from "../../components/layout/LandingNavbar";
 import AppFooter from "../../components/layout/AppFooter";
-import { getTipBySlug, getRelatedTips, CATEGORY_COLORS, type Tip } from "../../data/beauty-tips";
+import { getArticleBySlug, getPublishedArticles, type Article } from "../../api/tips";
+import { getTipBySlug, getRelatedTips as getStaticRelated, CATEGORY_COLORS } from "../../data/beauty-tips";
 import { useAuth } from "../../context/authUtils";
 
-const BOOKMARKS_KEY = "glowup_tip_bookmarks";
+const BOOKMARKS_KEY = "glowup_tip_bookmarks_v2";
 
-function loadBookmarks(): Set<number> {
+function loadBookmarks(): Set<string> {
   try {
     const stored = localStorage.getItem(BOOKMARKS_KEY);
-    return stored ? new Set<number>(JSON.parse(stored)) : new Set();
+    return stored ? new Set<string>(JSON.parse(stored)) : new Set();
   } catch {
     return new Set();
   }
@@ -34,49 +35,129 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   );
 }
 
-function TipCard({ tip }: { tip: Tip }) {
-  const colors = CATEGORY_COLORS[tip.category] || { bg: "bg-gray-100", text: "text-gray-700", dot: "bg-gray-500" };
-  return (
-    <Link
-      to={`/blog/beauty/${tip.slug}`}
-      className="group block p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300"
-    >
-      <div className="flex items-center gap-2 text-[11px] text-neutral-500 mb-3">
-        <span className={`px-2 py-0.5 rounded ${colors.bg} ${colors.text}`}>{tip.category}</span>
-        <span className="flex items-center gap-1"><Clock size={10} />{tip.readTime}</span>
-      </div>
-      <h3 className="text-sm font-semibold text-white mb-2 leading-snug group-hover:text-amber-400 transition-colors line-clamp-2">
-        {tip.title}
-      </h3>
-      <p className="text-xs text-neutral-500 leading-relaxed line-clamp-2">{tip.excerpt}</p>
-    </Link>
-  );
+interface ArticleDisplay {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string[];
+  image: string;
+  category: string;
+  tags: string[];
+  author: string;
+  date: string;
+  readTime: string;
 }
 
 export default function BeautyArticle() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const [bookmarks, setBookmarks] = useState<Set<number>>(loadBookmarks);
+  const [bookmarks, setBookmarks] = useState<Set<string>>(loadBookmarks);
   const [copied, setCopied] = useState(false);
+  const [article, setArticle] = useState<ArticleDisplay | null>(null);
+  const [related, setRelated] = useState<ArticleDisplay[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const tip = slug ? getTipBySlug(slug) : undefined;
-  const related = tip ? getRelatedTips(tip, 3) : [];
+  useEffect(() => {
+    if (!slug) return;
+    let cancelled = false;
 
-  const isBookmarked = tip ? bookmarks.has(tip.id) : false;
+    async function load() {
+      setLoading(true);
+      try {
+        const a = await getArticleBySlug(slug!);
+        if (cancelled) return;
+        setArticle({
+          id: a.id,
+          title: a.title,
+          slug: a.slug,
+          excerpt: a.excerpt,
+          content: a.content,
+          image: a.image,
+          category: a.category,
+          tags: a.tags,
+          author: a.author,
+          date: a.publishedAt ? new Date(a.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "",
+          readTime: a.readTime,
+        });
+
+        const relatedRes = await getPublishedArticles({ category: a.category, limit: 4 });
+        if (!cancelled) {
+          setRelated(
+            relatedRes.items
+              .filter((r) => r.id !== a.id)
+              .slice(0, 3)
+              .map((r) => ({
+                id: r.id,
+                title: r.title,
+                slug: r.slug,
+                excerpt: r.excerpt,
+                content: r.content,
+                image: r.image,
+                category: r.category,
+                tags: r.tags,
+                author: r.author,
+                date: r.publishedAt ? new Date(r.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "",
+                readTime: r.readTime,
+              }))
+          );
+        }
+      } catch {
+        const fallback = getTipBySlug(slug!);
+        if (fallback && !cancelled) {
+          setArticle({
+            id: String(fallback.id),
+            title: fallback.title,
+            slug: fallback.slug,
+            excerpt: fallback.excerpt,
+            content: fallback.content,
+            image: fallback.image,
+            category: fallback.category,
+            tags: fallback.tags,
+            author: fallback.author,
+            date: fallback.date,
+            readTime: fallback.readTime,
+          });
+          setRelated(
+            getStaticRelated(fallback, 3).map((r) => ({
+              id: String(r.id),
+              title: r.title,
+              slug: r.slug,
+              excerpt: r.excerpt,
+              content: r.content,
+              image: r.image,
+              category: r.category,
+              tags: r.tags,
+              author: r.author,
+              date: r.date,
+              readTime: r.readTime,
+            }))
+          );
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, [slug]);
+
+  const isBookmarked = article ? bookmarks.has(article.id) : false;
 
   const toggleBookmark = () => {
-    if (!tip) return;
+    if (!article) return;
     if (!isAuthenticated) {
       navigate("/login");
       return;
     }
     setBookmarks(prev => {
       const next = new Set(prev);
-      if (next.has(tip.id)) {
-        next.delete(tip.id);
+      if (next.has(article.id)) {
+        next.delete(article.id);
       } else {
-        next.add(tip.id);
+        next.add(article.id);
       }
       localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(Array.from(next)));
       return next;
@@ -94,7 +175,21 @@ export default function BeautyArticle() {
     }
   };
 
-  if (!tip) {
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-neutral-950">
+        <LandingNavbar />
+        <main className="pt-28 pb-24">
+          <div className="flex items-center justify-center py-32">
+            <Loader2 size={24} className="animate-spin text-neutral-500" />
+          </div>
+        </main>
+        <AppFooter variant="landing" />
+      </div>
+    );
+  }
+
+  if (!article) {
     return (
       <div className="min-h-screen bg-neutral-950">
         <LandingNavbar />
@@ -120,7 +215,7 @@ export default function BeautyArticle() {
     );
   }
 
-  const colors = CATEGORY_COLORS[tip.category] || { bg: "bg-gray-100", text: "text-gray-700", dot: "bg-gray-500" };
+  const colors = CATEGORY_COLORS[article.category] || { bg: "bg-gray-100", text: "text-gray-700", dot: "bg-gray-500" };
 
   return (
     <div className="min-h-screen bg-neutral-950">
@@ -139,9 +234,9 @@ export default function BeautyArticle() {
           <FadeIn>
             <div className="flex items-center gap-3 mb-5">
               <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${colors.bg} ${colors.text}`}>
-                {tip.category}
+                {article.category}
               </span>
-              {tip.tags.slice(0, 2).map(tag => (
+              {article.tags.slice(0, 2).map(tag => (
                 <span key={tag} className="flex items-center gap-1 text-[11px] text-neutral-500">
                   <Tag size={10} />
                   {tag}
@@ -150,25 +245,25 @@ export default function BeautyArticle() {
             </div>
 
             <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-4 leading-tight">
-              {tip.title}
+              {article.title}
             </h1>
 
             <p className="text-base sm:text-lg text-neutral-400 mb-6 leading-relaxed">
-              {tip.excerpt}
+              {article.excerpt}
             </p>
 
             <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-500 mb-8">
               <span className="flex items-center gap-1.5">
                 <User size={13} className="text-neutral-600" />
-                {tip.author}
+                {article.author}
               </span>
               <span className="flex items-center gap-1.5">
                 <Calendar size={13} className="text-neutral-600" />
-                {tip.date}
+                {article.date}
               </span>
               <span className="flex items-center gap-1.5">
                 <Clock size={13} className="text-neutral-600" />
-                {tip.readTime} read
+                {article.readTime}
               </span>
             </div>
 
@@ -196,8 +291,8 @@ export default function BeautyArticle() {
 
           <div className="relative rounded-2xl overflow-hidden mb-10 aspect-[2/1] bg-neutral-800">
             <img
-              src={tip.image}
-              alt={tip.title}
+              src={article.image}
+              alt={article.title}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/60 via-transparent to-transparent" />
@@ -205,7 +300,7 @@ export default function BeautyArticle() {
 
           <FadeIn delay={0.1}>
             <article className="prose prose-invert prose-sm max-w-none">
-              {tip.content.map((paragraph, i) => {
+              {article.content.map((paragraph, i) => {
                 if (paragraph.startsWith("**") && paragraph.includes("** —")) {
                   const parts = paragraph.match(/\*\*(.*?)\*\* — (.*)/);
                   if (parts) {
@@ -236,24 +331,41 @@ export default function BeautyArticle() {
             </article>
           </FadeIn>
 
-          <div className="border-t border-white/[0.06] pt-8 mt-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-sm font-semibold text-white">Related Tips</h2>
-              <Link
-                to="/blog/beauty"
-                className="text-xs text-amber-400/70 hover:text-amber-400 transition-colors"
-              >
-                View all
-              </Link>
+          {related.length > 0 && (
+            <div className="border-t border-white/[0.06] pt-8 mt-12">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-sm font-semibold text-white">Related Tips</h2>
+                <Link
+                  to="/blog/beauty"
+                  className="text-xs text-amber-400/70 hover:text-amber-400 transition-colors"
+                >
+                  View all
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {related.map((r, i) => {
+                  const rc = CATEGORY_COLORS[r.category] || { bg: "bg-gray-100", text: "text-gray-700", dot: "bg-gray-500" };
+                  return (
+                    <FadeIn key={r.id} delay={i * 0.08}>
+                      <Link
+                        to={`/blog/beauty/${r.slug}`}
+                        className="group block p-5 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300"
+                      >
+                        <div className="flex items-center gap-2 text-[11px] text-neutral-500 mb-3">
+                          <span className={`px-2 py-0.5 rounded ${rc.bg} ${rc.text}`}>{r.category}</span>
+                          <span className="flex items-center gap-1"><Clock size={10} />{r.readTime}</span>
+                        </div>
+                        <h3 className="text-sm font-semibold text-white mb-2 leading-snug group-hover:text-amber-400 transition-colors line-clamp-2">
+                          {r.title}
+                        </h3>
+                        <p className="text-xs text-neutral-500 leading-relaxed line-clamp-2">{r.excerpt}</p>
+                      </Link>
+                    </FadeIn>
+                  );
+                })}
+              </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {related.map((r, i) => (
-                <FadeIn key={r.id} delay={i * 0.08}>
-                  <TipCard tip={r} />
-                </FadeIn>
-              ))}
-            </div>
-          </div>
+          )}
 
           <div className="mt-12 text-center">
             <Link

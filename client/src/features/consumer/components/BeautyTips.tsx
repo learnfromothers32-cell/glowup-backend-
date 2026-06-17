@@ -10,24 +10,46 @@ import {
   BookmarkCheck,
   Sparkles,
   Flame,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  tips,
-  ALL_CATEGORIES,
-  CATEGORY_COLORS,
-} from "../../../data/beauty-tips";
+import { getPublishedArticles, type Article } from "../../../api/tips";
+import { CATEGORY_COLORS, tips as fallbackTips } from "../../../data/beauty-tips";
 import { useAuth } from "../../../context/authUtils";
 
-const BOOKMARKS_KEY = "glowup_tip_bookmarks";
+const BOOKMARKS_KEY = "glowup_tip_bookmarks_v2";
 
-function loadBookmarks(): Set<number> {
+function loadBookmarks(): Set<string> {
   try {
     const stored = localStorage.getItem(BOOKMARKS_KEY);
-    return stored ? new Set<number>(JSON.parse(stored)) : new Set();
+    return stored ? new Set<string>(JSON.parse(stored)) : new Set();
   } catch {
     return new Set();
   }
+}
+
+const ALL_CATEGORIES = ["All", "Hair", "Barber", "Skin", "Nails", "Lashes"];
+
+interface DisplayTip {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  image: string;
+  category: string;
+  readTime: string;
+}
+
+function toDisplay(a: Article): DisplayTip {
+  return {
+    id: a.id,
+    title: a.title,
+    slug: a.slug,
+    excerpt: a.excerpt,
+    image: a.image,
+    category: a.category,
+    readTime: a.readTime,
+  };
 }
 
 function SkeletonCard() {
@@ -53,12 +75,53 @@ export default function BeautyTips() {
   const [showRight, setShowRight] = useState(true);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
-  const [bookmarks, setBookmarks] = useState<Set<number>>(loadBookmarks);
+  const [bookmarks, setBookmarks] = useState<Set<string>>(loadBookmarks);
+  const [tips, setTips] = useState<DisplayTip[]>([]);
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(t);
+    let cancelled = false;
+    getPublishedArticles({ limit: 20 })
+      .then((res) => {
+        if (cancelled) return;
+        if (res.items.length > 0) {
+          setTips(res.items.map(toDisplay));
+        } else {
+          setTips(
+            fallbackTips.map((t) => ({
+              id: String(t.id),
+              title: t.title,
+              slug: t.slug,
+              excerpt: t.excerpt,
+              image: t.image,
+              category: t.category,
+              readTime: t.readTime,
+            }))
+          );
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setTips(
+            fallbackTips.map((t) => ({
+              id: String(t.id),
+              title: t.title,
+              slug: t.slug,
+              excerpt: t.excerpt,
+              image: t.image,
+              category: t.category,
+              readTime: t.readTime,
+            }))
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          const t = setTimeout(() => setLoading(false), 300);
+          return () => clearTimeout(t);
+        }
+      });
+    return () => { cancelled = true; };
   }, []);
 
   const filteredTips =
@@ -94,7 +157,7 @@ export default function BeautyTips() {
     });
   };
 
-  const toggleBookmark = (tipId: number) => {
+  const toggleBookmark = (tipId: string) => {
     setBookmarks((prev) => {
       const next = new Set(prev);
       if (next.has(tipId)) {

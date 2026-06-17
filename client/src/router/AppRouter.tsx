@@ -75,6 +75,7 @@ const StylistWaitlist = lazy(() => import("../pages/stylist/Waitlist"));
 const StylistReviews = lazy(() => import("../pages/stylist/Reviews"));
 const StylistConsultationForms = lazy(() => import("../pages/stylist/ConsultationForms"));
 const StylistQueue = lazy(() => import("../pages/stylist/QueueManagement"));
+const StylistArticles = lazy(() => import("../pages/stylist/Articles"));
 
 const PUBLIC_LIVE_PATHS = ["live/", "live-stylists"];
 
@@ -243,6 +244,7 @@ function AppRoutes() {
         <Route path="queue" element={<StylistQueue />} />
         <Route path="reviews" element={<StylistReviews />} />
         <Route path="consultation-forms" element={<StylistConsultationForms />} />
+        <Route path="articles" element={<StylistArticles />} />
         <Route path="*" element={<Navigate to="/stylist/dashboard" replace />} />
       </Route>
 

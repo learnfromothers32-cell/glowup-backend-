@@ -15,7 +15,7 @@ export const getAccessToken = () => accessToken;
 const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
-  timeout: 15000,
+  timeout: 60000,
 });
 
 api.interceptors.request.use((config) => {
@@ -35,6 +35,12 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    if (error.code === 'ECONNABORTED' && !originalRequest._retryCold) {
+      originalRequest._retryCold = true;
+      console.warn(`[axios] timeout on ${originalRequest.url}, retrying after cold-start delay`);
+      await new Promise((r) => setTimeout(r, 5000));
+      return api(originalRequest);
+    }
     if (error.response?.status === 429) {
       originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
       if (originalRequest._retryCount <= 3) {

@@ -48,12 +48,7 @@ export default function StylistLayout() {
           className={
             isLivePage
               ? "flex-1 flex flex-col overflow-hidden"
-              : "flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-6"
-          }
-          style={
-            !isLivePage
-              ? { paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom, 0px))" }
-              : undefined
+              : "flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-6"
           }
         >
           <Outlet />

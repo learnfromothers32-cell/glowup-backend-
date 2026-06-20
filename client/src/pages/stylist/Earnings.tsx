@@ -65,7 +65,7 @@ export default function StylistEarnings() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary font-display">
+      <h1 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-text-dark-primary font-display">
         Earnings
       </h1>
 
@@ -93,7 +93,7 @@ export default function StylistEarnings() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/50 p-6 shadow-card">
+        <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/50 p-4 sm:p-6 shadow-card">
           <h3 className="text-sm font-bold text-gray-900 dark:text-text-dark-primary mb-4">Weekly Earnings</h3>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={weeklyData}>
@@ -106,7 +106,7 @@ export default function StylistEarnings() {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/50 p-6 shadow-card">
+        <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/50 p-4 sm:p-6 shadow-card">
           <h3 className="text-sm font-bold text-gray-900 dark:text-text-dark-primary mb-4">Monthly Trend</h3>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={monthlyData}>

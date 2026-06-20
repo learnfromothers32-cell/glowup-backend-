@@ -71,19 +71,19 @@ export default function StylistAnalytics() {
             key={label}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/50 p-4 shadow-card"
+            className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/50 p-4 shadow-card overflow-hidden"
           >
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color}`}>
               <Icon size={16} />
             </div>
-            <p className="mt-2 text-xl font-bold text-gray-900 dark:text-text-dark-primary">{value}</p>
+            <p className="mt-2 text-lg sm:text-xl font-bold text-gray-900 dark:text-text-dark-primary truncate">{value}</p>
             <p className="text-[10px] text-gray-500 dark:text-text-dark-muted mt-0.5">{label}</p>
           </motion.div>
         ))}
       </div>
 
       {/* Monthly Bookings Chart */}
-      <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/50 p-6 shadow-card">
+      <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/50 p-4 sm:p-6 shadow-card">
         <h3 className="text-sm font-bold text-gray-900 dark:text-text-dark-primary mb-4">Monthly Bookings</h3>
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={monthlyBookings}>
@@ -97,7 +97,7 @@ export default function StylistAnalytics() {
       </div>
 
       {/* Reviews */}
-      <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/50 p-6 shadow-card">
+      <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/50 p-4 sm:p-6 shadow-card">
         <h3 className="text-sm font-bold text-gray-900 dark:text-text-dark-primary mb-4">Recent Reviews</h3>
         {reviews.length === 0 ? (
           <p className="text-sm text-gray-400 dark:text-text-dark-muted text-center py-8">No reviews yet</p>

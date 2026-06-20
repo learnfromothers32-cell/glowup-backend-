@@ -139,11 +139,11 @@ export default function Clients() {
                   <Star className="w-4 h-4" fill={client.favorite ? 'currentColor' : 'none'} />
                 </button>
               </div>
-              <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
-                <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {client.totalVisits} visits</span>
-                <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> GH₵{client.totalSpent.toFixed(0)}</span>
+              <div className="mt-3 flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+                <span className="flex items-center gap-1 shrink-0"><Calendar className="w-3 h-3" /> {client.totalVisits} visits</span>
+                <span className="flex items-center gap-1 shrink-0"><DollarSign className="w-3 h-3" /> GH₵{client.totalSpent.toFixed(0)}</span>
                 {client.lastVisit && (
-                  <span className="text-gray-400">Last: {new Date(client.lastVisit).toLocaleDateString()}</span>
+                  <span className="text-gray-400 shrink-0">Last: {new Date(client.lastVisit).toLocaleDateString()}</span>
                 )}
               </div>
               {client.tags?.length > 0 && (
@@ -184,7 +184,7 @@ export default function Clients() {
                   <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600">&times;</button>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mb-6">
                   <div className="bg-[#FAF8F4] rounded-lg p-3 text-center">
                     <p className="text-lg sm:text-2xl font-bold text-[#1A1A1A]">{detailData.client?.totalVisits || 0}</p>
                     <p className="text-xs text-gray-500">Total Visits</p>
@@ -214,10 +214,10 @@ export default function Clients() {
                 <h3 className="font-medium text-[#1A1A1A] mt-6 mb-3">Booking History</h3>
                 <div className="space-y-2">
                   {detailData.bookings?.map((b: any) => (
-                    <div key={b._id} className="flex items-center justify-between p-3 bg-[#FAF8F4] rounded-lg">
-                      <div>
-                        <p className="text-sm font-medium text-[#1A1A1A]">{b.serviceId?.name || 'Service'}</p>
-                        <p className="text-xs text-gray-500">{new Date(b.startTime).toLocaleDateString()} at {new Date(b.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    <div key={b._id} className="flex items-center justify-between p-3 bg-[#FAF8F4] rounded-lg gap-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-[#1A1A1A] truncate">{b.serviceId?.name || 'Service'}</p>
+                        <p className="text-xs text-gray-500 truncate">{new Date(b.startTime).toLocaleDateString()} at {new Date(b.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
                       <span className={`text-xs px-2 py-1 rounded ${b.status === 'completed' ? 'bg-green-100 text-green-700' : b.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
                         {b.status}

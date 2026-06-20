@@ -211,11 +211,11 @@ export default function StylistDashboard() {
           { label: "Rating", value: avgRating > 0 ? avgRating.toFixed(1) : "—", sub: reviewCount > 0 ? `${reviewCount} reviews` : "No reviews yet", icon: Star, color: "bg-amber-500" },
         ].map(({ label, value, sub, icon: Icon, color }, i) => (
           <motion.div key={label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-            <Card hover padding="md">
+            <Card hover padding="md" className="overflow-hidden">
               <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center shadow-sm mb-3`}>
                 <Icon size={18} className="text-white" />
               </div>
-              <p className="text-h2 font-bold text-text-primary">{value}</p>
+              <p className="text-xl sm:text-h2 font-bold text-text-primary truncate">{value}</p>
               <p className="text-body-sm text-text-secondary mt-0.5">{label}</p>
               <p className="text-caption text-text-muted mt-0.5">{sub}</p>
             </Card>

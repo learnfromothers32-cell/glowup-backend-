@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getStylists } from "../../api/stylists";
 import type { Stylist } from "@/domain/stylist/stylist.types";
-import { Users, Eye, Radio, MapPin, Star, Heart, Play, ChevronLeft, X } from "lucide-react";
+import { Eye, Radio, X } from "lucide-react";
 
 const ROSE = "#FE2C55";
 
@@ -13,91 +13,10 @@ function formatViewers(n: number): string {
   return String(n);
 }
 
-function getInitials(name: string) {
-  return name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
-}
-
-function LiveAvatarCard({ stylist, onWatch }: { stylist: Stylist; onWatch: () => void }) {
-  const nav = useNavigate();
-  return (
-    <motion.button
-      initial={{ opacity: 0, scale: 0.92 }}
-      animate={{ opacity: 1, scale: 1 }}
-      onClick={onWatch}
-      className="relative aspect-[9/16] rounded-2xl overflow-hidden group cursor-pointer flex-shrink-0 w-[180px] sm:w-[200px] snap-start"
-    >
-      <div className="absolute inset-0" style={{ background: `linear-gradient(160deg, #1a1a2e, #16213e)` }} />
-      <div className="absolute inset-0 opacity-30" style={{
-        background: `radial-gradient(circle at 30% 40%, ${ROSE}44 0%, transparent 60%)`
-      }} />
-
-      {stylist.image && (
-        <img src={stylist.image} alt={stylist.name}
-          className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500" />
-      )}
-
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
-
-      <div className="absolute top-3 left-3">
-        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white"
-          style={{ background: ROSE }}>
-          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-          LIVE
-        </span>
-      </div>
-
-      <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium text-white/80"
-        style={{ background: "rgba(0,0,0,0.5)" }}>
-        <Eye size={10} />
-        {formatViewers(stylist.viewerCount || Math.floor(Math.random() * 50))}
-      </div>
-
-      <div className="absolute bottom-0 inset-x-0 p-3 text-left">
-        <div className="flex items-center gap-2 mb-1.5">
-          <button
-            onClick={(e) => { e.stopPropagation(); nav(`/app/stylist/${stylist.id}`); }}
-            className="w-7 h-7 rounded-full overflow-hidden ring-2 shrink-0 cursor-pointer hover:opacity-80 transition-opacity" style={{ ringColor: ROSE }}
-          >
-            {stylist.image ? (
-              <img src={stylist.image} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-[8px] font-bold text-white" style={{ background: ROSE }}>
-                {getInitials(stylist.name)}
-              </div>
-            )}
-          </button>
-          <div className="min-w-0">
-            <button
-              onClick={(e) => { e.stopPropagation(); nav(`/app/stylist/${stylist.id}`); }}
-              className="text-white text-xs font-bold truncate hover:underline cursor-pointer text-left"
-            >
-              {stylist.name}
-            </button>
-            <p className="text-white/50 text-[9px] truncate">{stylist.category || "Stylist"}</p>
-          </div>
-        </div>
-        {stylist.liveTitle && (
-          <p className="text-white/70 text-[10px] line-clamp-1 leading-tight">{stylist.liveTitle}</p>
-        )}
-      </div>
-
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{ background: "rgba(0,0,0,0.3)" }}>
-        <div className="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-sm"
-          style={{ background: `${ROSE}99` }}>
-          <Play size={20} className="text-white ml-0.5" fill="white" />
-        </div>
-      </div>
-    </motion.button>
-  );
-}
-
 export default function LiveStylists() {
   const navigate = useNavigate();
   const [liveStylists, setLiveStylists] = useState<Stylist[]>([]);
   const [loading, setLoading] = useState(true);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   const fetchLiveStylists = useCallback(() => {
     return getStylists({ isLive: true })
@@ -169,16 +88,16 @@ export default function LiveStylists() {
           </div>
         ) : (
           <>
-            {/* Featured - largest card */}
+            {/* Featured - vertical TikTok cards */}
             <div className="mb-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-                {liveStylists.slice(0, 4).map((stylist, i) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                {liveStylists.map((stylist, i) => (
                   <motion.div
                     key={stylist.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.06 }}
-                    className="relative aspect-[4/3] sm:aspect-[4/5] rounded-2xl overflow-hidden group cursor-pointer"
+                    className="relative aspect-[9/16] rounded-2xl overflow-hidden group cursor-pointer"
                     onClick={() => navigate(`/app/live/${stylist.id}`)}
                   >
                     <div className="absolute inset-0" style={{ background: `linear-gradient(160deg, #1a1a2e, #16213e)` }} />
@@ -188,30 +107,32 @@ export default function LiveStylists() {
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
-                    <div className="absolute top-3 left-3 flex gap-2">
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white"
+                    <div className="absolute top-2 left-2 flex gap-1.5">
+                      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold text-white"
                         style={{ background: ROSE }}>
                         <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> LIVE
                       </span>
-                      <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] text-white/80"
+                      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] text-white/80"
                         style={{ background: "rgba(0,0,0,0.5)" }}>
-                        <Eye size={10} /> {formatViewers(stylist.viewerCount || Math.floor(Math.random() * 87 + 5))}
+                        <Eye size={9} /> {formatViewers(stylist.viewerCount || Math.floor(Math.random() * 87 + 5))}
                       </span>
                     </div>
 
-                    <div className="absolute bottom-0 inset-x-0 p-3">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); navigate(`/app/stylist/${stylist.id}`); }}
-                        className="text-white text-sm font-bold hover:underline text-left cursor-pointer"
-                      >
-                        {stylist.name}
-                      </button>
-                      <div className="flex items-center gap-1 text-white/50 text-[10px]">
-                        <MapPin size={8} />
-                        {typeof stylist.location === "object" ? stylist.location.area || "" : stylist.location || ""}
+                    <div className="absolute bottom-0 inset-x-0 p-2.5">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <div className="w-6 h-6 rounded-full overflow-hidden ring-1 shrink-0" style={{ ringColor: ROSE }}>
+                          {stylist.image ? (
+                            <img src={stylist.image} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[7px] font-bold text-white" style={{ background: ROSE }}>
+                              {getInitials(stylist.name)}
+                            </div>
+                          )}
+                        </div>
+                        <span className="text-white text-[10px] font-bold truncate">{stylist.name}</span>
                       </div>
                       {stylist.liveTitle && (
-                        <p className="text-white/60 text-[11px] mt-1 line-clamp-1">{stylist.liveTitle}</p>
+                        <p className="text-white/60 text-[9px] line-clamp-1 leading-tight">{stylist.liveTitle}</p>
                       )}
                     </div>
                   </motion.div>
@@ -219,21 +140,7 @@ export default function LiveStylists() {
               </div>
             </div>
 
-            {/* Horizontal scroll - more live stylists */}
-            {liveStylists.length > 4 && (
-              <div>
-                <h2 className="text-sm font-bold mb-3" style={{ color: "#0A1424" }}>More Live Streams</h2>
-                <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory" style={{ scrollbarWidth: "none" }}>
-                  {liveStylists.slice(4).map((stylist) => (
-                    <LiveAvatarCard
-                      key={stylist.id}
-                      stylist={stylist}
-                      onWatch={() => navigate(`/app/live/${stylist.id}`)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+            
           </>
         )}
       </div>

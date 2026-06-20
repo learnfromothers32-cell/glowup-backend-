@@ -22,14 +22,16 @@ export function LiveSessionCard({ session, onJoin }: Props) {
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
     >
-      <div className="relative aspect-video bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
+      <div className="relative aspect-[9/16] bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
         {session.thumbnail && (
           <img
             src={session.thumbnail}
             alt={session.title}
-            className="w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover"
           />
         )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
         <div className="absolute top-3 left-3 flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-500 text-white text-[11px] font-semibold rounded-full">
@@ -42,43 +44,27 @@ export function LiveSessionCard({ session, onJoin }: Props) {
           </span>
         </div>
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          style={{ background: "rgba(0,0,0,0.3)" }}>
           <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
             <Play size={20} className="text-gray-900 ml-0.5" />
           </div>
         </div>
-      </div>
 
-      <div className="p-4">
-        <div className="flex items-start gap-3">
-          <button
-            onClick={(e) => { e.stopPropagation(); navigate(`/app/stylist/${session.host.id}`); }}
-            className="relative shrink-0 cursor-pointer"
-          >
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center text-xs font-semibold text-gray-500 dark:text-gray-300 hover:opacity-80 transition-opacity">
+        <div className="absolute bottom-0 inset-x-0 p-3 text-left">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-[9px] font-bold text-white shrink-0">
               {session.host.name.charAt(0).toUpperCase()}
             </div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-[#1a1a2e] rounded-full" />
-          </button>
-          <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-              {session.title}
-            </h3>
-            <button
-              onClick={(e) => { e.stopPropagation(); navigate(`/app/stylist/${session.host.id}`); }}
-              className="flex items-center gap-1 mt-0.5 cursor-pointer"
-            >
-              <span className="text-xs text-gray-500 dark:text-gray-400 truncate hover:underline">
-                {session.host.name}
-              </span>
-              {session.host.isVerified && (
-                <BadgeCheck size={12} className="text-blue-500 shrink-0" />
-              )}
-            </button>
-            <span className="text-[11px] text-gray-400 dark:text-gray-500 capitalize mt-0.5 block">
-              {session.category}
-            </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1">
+                <span className="text-white text-xs font-bold truncate">{session.host.name}</span>
+                {session.host.isVerified && <BadgeCheck size={11} className="text-blue-400 shrink-0" />}
+              </div>
+              <span className="text-white/50 text-[9px] capitalize block truncate">{session.category}</span>
+            </div>
           </div>
+          <p className="text-white/70 text-[11px] line-clamp-1 leading-tight">{session.title}</p>
         </div>
       </div>
     </motion.button>

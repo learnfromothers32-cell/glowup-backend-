@@ -133,10 +133,10 @@ function NavRow({
         {description && <p className="text-xs text-gray-400 mt-0.5 dark:text-text-dark-muted">{description}</p>}
       </div>
       {badge && (
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 dark:bg-surface-dark-tertiary dark:text-text-dark-muted">
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 dark:bg-surface-dark-tertiary dark:text-dark-muted">
           {badge}
         </span>
-      }
+      )}
       <ChevronRight size={14} className="text-gray-300 group-hover:text-gray-400 transition-colors dark:text-text-dark-muted" />
     </div>
   );

@@ -634,15 +634,13 @@ export default function RecommendedSection({
                 {filteredStylists.length}
               </span>
 
-              {category !== "all" && (
-                <Link
-                  to={`/app/${category.toLowerCase()}`}
-                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-colors shadow-sm whitespace-nowrap sm:ml-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
-                >
-                  View all {category}
-                  <ArrowRight size={12} />
-                </Link>
-              )}
+              <Link
+                to={category !== "all" ? `/app/browse?category=${category.toLowerCase()}` : "/app/browse"}
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-colors shadow-sm whitespace-nowrap sm:ml-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+              >
+                {category !== "all" ? `View all ${category}` : "Browse all"}
+                <ArrowRight size={12} />
+              </Link>
             </div>
           </div>
 

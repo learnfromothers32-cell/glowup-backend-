@@ -48,6 +48,7 @@ const Settings = lazy(() => import("../pages/consumer/Settings"));
 const LiveStylists = lazy(() => import("../pages/consumer/LiveStylists"));
 const ServiceDetailPage = lazy(() => import("../pages/consumer/ServiceDetailPage"));
 const SearchResultsPage = lazy(() => import("../pages/consumer/SearchResultsPage"));
+const BrowseStylists = lazy(() => import("../pages/consumer/BrowseStylists"));
 const QueueScreen = lazy(() => import("../features/consumer/components/QueueScreen"));
 const ScrollToTop = lazy(() => import("../pages/consumer/ScrollToTop"));
 const PaymentCallback = lazy(() => import("../pages/consumer/PaymentCallback"));
@@ -185,6 +186,7 @@ function AppRoutes() {
         <Route path="settings" element={<Settings />} />
         <Route path="stylist/:id" element={<StylistDetail />} />
         <Route path="stylist/:stylistId/service/:serviceId" element={<ServiceDetailPage />} />
+        <Route path="browse" element={<BrowseStylists />} />
         <Route path="live-stylists" element={<LiveStylists />} />
         <Route path="live/:stylistId" element={<LiveRoom />} />
         <Route path="search" element={<SearchResultsPage />} />

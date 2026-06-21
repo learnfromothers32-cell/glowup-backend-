@@ -1,6 +1,7 @@
 // src/pages/consumer/StylistDetail.tsx
-import { useEffect, useState, useCallback, useRef } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useStylistDetail } from "../../hooks/useStylistDetail";
 import { useFollow } from "../../context/FollowContext";
@@ -63,39 +64,25 @@ import { FollowButton } from "../../components/ui/FollowButton";
 import { API_SERVER_URL } from "../../api/axios";
 
 /* ═══════════════════════════════════════════════════════════
-   DESIGN TOKENS
+   DESIGN TOKENS (dark-mode aware via context)
 ═══════════════════════════════════════════════════════════ */
-const T = {
-  navy: "#0B1A33",
-  navyMid: "#1A2F54",
-  navyLight: "#253D6A",
-  navyGhost: "#EDF2FF",
-
-  gold: "#B8862A",
-  goldMid: "#D4A047",
-  goldLight: "#F9F1E2",
-  goldGhost: "#FDF8F0",
-
-  bg: "#F4F7FC",
-  canvas: "#FFFFFF",
-  raised: "#F8FAFD",
-  muted: "#EEF2F8",
-
-  line: "#E9EEF5",
-  lineMid: "#DCE3EE",
-
-  ink: "#0A1424",
-  inkMid: "#364A6B",
-  inkSoft: "#5A6E8A",
-  inkFaint: "#8E9FB2",
-  white: "#FFFFFF",
-
-  green: "#059669",
-  greenLight: "#ECFDF5",
-  greenMid: "#10B981",
-  red: "#DC2626",
-  redLight: "#FEF2F2",
-
+interface Tokens {
+  navy: string; navyMid: string; navyLight: string; navyGhost: string;
+  gold: string; goldMid: string; goldLight: string; goldGhost: string;
+  bg: string; canvas: string; raised: string; muted: string;
+  line: string; lineMid: string;
+  ink: string; inkMid: string; inkSoft: string; inkFaint: string; white: string;
+  green: string; greenLight: string; greenMid: string; red: string; redLight: string;
+  shadowXs: string; shadowSm: string; shadowMd: string;
+  shadowLg: string; shadowXl: string; shadowCard: string;
+}
+const lightTokens: Tokens = {
+  navy: "#0B1A33", navyMid: "#1A2F54", navyLight: "#253D6A", navyGhost: "#EDF2FF",
+  gold: "#B8862A", goldMid: "#D4A047", goldLight: "#F9F1E2", goldGhost: "#FDF8F0",
+  bg: "#F4F7FC", canvas: "#FFFFFF", raised: "#F8FAFD", muted: "#EEF2F8",
+  line: "#E9EEF5", lineMid: "#DCE3EE",
+  ink: "#0A1424", inkMid: "#364A6B", inkSoft: "#5A6E8A", inkFaint: "#8E9FB2", white: "#FFFFFF",
+  green: "#059669", greenLight: "#ECFDF5", greenMid: "#10B981", red: "#DC2626", redLight: "#FEF2F2",
   shadowXs: "0 1px 2px rgba(10,20,40,0.04)",
   shadowSm: "0 2px 8px rgba(10,20,40,0.06)",
   shadowMd: "0 6px 18px rgba(10,20,40,0.07)",
@@ -103,6 +90,25 @@ const T = {
   shadowXl: "0 24px 48px rgba(10,20,40,0.10)",
   shadowCard: "0 2px 12px rgba(10,20,40,0.06), 0 0 0 1px rgba(10,20,40,0.04)",
 };
+const darkTokens: Tokens = {
+  navy: "#1a2a4a", navyMid: "#2a3f64", navyLight: "#3a4d7a", navyGhost: "#1a2540",
+  gold: "#D4A76A", goldMid: "#E0B860", goldLight: "#2a2215", goldGhost: "#2a1d14",
+  bg: "#09090b", canvas: "#18181b", raised: "#1a1a1e", muted: "#222226",
+  line: "#27272a", lineMid: "#3f3f46",
+  ink: "#f5f0ea", inkMid: "#d4ccc4", inkSoft: "#a8a098", inkFaint: "#8a7f72", white: "#09090b",
+  green: "#22c55e", greenLight: "#0f2a18", greenMid: "#4ade80", red: "#ef4444", redLight: "#2a1114",
+  shadowXs: "0 1px 2px rgba(0,0,0,0.3)",
+  shadowSm: "0 2px 8px rgba(0,0,0,0.35)",
+  shadowMd: "0 6px 18px rgba(0,0,0,0.4)",
+  shadowLg: "0 12px 32px rgba(0,0,0,0.45)",
+  shadowXl: "0 24px 48px rgba(0,0,0,0.5)",
+  shadowCard: "0 2px 12px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.3)",
+};
+
+const TokenContext = createContext<Tokens>(lightTokens);
+function useT() {
+  return useContext(TokenContext);
+}
 
 const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
 const FONT_SANS = "'Inter', system-ui, -apple-system, sans-serif";
@@ -174,6 +180,7 @@ function getLocationString(loc: any): string {
    STAR RATING
 ═══════════════════════════════════════════════════════════ */
 function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
+  const T = useT();
   return (
     <span className="inline-flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map((n) => (
@@ -203,6 +210,7 @@ function PillBadge({
   label: string;
   variant?: BadgeVariant;
 }) {
+  const T = useT();
   const v: Record<BadgeVariant, { bg: string; color: string }> = {
     navy: { bg: T.navyGhost, color: T.navyMid },
     gold: { bg: T.goldGhost, color: T.gold },
@@ -232,6 +240,7 @@ function Lightbox({
   initialIndex: number;
   onClose: () => void;
 }) {
+  const T = useT();
   const [index, setIndex] = useState(initialIndex);
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
@@ -334,6 +343,7 @@ function HScroll({
   children: React.ReactNode;
   className?: string;
 }) {
+  const T = useT();
   const ref = useRef<HTMLDivElement>(null);
   const [left, setLeft] = useState(false);
   const [right, setRight] = useState(true);
@@ -396,6 +406,7 @@ function EmptyState({
   title: string;
   sub: string;
 }) {
+  const T = useT();
   return (
     <div className="flex flex-col items-center justify-center py-12 sm:py-20 text-center">
       <div
@@ -431,6 +442,7 @@ function SectionHeader({
   action?: React.ReactNode;
   icon?: React.ElementType;
 }) {
+  const T = useT();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
   return (
@@ -524,6 +536,7 @@ function VideoViewer({ src, onClose }: { src: string; onClose: () => void }) {
 }
 
 function StatItem({ value, label }: { value: number | string; label: string }) {
+  const T = useT();
   return (
     <div className="flex flex-col items-center">
       <span className="text-lg font-bold" style={{ color: T.ink, fontFamily: FONT_DISPLAY }}>
@@ -550,6 +563,7 @@ function PortfolioTab({
   onPlayVideo: (url: string) => void;
   onViewTransform: (i: number) => void;
 }) {
+  const T = useT();
   const navigate = useNavigate();
   const [subTab, setSubTab] = useState<'posts' | 'transforms'>('posts');
 
@@ -714,6 +728,7 @@ function TransformDetail({
   initialIndex: number;
   onClose: () => void;
 }) {
+  const T = useT();
   const [index, setIndex] = useState(initialIndex);
 
   useEffect(() => {
@@ -821,6 +836,7 @@ function ServicesTab({
   onBook: (s: ServiceItem) => void;
   stylistId: string;
 }) {
+  const T = useT();
   const cats = [...new Set(services.map((s) => s.category || "General"))];
   const [cat, setCat] = useState(cats[0] || "General");
   if (!services.length)
@@ -946,6 +962,7 @@ function ServicesTab({
    REVIEWS TAB
 ═══════════════════════════════════════════════════════════ */
 function ReviewsTab({ stylist }: { stylist: ExtendedStylist }) {
+  const T = useT();
   const reviews = stylist.reviews || [];
   const dist = [5, 4, 3, 2, 1].map((n) => {
     const count = reviews.filter((r) => Math.floor(r.rating) === n).length;
@@ -1158,6 +1175,7 @@ function ReviewsTab({ stylist }: { stylist: ExtendedStylist }) {
 ═══════════════════════════════════════════════════════════ */
 
 function StylistSkeleton() {
+  const T = useT();
   return (
     <div className="min-h-screen" style={{ background: T.bg }}>
       <Skeleton className="h-64 sm:h-[520px] rounded-none" style={{ background: T.muted }} />
@@ -1199,6 +1217,7 @@ function BookingCard({
   joiningWaitlist?: boolean;
   waitlistJoined?: boolean;
 }) {
+  const T = useT();
   return (
     <div
       className="rounded-2xl overflow-hidden"
@@ -1481,6 +1500,7 @@ function BookingCard({
    CONNECT CARD
 ═══════════════════════════════════════════════════════════ */
 function ConnectCard({ stylist }: { stylist?: any }) {
+  const T = useT();
   const socialLinks = [
     stylist?.instagram && {
       icon: Camera,
@@ -1577,6 +1597,8 @@ function ConnectCard({ stylist }: { stylist?: any }) {
    MAIN COMPONENT
 ═══════════════════════════════════════════════════════════ */
 export default function StylistDetail() {
+  const { resolved } = useTheme();
+  const T = useMemo(() => resolved === "dark" ? darkTokens : lightTokens, [resolved]);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addPoints, incrementAction } = useGamification();
@@ -1799,6 +1821,7 @@ export default function StylistDetail() {
   };
 
   return (
+    <TokenContext.Provider value={T}>
     <div
       className="min-h-screen"
       style={{ background: T.bg, fontFamily: FONT_SANS }}
@@ -2607,5 +2630,6 @@ export default function StylistDetail() {
         )}
       </AnimatePresence>
     </div>
+    </TokenContext.Provider>
   );
 }

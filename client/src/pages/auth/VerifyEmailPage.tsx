@@ -35,20 +35,20 @@ export default function VerifyEmailPage() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-[#1C1510] dark:bg-indigo-600 rounded-xl mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-[#1C1510] dark:bg-brand-600 rounded-xl mb-4">
             <Sparkles className="text-white" size={22} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Email Verification</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-text-dark-primary">Email Verification</h1>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
+        <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
           {status === "loading" && (
             <div className="py-8">
-              <svg className="animate-spin h-10 w-10 text-[#C4410C] dark:text-indigo-400 mx-auto" viewBox="0 0 24 24">
+              <svg className="animate-spin h-10 w-10 text-brand-500 dark:text-brand-400 mx-auto" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Verifying your email...</p>
+              <p className="mt-4 text-sm text-gray-500 dark:text-text-dark-secondary">Verifying your email...</p>
             </div>
           )}
 
@@ -59,11 +59,11 @@ export default function VerifyEmailPage() {
               className="py-4"
             >
               <CheckCircle size={56} className="text-green-500 mx-auto mb-4" />
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Verified!</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{message}</p>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-text-dark-primary mb-2">Verified!</h2>
+              <p className="text-sm text-gray-500 dark:text-text-dark-secondary mb-6">{message}</p>
               <Link
                 to="/login"
-                className="inline-block py-2.5 px-6 bg-[#1C1510] dark:bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-[#2b211c] dark:hover:bg-indigo-500 transition"
+                className="inline-block py-2.5 px-6 bg-brand-600 dark:bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 dark:hover:bg-brand-500 transition"
               >
                 Go to login
               </Link>
@@ -73,11 +73,11 @@ export default function VerifyEmailPage() {
           {status === "error" && (
             <div className="py-4">
               <XCircle size={56} className="text-red-500 mx-auto mb-4" />
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Verification failed</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{message}</p>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-text-dark-primary mb-2">Verification failed</h2>
+              <p className="text-sm text-gray-500 dark:text-text-dark-secondary mb-6">{message}</p>
               <Link
                 to="/login"
-                className="text-sm text-[#C4410C] dark:text-indigo-400 hover:underline font-medium"
+                className="text-sm text-brand-500 dark:text-brand-400 hover:underline font-medium"
               >
                 Back to login
               </Link>

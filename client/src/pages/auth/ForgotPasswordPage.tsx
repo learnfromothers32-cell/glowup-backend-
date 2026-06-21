@@ -32,16 +32,16 @@ export default function ForgotPasswordPage() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-[#1C1510] dark:bg-indigo-600 rounded-xl mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-[#1C1510] dark:bg-brand-600 rounded-xl mb-4">
             <Sparkles className="text-white" size={22} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reset your password</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-text-dark-primary">Reset your password</h1>
+          <p className="text-sm text-gray-500 dark:text-text-dark-secondary mt-1">
             Enter your email and we'll send you a reset link
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+        <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
           {sent ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -49,14 +49,14 @@ export default function ForgotPasswordPage() {
               className="text-center py-4"
             >
               <CheckCircle size={48} className="text-green-500 mx-auto mb-4" />
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Check your email</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-text-dark-primary mb-2">Check your email</h2>
+              <p className="text-sm text-gray-500 dark:text-text-dark-secondary">
                 If an account exists for <strong>{email}</strong>, we've sent a password reset link.
               </p>
               <button
                 type="button"
                 onClick={() => setSent(false)}
-                className="mt-6 text-sm text-[#C4410C] dark:text-indigo-400 hover:underline"
+                className="mt-6 text-sm text-brand-500 dark:text-brand-400 hover:underline"
               >
                 Send again
               </button>
@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email address"
-                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C4410C]/20 dark:focus:ring-indigo-500/20 focus:border-[#C4410C] dark:focus:border-indigo-500 transition"
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 dark:border-gray-700 bg-white dark:bg-surface-dark-secondary text-gray-900 dark:text-text-dark-primary rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-brand-400/20 focus:border-brand-500 dark:focus:border-brand-400 transition"
                   required
                 />
               </div>
@@ -84,7 +84,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 bg-[#1C1510] dark:bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-[#2b211c] dark:hover:bg-indigo-500 transition disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-brand-600 dark:bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 dark:hover:bg-brand-500 transition disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -103,7 +103,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         <p className="text-sm text-center mt-6">
-          <Link to="/login" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 inline-flex items-center gap-1">
+          <Link to="/login" className="text-gray-500 dark:text-text-dark-secondary hover:text-gray-700 dark:hover:text-text-dark-primary inline-flex items-center gap-1">
             <ArrowLeft size={14} />
             Back to login
           </Link>

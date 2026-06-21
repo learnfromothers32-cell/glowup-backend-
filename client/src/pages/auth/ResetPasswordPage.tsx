@@ -44,10 +44,10 @@ export default function ResetPasswordPage() {
   if (!token) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#FAF8F4] via-white to-[#F4F1EC] dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 max-w-md text-center">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Invalid reset link</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">This link is missing or invalid. Request a new one.</p>
-          <Link to="/forgot-password" className="text-[#C4410C] dark:text-indigo-400 font-medium hover:underline text-sm">
+        <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 max-w-md text-center">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-text-dark-primary mb-2">Invalid reset link</h2>
+          <p className="text-sm text-gray-500 dark:text-text-dark-muted mb-6">This link is missing or invalid. Request a new one.</p>
+          <Link to="/forgot-password" className="text-brand-500 dark:text-brand-400 font-medium hover:underline text-sm">
             Request new reset link
           </Link>
         </div>
@@ -63,14 +63,14 @@ export default function ResetPasswordPage() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-[#1C1510] dark:bg-indigo-600 rounded-xl mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-[#1C1510] dark:bg-brand-600 rounded-xl mb-4">
             <Sparkles className="text-white" size={22} />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Set a new password</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Must be different from your previous one</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-text-dark-primary">Set a new password</h1>
+          <p className="text-sm text-gray-500 dark:text-text-dark-secondary mt-1">Must be different from your previous one</p>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
+        <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
           {done ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -78,8 +78,8 @@ export default function ResetPasswordPage() {
               className="text-center py-4"
             >
               <CheckCircle size={48} className="text-green-500 mx-auto mb-4" />
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Password updated</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Redirecting you to login...</p>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-text-dark-primary mb-2">Password updated</h2>
+              <p className="text-sm text-gray-500 dark:text-text-dark-secondary">Redirecting you to login...</p>
             </motion.div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -96,13 +96,13 @@ export default function ResetPasswordPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="New password"
-                  className="w-full pl-9 pr-9 py-2.5 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#C4410C]/20 dark:focus:ring-indigo-500/20 focus:border-[#C4410C] dark:focus:border-indigo-500 transition"
+                  className="w-full pl-9 pr-9 py-2.5 border border-gray-300 dark:border-gray-700 bg-white dark:bg-surface-dark-secondary text-gray-900 dark:text-text-dark-primary rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-brand-400/20 focus:border-brand-500 dark:focus:border-brand-400 transition"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-text-dark-secondary hover:text-gray-600 dark:hover:text-text-dark-primary"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -117,7 +117,7 @@ export default function ResetPasswordPage() {
                       ) : (
                         <X size={12} className="text-gray-300 dark:text-gray-600 shrink-0" />
                       )}
-                      <span className={checks[i] ? "text-green-700 dark:text-green-400" : "text-gray-400 dark:text-gray-500"}>
+                      <span className={checks[i] ? "text-green-700 dark:text-green-400" : "text-gray-400 dark:text-text-dark-secondary"}>
                         {rule.label}
                       </span>
                     </li>
@@ -128,7 +128,7 @@ export default function ResetPasswordPage() {
               <button
                 type="submit"
                 disabled={loading || !allValid}
-                className="w-full py-2.5 bg-[#1C1510] dark:bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-[#2b211c] dark:hover:bg-indigo-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-brand-600 dark:bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 dark:hover:bg-brand-500 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -147,7 +147,7 @@ export default function ResetPasswordPage() {
         </div>
 
         <p className="text-sm text-center mt-6">
-          <Link to="/login" className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 inline-flex items-center gap-1">
+          <Link to="/login" className="text-gray-500 dark:text-text-dark-secondary hover:text-gray-700 dark:hover:text-text-dark-primary inline-flex items-center gap-1">
             <ArrowLeft size={14} />
             Back to login
           </Link>

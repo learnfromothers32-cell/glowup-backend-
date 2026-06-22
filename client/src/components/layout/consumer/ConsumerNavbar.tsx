@@ -170,7 +170,7 @@ export default function ConsumerNavbar() {
       `}</style>
 
       {/* ── Main Header ─────────────────────────────────── */}
-      <header className="fixed top-0 inset-x-0 z-50">
+      <header className="sticky top-0 z-50 w-full">
         {/* Glassmorphism backdrop */}
         <div className="absolute inset-0 bg-white/80 backdrop-blur-xl border-b border-gray-200/60 dark:bg-surface-dark-secondary/85 dark:border-0" />
 
@@ -684,8 +684,7 @@ export default function ConsumerNavbar() {
         )}
       </AnimatePresence>
 
-      {/* Spacer */}
-      <div className="h-16" />
+
     </>
   );
 }

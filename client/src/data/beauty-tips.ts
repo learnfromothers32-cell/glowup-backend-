@@ -358,12 +358,12 @@ const tips: Tip[] = [
 ];
 
 export const CATEGORY_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  Hair: { bg: "bg-violet-100", text: "text-violet-700", dot: "bg-violet-500" },
-  Barber: { bg: "bg-blue-100", text: "text-blue-700", dot: "bg-blue-500" },
-  Braids: { bg: "bg-purple-100", text: "text-purple-700", dot: "bg-purple-500" },
-  Skin: { bg: "bg-teal-100", text: "text-teal-700", dot: "bg-teal-500" },
-  Nails: { bg: "bg-pink-100", text: "text-pink-700", dot: "bg-pink-500" },
-  Lashes: { bg: "bg-rose-100", text: "text-rose-700", dot: "bg-rose-500" },
+  Hair: { bg: "bg-violet-100 dark:bg-violet-900/30", text: "text-violet-700 dark:text-violet-300", dot: "bg-violet-500" },
+  Barber: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-300", dot: "bg-blue-500" },
+  Braids: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-300", dot: "bg-purple-500" },
+  Skin: { bg: "bg-teal-100 dark:bg-teal-900/30", text: "text-teal-700 dark:text-teal-300", dot: "bg-teal-500" },
+  Nails: { bg: "bg-pink-100 dark:bg-pink-900/30", text: "text-pink-700 dark:text-pink-300", dot: "bg-pink-500" },
+  Lashes: { bg: "bg-rose-100 dark:bg-rose-900/30", text: "text-rose-700 dark:text-rose-300", dot: "bg-rose-500" },
 };
 
 export const ALL_CATEGORIES = ["All", "Hair", "Barber", "Skin", "Nails", "Lashes"];

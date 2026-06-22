@@ -18,7 +18,7 @@ export function LiveSessionCard({ session, onJoin }: Props) {
   return (
     <motion.button
       onClick={() => onJoin(session)}
-      className="group relative w-full text-left bg-white dark:bg-[#1a1a2e] rounded-2xl border border-gray-100 dark:border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+      className="group relative w-full text-left bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
     >
@@ -34,7 +34,7 @@ export function LiveSessionCard({ session, onJoin }: Props) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
         <div className="absolute top-3 left-3 flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-500 text-white text-[11px] font-semibold rounded-full">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-500 dark:bg-green-600 text-white text-[11px] font-semibold rounded-full">
             <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
             LIVE
           </span>

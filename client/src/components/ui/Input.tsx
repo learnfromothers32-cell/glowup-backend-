@@ -5,10 +5,12 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helper?: string;
+  icon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, helper, id, ...props }, ref) => {
+  ({ className, label, error, helper, icon, rightIcon, id, ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-');
     return (
       <div className="space-y-1.5">
@@ -17,17 +19,31 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
-        <input
-          ref={ref}
-          id={inputId}
-          className={cn(
-            'input-field',
-            error && 'input-error',
-            className,
+        <div className="relative">
+          {icon && (
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-text-muted">
+              {icon}
+            </div>
           )}
-          {...props}
-        />
-        {error && <p className="text-xs text-error">{error}</p>}
+          <input
+            ref={ref}
+            id={inputId}
+            className={cn(
+              'input-field',
+              icon && 'pl-10',
+              rightIcon && 'pr-10',
+              error && 'input-error',
+              className,
+            )}
+            {...props}
+          />
+          {rightIcon && (
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-text-muted">
+              {rightIcon}
+            </div>
+          )}
+        </div>
+        {error && <p className="text-xs text-error flex items-center gap-1"><span className="inline-block w-1 h-1 rounded-full bg-error" />{error}</p>}
         {helper && !error && <p className="text-xs text-text-muted">{helper}</p>}
       </div>
     );
@@ -62,12 +78,12 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           )}
           {...props}
         >
-          {placeholder && <option value="">{placeholder}</option>}
+          {placeholder && <option value="" className="text-text-muted">{placeholder}</option>}
           {options.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </select>
-        {error && <p className="text-xs text-error">{error}</p>}
+        {error && <p className="text-xs text-error flex items-center gap-1"><span className="inline-block w-1 h-1 rounded-full bg-error" />{error}</p>}
       </div>
     );
   },
@@ -92,10 +108,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           ref={ref}
           id={textareaId}
-          className={cn('input-field min-h-[100px] resize-y', error && 'input-error', className)}
+          className={cn('input-field min-h-[120px] resize-y', error && 'input-error', className)}
           {...props}
         />
-        {error && <p className="text-xs text-error">{error}</p>}
+        {error && <p className="text-xs text-error flex items-center gap-1"><span className="inline-block w-1 h-1 rounded-full bg-error" />{error}</p>}
       </div>
     );
   },

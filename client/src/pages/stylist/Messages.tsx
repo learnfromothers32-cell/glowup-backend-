@@ -91,15 +91,15 @@ export default function Messages() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-[calc(100vh-8rem)]">
       <h1 className="text-xl sm:text-2xl font-bold mb-4 font-display text-text-primary dark:text-text-dark-primary">Messages</h1>
 
-      <div className="flex h-[calc(100%-4rem)] rounded-2xl overflow-hidden bg-white dark:bg-surface-dark-secondary shadow-md border border-gray-100 dark:border-gray-700/50">
+      <div className="flex h-[calc(100%-4rem)] rounded-2xl overflow-hidden bg-white dark:bg-surface-dark-secondary shadow-md border border-gray-100 dark:border-gray-700/40">
         {/* ── Conversation List ── */}
-        <div className={`w-80 flex flex-col border-r border-gray-100 dark:border-gray-700/50 ${activeChat ? 'hidden lg:flex' : 'flex'}`}>
-          <div className="p-3 border-b border-gray-100 dark:border-gray-700/50">
+        <div className={`w-80 flex flex-col border-r border-gray-100 dark:border-gray-700/40 ${activeChat ? 'hidden lg:flex' : 'flex'}`}>
+          <div className="p-3 border-b border-gray-100 dark:border-gray-700/40">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted dark:text-text-dark-muted" />
               <input type="text" placeholder="Search conversations..." value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all border border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary caret-brand-500"
+                className="w-full pl-9 pr-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all border border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary text-text-primary dark:text-text-dark-primary caret-brand-500"
               />
             </div>
           </div>
@@ -114,7 +114,7 @@ export default function Messages() {
             ) : (
               filteredConversations.map(conv => (
                 <button key={conv._id} onClick={() => openChat(conv._id)}
-                  className={`w-full text-left p-3 transition-colors border-b border-gray-100 dark:border-gray-700/50 ${activeChat === conv._id ? 'bg-blue-50 dark:bg-blue-950/20' : 'bg-transparent'}`}>
+                  className={`w-full text-left p-3 transition-colors border-b border-gray-100 dark:border-gray-700/40 ${activeChat === conv._id ? 'bg-brand-50 dark:bg-brand-950/20' : 'bg-transparent'}`}>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0 bg-gradient-to-br from-brand-700 to-brand-900">
                       {conv.clientId?.name?.charAt(0) || '?'}
@@ -128,7 +128,7 @@ export default function Messages() {
                           </span>
                         )}
                       </div>
-                      <p className={`text-xs truncate mt-0.5 ${conv.unreadStylist > 0 ? 'text-gray-700 dark:text-gray-300' : 'text-text-muted dark:text-text-dark-muted'}`}>
+                      <p className={`text-xs truncate mt-0.5 ${conv.unreadStylist > 0 ? 'text-text-secondary dark:text-text-dark-secondary' : 'text-text-muted dark:text-text-dark-muted'}`}>
                         {conv.lastMessage?.content || 'No messages yet'}
                       </p>
                     </div>
@@ -149,7 +149,7 @@ export default function Messages() {
           {!activeChat ? (
             <div className="flex-1 flex items-center justify-center text-text-muted dark:text-text-dark-muted">
               <div className="text-center">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gray-50 dark:bg-surface-dark-secondary">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gray-50 dark:bg-surface-dark-tertiary">
                   <MessageSquare className="w-7 h-7 text-text-muted dark:text-text-dark-muted" />
                 </div>
                 <p className="text-sm font-medium text-text-secondary dark:text-text-dark-secondary">Select a conversation</p>
@@ -159,8 +159,8 @@ export default function Messages() {
           ) : (
             <>
               {/* Chat Header */}
-              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 dark:border-gray-700/50 bg-white dark:bg-surface-dark-secondary">
-                <button onClick={() => setActiveChat(null)} className="lg:hidden p-1 rounded-lg hover:bg-gray-100 transition-colors text-text-secondary dark:text-text-dark-secondary">
+              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 dark:border-gray-700/40 bg-white dark:bg-surface-dark-secondary">
+                <button onClick={() => setActiveChat(null)} className="lg:hidden p-1 rounded-xl hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary transition-colors text-text-secondary dark:text-text-dark-secondary">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0 bg-gradient-to-br from-brand-700 to-brand-900">
@@ -170,13 +170,13 @@ export default function Messages() {
                   <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">{activeConv?.clientId?.name}</p>
                   <p className="text-xs text-success dark:text-success">Online</p>
                 </div>
-                <button onClick={() => { const p = (activeConv as any)?.clientId?.phone; if (p) window.open(`tel:${p}`); else alert('No phone number available'); }} className="p-2 rounded-xl transition-colors text-text-secondary dark:text-text-dark-secondary bg-gray-50 dark:bg-surface-dark-secondary">
+                <button onClick={() => { const p = (activeConv as any)?.clientId?.phone; if (p) window.open(`tel:${p}`); else alert('No phone number available'); }} className="p-2 rounded-xl transition-colors text-text-secondary dark:text-text-dark-secondary bg-gray-50 dark:bg-surface-dark-tertiary">
                   <Phone size={15} />
                 </button>
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-gray-50 dark:bg-surface-dark">
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-gray-50 dark:bg-surface-dark-tertiary">
                 {messages.map(msg => {
                   const isMe = msg.senderRole === 'stylist';
                   return (
@@ -198,11 +198,11 @@ export default function Messages() {
               </div>
 
               {/* Input */}
-              <div className="px-5 py-3.5 border-t border-gray-100 dark:border-gray-700/50 bg-white dark:bg-surface-dark-secondary">
+              <div className="px-5 py-3.5 border-t border-gray-100 dark:border-gray-700/40 bg-white dark:bg-surface-dark-secondary">
                 <div className="flex items-center gap-2">
                   <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
                     placeholder="Type a message..." rows={1}
-                    className="flex-1 rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 transition-all border border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary caret-brand-500"
+                    className="flex-1 rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 transition-all border border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary text-text-primary dark:text-text-dark-primary caret-brand-500"
                   />
                   <button onClick={handleSend} disabled={!input.trim() || sending}
                     className="p-2.5 rounded-xl text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-br from-brand-700 to-brand-900 shadow-md">

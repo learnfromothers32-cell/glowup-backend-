@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Search, Loader2, AlertCircle, Package, DollarSign, Layers, Edit3, Trash2, Save, X, RefreshCw } from 'lucide-react';
 import { getMyProducts, createProduct, updateProduct, deleteProduct, adjustProductStock } from '../../api/products';
+import { Button } from '../../components/ui/Button';
 
 interface ProductItem {
   _id: string;
@@ -85,29 +86,28 @@ export default function Products() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary font-display">Products & Inventory</h1>
-          <p className="text-[#7A7168] text-sm mt-1">Manage your retail products and stock levels</p>
+          <p className="text-text-secondary dark:text-text-dark-secondary text-sm mt-1">Manage your retail products and stock levels</p>
         </div>
-        <button onClick={() => { setShowAdd(true); setEditForm(emptyProduct()); }}
-          className="flex items-center gap-2 px-4 py-2 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#333] transition-colors text-sm">
+        <Button onClick={() => { setShowAdd(true); setEditForm(emptyProduct()); }} size="sm">
           <Plus className="w-4 h-4" /> Add Product
-        </button>
+        </Button>
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 text-red-700 rounded-lg text-sm">
-          <AlertCircle className="w-4 h-4" /> {error}
+        <div className="flex items-center gap-2 p-3 mb-4 rounded-2xl bg-error/10 border border-error/20 text-error text-sm">
+          <AlertCircle className="w-4 h-4 shrink-0" /> {error}
           <button onClick={() => setError('')} className="ml-auto"><X className="w-4 h-4" /></button>
         </div>
       )}
 
       <div className="flex items-center gap-3 mb-4">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted dark:text-text-dark-muted" />
           <input type="text" placeholder="Search products..." value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 border border-[#E8E0D8] rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#8B7355]" />
+            className="input-field-sm pl-9" />
         </div>
         <select value={category} onChange={e => setCategory(e.target.value)}
-          className="border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#8B7355]">
+          className="input-field-sm">
           <option value="">All Categories</option>
           <option value="General">General</option>
           <option value="Hair">Hair</option>
@@ -115,64 +115,75 @@ export default function Products() {
           <option value="Nails">Nails</option>
           <option value="Products">Products</option>
         </select>
-        <button onClick={loadProducts} className="p-2 text-gray-500 hover:text-[#1A1A1A]"><RefreshCw className="w-4 h-4" /></button>
+        <button onClick={loadProducts} className="p-2 rounded-xl text-text-secondary dark:text-text-dark-secondary hover:text-text-primary dark:hover:text-text-dark-primary"><RefreshCw className="w-4 h-4" /></button>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-[#7A7168]" /></div>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="h-9 flex-1 max-w-xs skeleton-pulse rounded-xl" />
+            <div className="h-9 w-32 skeleton-pulse rounded-xl" />
+            <div className="h-9 w-9 skeleton-pulse rounded-xl" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {[1,2,3].map(i => (
+              <div key={i} className="rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 p-4 skeleton-pulse h-36" />
+            ))}
+          </div>
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-text-muted dark:text-text-dark-muted">
           <Package className="w-12 h-12 mx-auto mb-3" />
           <p>No products yet</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(product => (
-            <div key={product._id} className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-4">
+            <div key={product._id} className="rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 p-4">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-[#1A1A1A] truncate">{product.name}</h3>
-                  <p className="text-xs text-gray-400">{product.category}{product.sku ? ` • SKU: ${product.sku}` : ''}</p>
+                  <h3 className="font-medium text-text-primary dark:text-text-dark-primary truncate">{product.name}</h3>
+                  <p className="text-xs text-text-muted dark:text-text-dark-muted">{product.category}{product.sku ? ` • SKU: ${product.sku}` : ''}</p>
                 </div>
-                <span className={`text-xs px-2 py-0.5 rounded ${product.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                <span className={`text-xs px-2 py-0.5 rounded ${product.isActive ? 'bg-success/10 text-success-dark dark:text-success' : 'bg-gray-100 dark:bg-gray-800 text-text-secondary dark:text-text-dark-secondary'}`}>
                   {product.isActive ? 'Active' : 'Inactive'}
                 </span>
               </div>
 
               <div className="flex items-center gap-4 text-sm mt-3">
-                <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-gray-400" /> GH₵{product.price}</span>
-                {product.costPrice > 0 && <span className="text-xs text-gray-400">Cost: GH₵{product.costPrice}</span>}
+                <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-text-muted dark:text-text-dark-muted" /> GH₵{product.price}</span>
+                {product.costPrice > 0 && <span className="text-xs text-text-muted dark:text-text-dark-muted">Cost: GH₵{product.costPrice}</span>}
               </div>
 
               <div className="mt-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Layers className="w-3 h-3 text-gray-400" />
+                  <Layers className="w-3 h-3 text-text-muted dark:text-text-dark-muted" />
                   {stockUpdate?.id === product._id ? (
                     <div className="flex items-center gap-1">
                       <input type="number" value={stockUpdate.qty} onChange={e => setStockUpdate({ ...stockUpdate, qty: e.target.value })}
-                        className="w-16 border border-[#E8E0D8] rounded px-1.5 py-0.5 text-xs" autoFocus />
-                      <button onClick={() => handleStockAdjust(product._id)} className="text-xs text-green-600">Set</button>
-                      <button onClick={() => setStockUpdate(null)} className="text-xs text-gray-400">Cancel</button>
+                        className="w-16 border border-gray-200 dark:border-gray-600 rounded-xl px-1.5 py-0.5 text-xs bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary" autoFocus />
+                      <button onClick={() => handleStockAdjust(product._id)} className="text-xs text-success-dark dark:text-success">Set</button>
+                      <button onClick={() => setStockUpdate(null)} className="text-xs text-text-muted dark:text-text-dark-muted">Cancel</button>
                     </div>
                   ) : (
                     <button onClick={() => setStockUpdate({ id: product._id, qty: String(product.stock) })}
-                      className={`text-sm font-medium ${product.stock <= product.lowStockThreshold ? 'text-red-600' : 'text-[#1A1A1A]'}`}>
+                      className={`text-sm font-medium ${product.stock <= product.lowStockThreshold ? 'text-error' : 'text-text-primary dark:text-text-dark-primary'}`}>
                       Stock: {product.stock}
                     </button>
                   )}
                 </div>
                 {product.stock <= product.lowStockThreshold && product.stock > 0 && (
-                  <span className="text-xs text-amber-600">Low stock</span>
+                  <span className="text-xs text-warning-dark dark:text-warning">Low stock</span>
                 )}
               </div>
 
               <div className="mt-3 flex gap-2">
                 <button onClick={() => { setEditing(product._id); setEditForm(product); }}
-                  className="flex-1 text-xs bg-[#FAF8F4] py-1.5 rounded hover:bg-[#F0ECE6] transition-colors flex items-center justify-center gap-1">
+                  className="flex-1 text-xs bg-brand-50 text-brand-600 py-1.5 rounded-xl hover:bg-brand-500 hover:text-white transition-colors flex items-center justify-center gap-1 dark:bg-brand-950/20 dark:text-brand-400 dark:hover:bg-brand-600">
                   <Edit3 className="w-3 h-3" /> Edit
                 </button>
                 <button onClick={() => handleDelete(product._id)}
-                  className="px-3 text-xs bg-red-50 text-red-600 py-1.5 rounded hover:bg-red-100 transition-colors">
+                  className="px-3 text-xs bg-red-50 text-red-600 py-1.5 rounded-xl hover:bg-red-600 hover:text-white transition-colors dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-600">
                   <Trash2 className="w-3 h-3" />
                 </button>
               </div>
@@ -183,56 +194,56 @@ export default function Products() {
 
       {(showAdd || editing) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => { setShowAdd(false); setEditing(null); }}>
-          <div className="bg-white rounded-2xl w-full max-w-lg m-4 p-6" onClick={e => e.stopPropagation()}>
-            <h2 className="text-lg font-bold text-[#1A1A1A] mb-4">{showAdd ? 'Add Product' : 'Edit Product'}</h2>
+          <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl w-full max-w-lg m-4 p-6" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-text-primary dark:text-text-dark-primary mb-4">{showAdd ? 'Add Product' : 'Edit Product'}</h2>
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2">
-                  <label className="text-xs text-gray-500">Product Name *</label>
+                  <label className="text-xs text-text-secondary dark:text-text-dark-secondary">Product Name *</label>
                   <input value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#8B7355]" />
+                    className="input-field-sm" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Price (GH₵) *</label>
+                  <label className="text-xs text-text-secondary dark:text-text-dark-secondary">Price (GH₵) *</label>
                   <input type="number" value={editForm.price} onChange={e => setEditForm({ ...editForm, price: Number(e.target.value) })}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm" />
+                    className="input-field-sm" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Cost Price</label>
+                  <label className="text-xs text-text-secondary dark:text-text-dark-secondary">Cost Price</label>
                   <input type="number" value={editForm.costPrice} onChange={e => setEditForm({ ...editForm, costPrice: Number(e.target.value) })}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm" />
+                    className="input-field-sm" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Stock</label>
+                  <label className="text-xs text-text-secondary dark:text-text-dark-secondary">Stock</label>
                   <input type="number" value={editForm.stock} onChange={e => setEditForm({ ...editForm, stock: Number(e.target.value) })}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm" />
+                    className="input-field-sm" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Low Stock Alert</label>
+                  <label className="text-xs text-text-secondary dark:text-text-dark-secondary">Low Stock Alert</label>
                   <input type="number" value={editForm.lowStockThreshold} onChange={e => setEditForm({ ...editForm, lowStockThreshold: Number(e.target.value) })}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm" />
+                    className="input-field-sm" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Category</label>
+                  <label className="text-xs text-text-secondary dark:text-text-dark-secondary">Category</label>
                   <input value={editForm.category} onChange={e => setEditForm({ ...editForm, category: e.target.value })}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm" />
+                    className="input-field-sm" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">SKU</label>
+                  <label className="text-xs text-text-secondary dark:text-text-dark-secondary">SKU</label>
                   <input value={editForm.sku} onChange={e => setEditForm({ ...editForm, sku: e.target.value })}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm" />
+                    className="input-field-sm" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Description</label>
+                  <label className="text-xs text-text-secondary dark:text-text-dark-secondary">Description</label>
                   <textarea value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm" rows={2} />
+                    className="input-field-sm" rows={2} />
                 </div>
                 <div className="flex items-center gap-4 mt-2">
-                  <label className="flex items-center gap-2 text-xs">
+                  <label className="flex items-center gap-2 text-xs text-text-primary dark:text-text-dark-primary">
                     <input type="checkbox" checked={editForm.isActive} onChange={e => setEditForm({ ...editForm, isActive: e.target.checked })} />
                     Active
                   </label>
-                  <label className="flex items-center gap-2 text-xs">
+                  <label className="flex items-center gap-2 text-xs text-text-primary dark:text-text-dark-primary">
                     <input type="checkbox" checked={editForm.taxable} onChange={e => setEditForm({ ...editForm, taxable: e.target.checked })} />
                     Taxable
                   </label>
@@ -240,12 +251,12 @@ export default function Products() {
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => { setShowAdd(false); setEditing(null); }}
-                className="flex-1 px-4 py-2 border border-[#E8E0D8] rounded-lg text-sm hover:bg-gray-50">Cancel</button>
-              <button onClick={() => showAdd ? handleCreate() : editing && handleUpdate(editing)} disabled={saving}
-                className="flex-1 px-4 py-2 bg-[#1A1A1A] text-white rounded-lg text-sm hover:bg-[#333] disabled:opacity-50">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : (showAdd ? 'Add Product' : 'Save Changes')}
-              </button>
+              <Button variant="secondary" onClick={() => { setShowAdd(false); setEditing(null); }} className="flex-1">
+                Cancel
+              </Button>
+              <Button onClick={() => showAdd ? handleCreate() : editing && handleUpdate(editing)} loading={saving} className="flex-1">
+                {showAdd ? 'Add Product' : 'Save Changes'}
+              </Button>
             </div>
           </div>
         </div>

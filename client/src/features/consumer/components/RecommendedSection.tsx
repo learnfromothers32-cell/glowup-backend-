@@ -95,8 +95,8 @@ function CategoryTabs({
               transition-all duration-200
               ${
                 isActive
-                  ? "bg-gray-900 text-white shadow-sm dark:bg-white dark:text-gray-900"
-                  : "bg-white text-gray-500 border border-gray-200 hover:border-gray-300 hover:text-gray-700"
+                  ? "bg-brand-500 text-white shadow-sm"
+                  : "bg-white dark:bg-surface-dark text-text-secondary dark:text-text-dark-secondary border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:text-text-primary dark:hover:text-text-dark-primary"
               }
             `}
           >
@@ -143,13 +143,13 @@ function SortDropdown({
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-text-secondary dark:text-text-dark-secondary hover:text-text-primary dark:hover:text-text-dark-primary transition-colors"
       >
         <SlidersHorizontal size={13} />
         {current?.label}
         <ChevronDown
           size={11}
-          className={`text-gray-400 transition-transform duration-200 ${
+          className={`text-text-muted dark:text-text-dark-muted transition-transform duration-200 ${
             open ? "rotate-180" : ""
           }`}
         />
@@ -162,7 +162,7 @@ function SortDropdown({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.97 }}
             transition={{ duration: 0.12 }}
-            className="absolute top-full mt-1.5 right-0 z-50 w-48 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden"
+            className="absolute top-full mt-1.5 right-0 z-50 w-48 bg-white dark:bg-surface-dark-secondary rounded-xl shadow-xl border border-gray-200 dark:border-gray-600 overflow-hidden"
           >
             <div className="py-1">
               {options.map((opt) => (
@@ -176,14 +176,14 @@ function SortDropdown({
                     w-full flex items-center justify-between px-3.5 py-2.5 text-left text-sm transition-colors
                     ${
                       opt.value === value
-                        ? "bg-gray-50 text-gray-900 font-semibold"
-                        : "text-gray-600 hover:bg-gray-50"
+                        ? "bg-brand-50 text-brand-600 font-semibold dark:bg-brand-950/20 dark:text-brand-300"
+                        : "text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary"
                     }
                   `}
                 >
                   {opt.label}
                   {opt.value === value && (
-                    <Check size={12} className="text-gray-900" />
+                    <Check size={12} className="text-brand-500" />
                   )}
                 </button>
               ))}
@@ -233,14 +233,14 @@ function CompactRow({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.025, duration: 0.25 }}
       onClick={onNavigate}
-      className="group flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 transition-colors cursor-pointer border-b border-gray-50 last:border-0"
+      className="group flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-colors cursor-pointer border-b border-gray-50 dark:border-gray-800 last:border-0"
     >
       {/* Avatar */}
       <div className="relative shrink-0">
-        <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100">
+        <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800">
           {!imageLoaded && (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-              <span className="text-xs font-bold text-gray-400">{initials}</span>
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
+              <span className="text-xs font-bold text-gray-400 dark:text-gray-600">{initials}</span>
             </div>
           )}
           {stylist.image && (
@@ -258,7 +258,7 @@ function CompactRow({
 
         {isLive && (
           <div className="absolute -bottom-0.5 -right-0.5">
-            <div className="w-3 h-3 rounded-full bg-green-500 border-[1.5px] border-white" />
+            <div className="w-3 h-3 rounded-full bg-green-500 border-[1.5px] border-white dark:border-surface-dark-secondary" />
           </div>
         )}
       </div>
@@ -266,26 +266,25 @@ function CompactRow({
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 mb-0.5">
-          <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-gray-700 transition-colors">
+          <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary truncate group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
             {stylist.name}
           </p>
           {isVerified && <BadgeCheck size={13} className="text-blue-500 shrink-0" />}
           {isLive && (
-            <span className="flex items-center gap-0.5 text-[9px] font-bold text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full">
+            <span className="flex items-center gap-0.5 text-[9px] font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-1.5 py-0.5 rounded-full">
               <Wifi size={8} />
               Live
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+        <div className="flex items-center gap-1.5 text-[11px] text-text-muted dark:text-text-dark-muted">
           {stylist.category && (
-            <span className="font-medium text-gray-500">{stylist.category}</span>
+            <span className="font-medium text-text-secondary dark:text-text-dark-secondary">{stylist.category}</span>
           )}
-          {/* ✅ Fixed: use the helper correctly */}
           {getLocationString(stylist.location) && (
             <>
-              <span className="text-gray-200">·</span>
+              <span className="text-gray-200 dark:text-gray-700">·</span>
               <span className="flex items-center gap-0.5">
                 <MapPin size={9} />
                 {getLocationString(stylist.location)}
@@ -294,7 +293,7 @@ function CompactRow({
           )}
           {distanceNum !== null && (
             <>
-              <span className="text-gray-200">·</span>
+              <span className="text-gray-200 dark:text-gray-700">·</span>
               <span className="text-blue-500 font-medium">
                 {distanceNum < 1
                   ? `${(distanceNum * 1000).toFixed(0)}m`
@@ -312,13 +311,13 @@ function CompactRow({
               {stylist.services.slice(0, 2).map((svc, i) => (
                 <span
                   key={i}
-                  className="shrink-0 text-[10px] text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded"
+                  className="shrink-0 text-[10px] text-text-muted dark:text-text-dark-muted bg-gray-50 dark:bg-surface-dark-tertiary px-1.5 py-0.5 rounded"
                 >
                   {getServiceName(svc)}
                 </span>
               ))}
               {stylist.services.length > 2 && (
-                <span className="shrink-0 text-[10px] text-gray-300">
+                <span className="shrink-0 text-[10px] text-gray-300 dark:text-gray-600">
                   +{stylist.services.length - 2} 
                 </span>
               )}
@@ -331,17 +330,17 @@ function CompactRow({
         {stylist.rating && (
           <div className="flex items-center gap-1">
             <Star size={11} fill="#f59e0b" stroke="#f59e0b" />
-            <span className="text-xs font-bold text-gray-900 tabular-nums">
+            <span className="text-xs font-bold text-text-primary dark:text-text-dark-primary tabular-nums">
               {stylist.rating}
             </span>
             {reviewCount !== undefined && (
-              <span className="text-[10px] text-gray-400">({reviewCount})</span>
+              <span className="text-[10px] text-text-muted dark:text-text-dark-muted">({reviewCount})</span>
             )}
           </div>
         )}
 
         {priceRange && (
-          <span className="text-[11px] font-semibold text-gray-500">
+          <span className="text-[11px] font-semibold text-text-secondary dark:text-text-dark-secondary">
             {priceRange}
           </span>
         )}
@@ -357,8 +356,8 @@ function CompactRow({
               w-7 h-7 rounded-lg flex items-center justify-center transition-all
               ${
                 liked
-                  ? "bg-red-50 text-red-500"
-                  : "bg-gray-50 text-gray-300 hover:text-gray-500 hover:bg-gray-100"
+                  ? "bg-red-50 dark:bg-red-950/30 text-red-500"
+                  : "bg-gray-50 dark:bg-surface-dark-tertiary text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-surface-dark"
               }
             `}
           >
@@ -370,7 +369,7 @@ function CompactRow({
               e.stopPropagation();
               onBook();
             }}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gray-900 text-white text-[11px] font-semibold hover:bg-gray-800 shadow-sm transition-all opacity-0 group-hover:opacity-100 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-brand-500 text-white text-[11px] font-semibold hover:bg-brand-600 shadow-sm transition-all opacity-0 group-hover:opacity-100"
           >
             Book
             <ArrowRight size={10} />
@@ -418,13 +417,13 @@ function GridCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04, duration: 0.3 }}
       onClick={onNavigate}
-      className="group bg-white rounded-xl border border-gray-100 overflow-hidden cursor-pointer hover:border-gray-200 hover:shadow-lg hover:shadow-gray-100 transition-all duration-200"
+      className="group bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 overflow-hidden cursor-pointer hover:border-brand-100 dark:hover:border-brand-900/30 hover:shadow-card hover:-translate-y-0.5 transition-all duration-300"
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden">
+      <div className="relative aspect-[4/3] bg-gray-100 dark:bg-gray-800 overflow-hidden">
         {!imageLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-            <span className="text-xl font-bold text-gray-300">{initials}</span>
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
+            <span className="text-xl font-bold text-gray-300 dark:text-gray-600">{initials}</span>
           </div>
         )}
         {stylist.image && (
@@ -487,19 +486,18 @@ function GridCard({
       {/* Info */}
       <div className="p-3">
         <div className="flex items-center gap-1.5 mb-0.5">
-          <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-gray-700 transition-colors">
+          <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary truncate group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
             {stylist.name}
           </p>
           {isVerified && <BadgeCheck size={13} className="text-blue-500 shrink-0" />}
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] text-gray-400 mb-2">
+        <div className="flex items-center gap-1.5 text-[11px] text-text-muted dark:text-text-dark-muted mb-2">
           {stylist.category && (
-            <span className="font-medium text-gray-500">{stylist.category}</span>
+            <span className="font-medium text-text-secondary dark:text-text-dark-secondary">{stylist.category}</span>
           )}
-          {/* ✅ Fixed: use helper */}
           {getLocationString(stylist.location) && (
             <>
-              <span className="text-gray-200">·</span>
+              <span className="text-gray-200 dark:text-gray-700">·</span>
               <span className="flex items-center gap-0.5">
                 <MapPin size={9} />
                 {getLocationString(stylist.location)}
@@ -512,7 +510,7 @@ function GridCard({
             e.stopPropagation();
             onBook();
           }}
-          className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg bg-gray-50 text-gray-700 text-xs font-semibold hover:bg-gray-900 hover:text-white border border-gray-100 hover:border-gray-900 transition-all duration-200 dark:hover:bg-gray-200 dark:hover:text-gray-900 dark:hover:border-gray-200"
+          className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-brand-50 text-brand-600 text-xs font-semibold hover:bg-brand-500 hover:text-white border border-brand-200 hover:border-brand-500 transition-all duration-200 dark:bg-brand-950/20 dark:text-brand-300 dark:border-brand-900/30 dark:hover:bg-brand-600 dark:hover:text-white dark:hover:border-brand-500"
         >
           Book Now
           <ArrowRight size={11} />
@@ -526,13 +524,13 @@ function GridCard({
 function EmptyState({ category }: { category: string }) {
   return (
     <div className="text-center py-16 px-4">
-      <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-        <Users size={24} className="text-gray-300" />
+      <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center mx-auto mb-4">
+        <Users size={24} className="text-gray-300 dark:text-text-dark-muted" />
       </div>
-      <h3 className="text-sm font-semibold text-gray-900 mb-1">
+      <h3 className="text-sm font-semibold text-text-primary dark:text-text-dark-primary mb-1">
         No stylists found
       </h3>
-      <p className="text-xs text-gray-400 max-w-[260px] mx-auto">
+      <p className="text-xs text-text-muted dark:text-text-dark-muted max-w-[260px] mx-auto">
         {category === "all"
           ? "Try adjusting your filters or check back later for new recommendations"
           : `No ${category} stylists available right now. Try browsing all categories.`}
@@ -544,15 +542,15 @@ function EmptyState({ category }: { category: string }) {
 // ─── Skeleton Loader ─────────────────────────────────────────────────────────
 function SkeletonRow() {
   return (
-    <div className="flex items-center gap-4 px-4 py-3.5 border-b border-gray-50">
-      <div className="w-12 h-12 rounded-xl bg-gray-100 animate-pulse shrink-0" />
+    <div className="flex items-center gap-4 px-4 py-3.5 border-b border-gray-50 dark:border-gray-800">
+      <div className="w-12 h-12 rounded-xl skeleton-pulse shrink-0" />
       <div className="flex-1 space-y-2">
-        <div className="w-32 h-3.5 rounded-full bg-gray-100 animate-pulse" />
-        <div className="w-48 h-2.5 rounded-full bg-gray-50 animate-pulse" />
+        <div className="w-32 h-3.5 rounded-full skeleton-pulse" />
+        <div className="w-48 h-2.5 rounded-full skeleton-pulse opacity-60" />
       </div>
       <div className="shrink-0 space-y-2 flex flex-col items-end">
-        <div className="w-12 h-3 rounded-full bg-gray-100 animate-pulse" />
-        <div className="w-16 h-2.5 rounded-full bg-gray-50 animate-pulse" />
+        <div className="w-12 h-3 rounded-full skeleton-pulse" />
+        <div className="w-16 h-2.5 rounded-full skeleton-pulse opacity-60" />
       </div>
     </div>
   );
@@ -627,16 +625,16 @@ export default function RecommendedSection({
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-base font-semibold text-gray-900 tracking-tight whitespace-nowrap">
+              <h2 className="text-base font-semibold text-text-primary dark:text-text-dark-primary tracking-tight whitespace-nowrap">
                 Recommended
               </h2>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 tabular-nums shrink-0">
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-surface-dark-tertiary text-text-muted dark:text-text-dark-muted tabular-nums shrink-0">
                 {filteredStylists.length}
               </span>
 
               <Link
                 to={category !== "all" ? `/app/browse?category=${category.toLowerCase()}` : "/app/browse"}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-colors shadow-sm whitespace-nowrap sm:ml-2 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-brand-500 text-white hover:bg-brand-600 transition-colors shadow-sm whitespace-nowrap sm:ml-2"
               >
                 {category !== "all" ? `View all ${category}` : "Browse all"}
                 <ArrowRight size={12} />
@@ -644,20 +642,18 @@ export default function RecommendedSection({
             </div>
           </div>
 
-
-
           <div className="flex items-center gap-1 shrink-0">
             <SortDropdown value={sortBy} onChange={setSortBy} />
 
-            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <div className="w-px h-5 bg-gray-200 dark:bg-gray-700 mx-1" />
 
-            <div className="flex items-center gap-0.5 p-0.5 bg-gray-100 rounded-lg">
+            <div className="flex items-center gap-0.5 p-0.5 bg-gray-100 dark:bg-surface-dark-tertiary rounded-lg">
               <button
                 onClick={() => setViewMode("list")}
                 className={`p-1.5 rounded-md transition-all ${
                   viewMode === "list"
-                    ? "bg-white shadow-sm text-gray-900"
-                    : "text-gray-400 hover:text-gray-600"
+                    ? "bg-white dark:bg-surface-dark shadow-sm text-text-primary dark:text-text-dark-primary"
+                    : "text-text-muted dark:text-text-dark-muted hover:text-text-secondary dark:hover:text-text-dark-secondary"
                 }`}
                 title="List view"
               >
@@ -667,8 +663,8 @@ export default function RecommendedSection({
                 onClick={() => setViewMode("grid")}
                 className={`p-1.5 rounded-md transition-all ${
                   viewMode === "grid"
-                    ? "bg-white shadow-sm text-gray-900"
-                    : "text-gray-400 hover:text-gray-600"
+                    ? "bg-white dark:bg-surface-dark shadow-sm text-text-primary dark:text-text-dark-primary"
+                    : "text-text-muted dark:text-text-dark-muted hover:text-text-secondary dark:hover:text-text-dark-secondary"
                 }`}
                 title="Grid view"
               >
@@ -678,24 +674,22 @@ export default function RecommendedSection({
           </div>
         </div>
 
-        
-
         <CategoryTabs active={category} onChange={setCategory} />
       </div>
 
       {/* Content */}
       {loading ? (
-        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 overflow-hidden">
           {[1, 2, 3, 4, 5].map((i) => (
             <SkeletonRow key={i} />
           ))}
         </div>
       ) : filteredStylists.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-100">
+        <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40">
           <EmptyState category={category} />
         </div>
       ) : viewMode === "list" ? (
-        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 overflow-hidden">
           {filteredStylists.map((stylist, i) => (
             <CompactRow
               key={stylist.id}

@@ -541,7 +541,7 @@ export default function TrendingFeed() {
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black flex flex-col items-center justify-center gap-4">
-        <Skeleton className="w-20 h-20 rounded-full bg-white/10" />
+        <div className="skeleton-pulse w-20 h-20 rounded-full" />
         <div className="text-white/40 text-sm">Loading transformations...</div>
       </div>
     );
@@ -692,7 +692,7 @@ export default function TrendingFeed() {
                     size={20}
                     className={
                       likedItems.has(item.id)
-                        ? "text-[#fe2c55] fill-[#fe2c55]"
+                        ? "text-red-500 fill-red-500"
                         : "text-white"
                     }
                   />
@@ -951,7 +951,7 @@ export default function TrendingFeed() {
                 <button
                   onClick={addComment}
                   disabled={!newCommentText.trim()}
-                  className="text-[#fe2c55] text-sm font-semibold disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-80 transition-opacity"
+                  className="text-red-500 text-sm font-semibold disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-80 transition-opacity"
                 >
                   Post
                 </button>
@@ -977,7 +977,7 @@ export default function TrendingFeed() {
                 <p className="text-white/60 text-sm mb-4">Our team will review this content. Thank you for helping keep GlowUp safe.</p>
                 <button
                   onClick={() => { setReportModalOpen(false); setReportSubmitted(false); setReportReason(""); }}
-                  className="w-full py-2 bg-[#fe2c55] text-white rounded-full text-sm font-medium"
+                  className="w-full py-2 bg-red-500 text-white rounded-full text-sm font-medium"
                 >
                   Close
                 </button>
@@ -995,7 +995,7 @@ export default function TrendingFeed() {
                 <button
                   onClick={submitReport}
                   disabled={!reportReason.trim()}
-                  className="w-full mt-3 py-2 bg-[#fe2c55] text-white rounded-full text-sm font-medium disabled:opacity-50"
+                  className="w-full mt-3 py-2 bg-red-500 text-white rounded-full text-sm font-medium disabled:opacity-50"
                 >
                   Submit Report
                 </button>

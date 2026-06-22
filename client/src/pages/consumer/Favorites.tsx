@@ -5,6 +5,28 @@ import { useFavorites } from "../../hooks/useFavorites";
 import { getStylists } from "../../api/stylists";
 import type { Stylist } from "@/domain/stylist/stylist.types";
 import { getLocationString } from "@/utils/location";
+import { Button } from "../../components/ui/Button";
+import { Skeleton } from "../../components/ui/Skeleton";
+
+function FavoritesSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="rounded-2xl overflow-hidden">
+          <Skeleton className="aspect-[4/3] rounded-none" />
+          <div className="p-3 space-y-3">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-7 w-16 rounded-full" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Favorites() {
   const navigate = useNavigate();
@@ -14,7 +36,6 @@ export default function Favorites() {
 
   useEffect(() => {
     getStylists().then((all) => {
-      // Only show stylists that are in favorites
       const favIds = new Set(favorites.map((s) => s.id));
       const matched = all.filter((s) => favIds.has(s.id));
       setStylists(matched);
@@ -30,25 +51,33 @@ export default function Favorites() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-pulse text-gray-400">Loading favorites...</div>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="p-2 rounded-full">
+            <ArrowLeft size={20} className="text-text-muted dark:text-text-dark-muted" />
+          </div>
+          <div>
+            <Skeleton className="h-7 w-32" />
+            <Skeleton className="h-4 w-24 mt-1" />
+          </div>
+        </div>
+        <FavoritesSkeleton />
       </div>
     );
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 rounded-full hover:bg-gray-100 transition"
+          className="p-2 rounded-full hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} className="text-text-primary dark:text-text-dark-primary" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Favorites</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary">Favorites</h1>
+          <p className="text-sm text-text-secondary dark:text-text-dark-secondary">
             {stylists.length} saved stylist{stylists.length !== 1 ? "s" : ""}
           </p>
         </div>
@@ -56,18 +85,18 @@ export default function Favorites() {
 
       {stylists.length === 0 ? (
         <div className="text-center py-16">
-          <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <Heart size={24} className="text-gray-400" />
+          <div className="w-16 h-16 mx-auto bg-gray-50 dark:bg-surface-dark-tertiary rounded-full flex items-center justify-center mb-4">
+            <Heart size={24} className="text-text-muted dark:text-text-dark-muted" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900">
+          <h3 className="text-lg font-medium text-text-primary dark:text-text-dark-primary">
             No favorites yet
           </h3>
-          <p className="text-gray-500 mt-1">
+          <p className="text-text-secondary dark:text-text-dark-secondary mt-1">
             Tap the heart icon on any stylist card to save them here.
           </p>
           <Link
             to="/app"
-            className="inline-block mt-6 px-4 py-2 bg-gray-900 text-white rounded-full text-sm dark:bg-white dark:text-gray-900"
+            className="inline-block mt-6 px-4 py-2 bg-brand-500 text-white hover:bg-brand-600 rounded-full text-sm"
           >
             Browse stylists
           </Link>
@@ -77,10 +106,9 @@ export default function Favorites() {
           {stylists.map((stylist) => (
             <div
               key={stylist.id}
-              className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition group cursor-pointer"
+              className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 overflow-hidden shadow-sm hover:shadow-md transition group cursor-pointer"
               onClick={() => navigate(`/app/stylist/${stylist.id}`)}
             >
-              {/* Image */}
               <div className="relative aspect-[4/3]">
                 <img
                   src={stylist.image}
@@ -89,7 +117,7 @@ export default function Favorites() {
                 />
                 <button
                   onClick={(e) => handleRemove(stylist.id, e)}
-                  className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm p-1.5 rounded-full shadow-sm hover:bg-white transition"
+                  className="absolute top-2 right-2 bg-white/80 backdrop-blur-sm p-1.5 rounded-full shadow-sm hover:bg-white dark:hover:bg-surface-dark-secondary transition"
                   aria-label="Remove from favorites"
                 >
                   <Heart size={16} className="fill-red-500 text-red-500" />
@@ -101,10 +129,9 @@ export default function Favorites() {
                 )}
               </div>
 
-              {/* Content */}
               <div className="p-3">
-                <h3 className="font-semibold text-gray-900">{stylist.name}</h3>
-                <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                <h3 className="font-semibold text-text-primary dark:text-text-dark-primary">{stylist.name}</h3>
+                <div className="flex items-center gap-1 mt-1 text-xs text-text-secondary dark:text-text-dark-secondary">
                   <Star size={12} className="fill-amber-400 text-amber-400" />
                   <span>{stylist.rating}</span>
                   <span className="mx-0.5">·</span>
@@ -113,18 +140,19 @@ export default function Favorites() {
                   {stylist.distance && <span>· {stylist.distance}</span>}
                 </div>
                 <div className="mt-2 flex items-center justify-between">
-                  <span className="font-bold text-gray-900">
+                  <span className="font-bold text-text-primary dark:text-text-dark-primary">
                     {stylist.price}
                   </span>
-                  <button
+                  <Button
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/app/stylist/${stylist.id}`);
                     }}
-                    className="px-3 py-1 text-xs bg-gray-900 text-white rounded-full hover:bg-gray-800 transition dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+                    variant="primary"
+                    size="sm"
                   >
                     View
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

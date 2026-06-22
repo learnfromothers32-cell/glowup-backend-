@@ -44,62 +44,62 @@ export default function Waitlist() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-text-dark-primary font-display">Waitlist</h1>
-          <p className="text-[#7A7168] text-sm mt-1">Clients waiting for appointment availability</p>
+          <p className="text-text-secondary dark:text-text-dark-secondary text-sm mt-1">Clients waiting for appointment availability</p>
         </div>
-        <button onClick={loadEntries} className="p-2 text-gray-500 hover:text-[#1A1A1A] self-end"><RefreshCw className="w-4 h-4" /></button>
+        <button onClick={loadEntries} className="p-2 text-text-secondary dark:text-text-dark-secondary hover:text-text-primary dark:hover:text-text-dark-primary self-end"><RefreshCw className="w-4 h-4" /></button>
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 text-red-700 rounded-lg text-sm">
+        <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 text-red-700 rounded-xl text-sm">
           <AlertCircle className="w-4 h-4" /> {error}
           <button onClick={() => setError('')} className="ml-auto"><X className="w-4 h-4" /></button>
         </div>
       )}
 
-      <div className="flex gap-1 mb-4 bg-[#FAF8F4] rounded-lg p-1 overflow-x-auto">
+      <div className="flex gap-1 mb-4 bg-gray-50 dark:bg-surface-dark-tertiary rounded-xl p-1 overflow-x-auto">
         {['', 'waiting', 'notified', 'booked'].map(s => (
           <button key={s} onClick={() => setFilter(s)}
-            className={`px-3 py-1.5 text-sm rounded-md capitalize transition-colors whitespace-nowrap ${filter === s ? 'bg-white shadow-sm' : 'text-gray-500'}`}>
+            className={`px-3 py-1.5 text-sm rounded-md capitalize transition-colors whitespace-nowrap ${filter === s ? 'bg-white dark:bg-surface-dark-secondary shadow-sm' : 'text-text-secondary dark:text-text-dark-secondary'}`}>
             {s || 'All'}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-[#7A7168]" /></div>
+        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-text-muted dark:text-text-dark-muted" /></div>
       ) : entries.length === 0 ? (
-        <div className="text-center py-16 text-gray-400"><Users className="w-12 h-12 mx-auto mb-3" /><p>No waitlist entries</p></div>
+        <div className="text-center py-16 text-text-muted dark:text-text-dark-muted"><Users className="w-12 h-12 mx-auto mb-3" /><p>No waitlist entries</p></div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {entries.map(entry => (
-            <div key={entry._id} className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-4">
+            <div key={entry._id} className="bg-white dark:bg-surface-dark-secondary rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/40 p-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-full bg-[#8B7355] flex items-center justify-center text-white text-sm font-medium shrink-0">
                     {entry.clientId?.name?.charAt(0) || '?'}
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-medium text-[#1A1A1A] truncate">{entry.clientId?.name || 'Unknown'}</h3>
-                    <p className="text-xs text-gray-500 truncate">{entry.clientId?.email}</p>
+                    <h3 className="font-medium text-text-primary dark:text-text-dark-primary truncate">{entry.clientId?.name || 'Unknown'}</h3>
+                    <p className="text-xs text-text-secondary dark:text-text-dark-secondary truncate">{entry.clientId?.email}</p>
                   </div>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded shrink-0 ${statusColors[entry.status] || 'bg-gray-100'}`}>{entry.status}</span>
               </div>
-              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-secondary dark:text-text-dark-secondary">
                 <span className="flex items-center gap-1"><Calendar className="w-3 h-3 shrink-0" /> {new Date(entry.preferredDate).toLocaleDateString()}</span>
                 {entry.preferredTime && <span className="flex items-center gap-1"><Clock className="w-3 h-3 shrink-0" /> {entry.preferredTime}</span>}
                 <span className="truncate">{entry.serviceId?.name || 'Any service'}</span>
               </div>
-              {entry.notes && <p className="text-xs text-gray-400 mt-2 line-clamp-2">{entry.notes}</p>}
+              {entry.notes && <p className="text-xs text-text-muted dark:text-text-dark-muted mt-2 line-clamp-2">{entry.notes}</p>}
               <div className="mt-3 flex gap-2">
                 {entry.status === 'waiting' && (
                   <button onClick={() => handleNotify(entry._id)}
-                    className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded hover:bg-blue-100 transition-colors min-h-[32px]">
+                    className="flex items-center gap-1 text-xs bg-brand-50 text-brand-600 hover:bg-brand-500 hover:text-white px-3 py-1.5 rounded-xl transition-colors min-h-[32px]">
                     <Bell className="w-3 h-3 shrink-0" /> Notify Client
                   </button>
                 )}
                 <button onClick={() => handleRemove(entry._id)}
-                  className="text-xs text-red-600 px-3 py-1.5 rounded hover:bg-red-50 min-h-[32px]">
+                  className="text-xs text-red-600 px-3 py-1.5 rounded-xl hover:bg-red-50 min-h-[32px]">
                   <Trash2 className="w-3 h-3" />
                 </button>
               </div>

@@ -21,7 +21,7 @@ import { useAuth } from "../../context/authUtils";
 import AuthModal from "../../features/consumer/components/AuthModal";
 import { io } from "socket.io-client";
 import { getSocketUrl } from "../../services/socket";
-import { Clock, ChevronRight, Sparkles, MapPin, ArrowRight, User } from "lucide-react";
+import { Clock, ChevronRight, Sparkles, MapPin, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -220,10 +220,10 @@ export default function Home() {
         <Skeleton className="h-10 w-full rounded-2xl" />
         <Skeleton className="h-48 w-full rounded-2xl" />
         <div className="grid grid-cols-2 gap-3">
-          <Skeleton className="h-32 rounded-xl" />
-          <Skeleton className="h-32 rounded-xl" />
-          <Skeleton className="h-32 rounded-xl" />
-          <Skeleton className="h-32 rounded-xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
         </div>
         <Skeleton className="h-24 rounded-2xl" />
       </div>

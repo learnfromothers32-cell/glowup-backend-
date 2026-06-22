@@ -7,6 +7,7 @@ import { createConversation } from '../../api/conversations';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
+import { Skeleton } from '../../components/ui/Skeleton';
 
 interface ClientUser {
   _id: string;
@@ -99,7 +100,7 @@ export default function Clients() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-text-dark-primary font-display">My Clients</h1>
-          <p className="text-sm text-warm-600 dark:text-text-dark-secondary mt-0.5">View and manage your client relationships</p>
+          <p className="text-sm text-text-secondary mt-0.5">View and manage your client relationships</p>
         </div>
       </div>
 
@@ -120,13 +121,28 @@ export default function Clients() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="w-8 h-8 animate-spin text-warm-500 dark:text-text-dark-muted" />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-gray-100 dark:border-gray-700/40 bg-white dark:bg-surface-dark-secondary p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-10 h-10 rounded-full skeleton-pulse" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-28 skeleton-pulse" />
+                  <Skeleton className="h-3 w-36 skeleton-pulse" />
+                </div>
+              </div>
+              <Skeleton className="h-4 w-48 skeleton-pulse" />
+              <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-700/40">
+                <Skeleton className="h-8 flex-1 rounded-xl skeleton-pulse" />
+                <Skeleton className="h-8 w-8 rounded-xl skeleton-pulse" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : clients.length === 0 ? (
         <Card className="text-center py-16">
-          <div className="w-14 h-14 rounded-full bg-warm-100 dark:bg-surface-dark-tertiary flex items-center justify-center mx-auto mb-4">
-            <UsersIcon className="w-7 h-7 text-warm-500 dark:text-text-dark-muted" />
+          <div className="w-14 h-14 rounded-full bg-gray-50 dark:bg-surface-dark-tertiary flex items-center justify-center mx-auto mb-4">
+            <UsersIcon className="w-7 h-7 text-text-muted" />
           </div>
           <p className="text-body-sm font-semibold text-text-primary mb-1">No clients yet</p>
           <p className="text-caption text-text-muted">Clients will appear here after their first booking</p>
@@ -147,10 +163,10 @@ export default function Clients() {
                 </div>
                 <button
                   onClick={() => toggleFavorite(client)}
-                  className={`p-1.5 rounded-lg transition-colors shrink-0 ${
+                  className={`p-1.5 rounded-xl transition-colors shrink-0 ${
                     client.favorite
                       ? 'text-amber-400 bg-amber-50 dark:bg-amber-950/30'
-                      : 'text-gray-300 dark:text-text-dark-muted hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20'
+                      : 'text-text-muted hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20'
                   }`}
                   aria-label={client.favorite ? 'Remove from favorites' : 'Add to favorites'}
                 >
@@ -167,11 +183,11 @@ export default function Clients() {
               {client.tags?.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {client.tags.map((tag, i) => (
-                    <span key={i} className="text-caption bg-warm-100 dark:bg-surface-dark-tertiary text-warm-600 dark:text-text-dark-secondary px-2 py-0.5 rounded-full font-medium">{tag}</span>
+                    <span key={i} className="text-caption bg-gray-50 dark:bg-surface-dark-tertiary text-text-secondary px-2 py-0.5 rounded-full font-medium">{tag}</span>
                   ))}
                 </div>
               )}
-              <div className="mt-3 flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-700/50">
+              <div className="mt-3 flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-700/40">
                 <Button variant="secondary" size="sm" onClick={() => openDetail(client)} className="flex-1">
                   View Profile
                 </Button>
@@ -193,7 +209,7 @@ export default function Clients() {
           >
             {detailLoading ? (
               <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 animate-spin text-warm-500 dark:text-text-dark-muted" />
+                <Loader2 className="w-8 h-8 animate-spin text-text-muted" />
               </div>
             ) : (
               <div className="p-6">
@@ -209,7 +225,7 @@ export default function Clients() {
                   </div>
                   <button
                     onClick={() => setSelected(null)}
-                    className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary transition-colors"
+                    className="p-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary transition-colors"
                     aria-label="Close"
                   >
                     <X size={20} />
@@ -217,15 +233,15 @@ export default function Clients() {
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-                  <div className="bg-warm-50 dark:bg-surface-dark-tertiary rounded-xl p-4 text-center">
+                  <div className="bg-gray-50 dark:bg-surface-dark-tertiary rounded-2xl p-4 text-center">
                     <p className="text-xl sm:text-2xl font-bold text-text-primary dark:text-text-dark-primary">{detailData.client?.totalVisits || 0}</p>
                     <p className="text-caption text-text-muted dark:text-text-dark-secondary mt-0.5">Total Visits</p>
                   </div>
-                  <div className="bg-warm-50 dark:bg-surface-dark-tertiary rounded-xl p-4 text-center">
+                  <div className="bg-gray-50 dark:bg-surface-dark-tertiary rounded-2xl p-4 text-center">
                     <p className="text-xl sm:text-2xl font-bold text-text-primary dark:text-text-dark-primary">GH₵{(detailData.client?.totalSpent || 0).toFixed(0)}</p>
                     <p className="text-caption text-text-muted dark:text-text-dark-secondary mt-0.5">Total Spent</p>
                   </div>
-                  <div className="bg-warm-50 dark:bg-surface-dark-tertiary rounded-xl p-4 text-center">
+                  <div className="bg-gray-50 dark:bg-surface-dark-tertiary rounded-2xl p-4 text-center">
                     <p className="text-xl sm:text-2xl font-bold text-text-primary dark:text-text-dark-primary">{detailData.bookings?.length || 0}</p>
                     <p className="text-caption text-text-muted dark:text-text-dark-secondary mt-0.5">Bookings</p>
                   </div>
@@ -249,7 +265,7 @@ export default function Clients() {
                 <div className="space-y-2">
                   {detailData.bookings?.length > 0 ? (
                     detailData.bookings.map((b: any) => (
-                      <div key={b._id} className="flex items-center justify-between p-3 bg-warm-50 dark:bg-surface-dark-tertiary rounded-xl gap-2">
+                      <div key={b._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-surface-dark-tertiary rounded-2xl gap-2">
                         <div className="min-w-0">
                           <p className="text-body-sm font-medium text-text-primary dark:text-text-dark-primary truncate">{b.serviceId?.name || 'Service'}</p>
                           <p className="text-caption text-text-muted dark:text-text-dark-muted truncate">
@@ -257,7 +273,7 @@ export default function Clients() {
                             {new Date(b.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
                         </div>
-                        <span className={`text-caption px-2 py-1 rounded-lg font-medium shrink-0 ${
+                        <span className={`text-caption px-2 py-1 rounded-xl font-medium shrink-0 ${
                           b.status === 'completed'
                             ? 'bg-success/10 text-success dark:text-success'
                             : b.status === 'cancelled'

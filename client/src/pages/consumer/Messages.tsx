@@ -1,41 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
-import { Search, Send, Loader2, MessageSquare, ChevronLeft, Phone } from 'lucide-react';
+import { Search, Send, MessageSquare, ChevronLeft, Phone } from 'lucide-react';
 import { logger } from '../../utils/logger';
 import { getMyConversations, getConversationMessages, sendMessage, getSocketConversationUrl } from '../../api/conversations';
 import { getAccessToken } from '../../api/axios';
 import { io, Socket } from 'socket.io-client';
-
-const T = {
-  navy: "#0B1A33",
-  navyMid: "#1A2F54",
-  navyLight: "#253D6A",
-  navyGhost: "#EDF2FF",
-  gold: "#B8862A",
-  goldMid: "#D4A047",
-  goldLight: "#F9F1E2",
-  goldGhost: "#FDF8F0",
-  bg: "#F4F7FC",
-  canvas: "#FFFFFF",
-  raised: "#F8FAFD",
-  muted: "#EEF2F8",
-  line: "#E9EEF5",
-  ink: "#0A1424",
-  inkMid: "#364A6B",
-  inkSoft: "#5A6E8A",
-  inkFaint: "#8E9FB2",
-  green: "#059669",
-  greenLight: "#ECFDF5",
-  greenMid: "#10B981",
-  red: "#DC2626",
-  redLight: "#FEF2F2",
-  shadowSm: "0 2px 8px rgba(10,20,40,0.06)",
-  shadowMd: "0 6px 18px rgba(10,20,40,0.07)",
-  shadowLg: "0 12px 32px rgba(10,20,40,0.08)",
-};
-
-const FONT_DISPLAY = "'Playfair Display', Georgia, serif";
+import { Avatar } from '../../components/ui/Avatar';
+import { Button } from '../../components/ui/Button';
 
 interface Conversation {
   _id: string;
@@ -132,55 +104,59 @@ export default function ConsumerMessages() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-[calc(100vh-10rem)]">
-      <h1 className="text-2xl font-bold mb-4" style={{ color: T.ink, fontFamily: FONT_DISPLAY }}>Messages</h1>
+      <h1 className="text-2xl font-bold mb-4 text-text-primary dark:text-text-dark-primary">Messages</h1>
 
-      <div className="flex h-[calc(100%-4rem)] rounded-2xl overflow-hidden" style={{ background: T.canvas, boxShadow: T.shadowMd, border: `1px solid ${T.line}` }}>
-        {/* ── Conversation List ── */}
-        <div className={`w-80 flex flex-col ${activeChat ? 'hidden lg:flex' : 'flex'}`} style={{ borderRight: `1px solid ${T.line}` }}>
-          <div className="p-3" style={{ borderBottom: `1px solid ${T.line}` }}>
+      <div className="flex h-[calc(100%-4rem)] rounded-2xl overflow-hidden bg-white dark:bg-surface-dark-secondary border border-gray-200 dark:border-gray-600 shadow-md">
+        {/* Conversation List */}
+        <div className={`w-80 flex flex-col border-r border-gray-200 dark:border-gray-600 ${activeChat ? 'hidden lg:flex' : 'flex'}`}>
+          <div className="p-3 border-b border-gray-200 dark:border-gray-600">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: T.inkFaint }} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted dark:text-text-dark-muted" />
               <input type="text" placeholder="Search conversations..." value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
-                style={{ border: `1px solid ${T.line}`, background: T.raised, color: T.ink, caretColor: T.navy }}
+                className="w-full pl-9 pr-3 py-2 rounded-xl text-sm input-field"
               />
             </div>
           </div>
           <div className="flex-1 overflow-y-auto">
             {loading ? (
-              <div className="flex items-center justify-center h-32"><Loader2 className="w-6 h-6 animate-spin" style={{ color: T.inkFaint }} /></div>
+              <div className="p-3 space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full skeleton-pulse shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 w-32 skeleton-pulse rounded" />
+                      <div className="h-2.5 w-48 skeleton-pulse rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : filteredConversations.length === 0 ? (
-              <div className="text-center py-12 text-sm" style={{ color: T.inkFaint }}>
-                <MessageSquare className="w-8 h-8 mx-auto mb-2" style={{ color: T.inkFaint }} />
+              <div className="text-center py-12 text-sm text-text-muted dark:text-text-dark-muted">
+                <MessageSquare className="w-8 h-8 mx-auto mb-2 text-text-muted dark:text-text-dark-muted" />
                 No conversations yet
               </div>
             ) : (
               filteredConversations.map(conv => (
                 <button key={conv._id} onClick={() => openChat(conv._id)}
-                  className="w-full text-left p-3 transition-colors"
-                  style={{ borderBottom: `1px solid ${T.line}`, background: activeChat === conv._id ? T.navyGhost : 'transparent' }}>
+                  className={`w-full text-left p-3 transition-colors border-b border-gray-200 dark:border-gray-600 ${activeChat === conv._id ? 'bg-brand-50 dark:bg-brand-950/20' : 'hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary'}`}>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0"
-                      style={{ background: `linear-gradient(135deg,${T.navy},${T.navyMid})` }}>
-                      {conv.stylistId?.name?.charAt(0) || '?'}
-                    </div>
+                    <Avatar name={conv.stylistId?.name} src={conv.stylistId?.image} size="md" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold truncate" style={{ color: T.ink }}>{conv.stylistId?.name}</p>
+                        <p className="text-sm font-semibold truncate text-text-primary dark:text-text-dark-primary">{conv.stylistId?.name}</p>
                         {conv.lastMessage && (
-                          <span className="text-xs shrink-0" style={{ color: T.inkFaint }}>
+                          <span className="text-xs shrink-0 text-text-muted dark:text-text-dark-muted">
                             {new Date(conv.lastMessage.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                           </span>
                         )}
                       </div>
-                      <p className="text-xs truncate mt-0.5" style={{ color: conv.unreadClient > 0 ? T.inkMid : T.inkFaint }}>
+                      <p className={`text-xs truncate mt-0.5 ${conv.unreadClient > 0 ? 'text-text-secondary dark:text-text-dark-secondary font-medium' : 'text-text-muted dark:text-text-dark-muted'}`}>
                         {conv.lastMessage?.content || 'No messages yet'}
                       </p>
                     </div>
                     {conv.unreadClient > 0 && (
-                      <span className="w-5 h-5 text-white text-xs rounded-full flex items-center justify-center shrink-0 font-bold"
-                        style={{ background: T.navy }}>
+                      <span className="w-5 h-5 text-white text-xs rounded-full flex items-center justify-center shrink-0 font-bold bg-brand-500">
                         {conv.unreadClient}
                       </span>
                     )}
@@ -191,55 +167,48 @@ export default function ConsumerMessages() {
           </div>
         </div>
 
-        {/* ── Chat Area ── */}
+        {/* Chat Area */}
         <div className={`flex-1 flex flex-col ${!activeChat ? 'hidden lg:flex' : 'flex'}`}>
           {!activeChat ? (
-            <div className="flex-1 flex items-center justify-center" style={{ color: T.inkFaint }}>
+            <div className="flex-1 flex items-center justify-center text-text-muted dark:text-text-dark-muted">
               <div className="text-center">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ background: T.raised }}>
-                  <MessageSquare className="w-7 h-7" style={{ color: T.inkFaint }} />
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-gray-50 dark:bg-surface-dark-tertiary">
+                  <MessageSquare className="w-7 h-7 text-text-muted dark:text-text-dark-muted" />
                 </div>
-                <p className="text-sm font-medium" style={{ color: T.inkSoft }}>Select a conversation</p>
-                <p className="text-xs mt-1" style={{ color: T.inkFaint }}>Choose a conversation from the left to start chatting</p>
+                <p className="text-sm font-medium text-text-secondary dark:text-text-dark-secondary">Select a conversation</p>
+                <p className="text-xs mt-1 text-text-muted dark:text-text-dark-muted">Choose a conversation from the left to start chatting</p>
               </div>
             </div>
           ) : (
             <>
               {/* Chat Header */}
-              <div className="flex items-center gap-3 px-5 py-3.5" style={{ borderBottom: `1px solid ${T.line}`, background: T.canvas }}>
-                <button onClick={() => setActiveChat(null)} className="lg:hidden p-1 rounded-lg hover:bg-gray-100 transition-colors" style={{ color: T.inkSoft }}>
+              <div className="flex items-center gap-3 px-5 py-3.5 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-surface-dark-secondary">
+                <Button variant="ghost" size="sm" icon onClick={() => setActiveChat(null)} className="lg:hidden">
                   <ChevronLeft className="w-5 h-5" />
-                </button>
-                <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0"
-                  style={{ background: `linear-gradient(135deg,${T.navy},${T.navyMid})` }}>
-                  {activeConv?.stylistId?.name?.charAt(0) || '?'}
-                </div>
+                </Button>
+                <Avatar name={activeConv?.stylistId?.name} src={activeConv?.stylistId?.image} size="md" />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold" style={{ color: T.ink }}>{activeConv?.stylistId?.name}</p>
-                  <p className="text-xs" style={{ color: T.greenMid }}>Online</p>
+                  <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">{activeConv?.stylistId?.name}</p>
+                  <p className="text-xs text-green-500">Online</p>
                 </div>
-                <button onClick={() => { const p = (activeConv as any)?.stylistId?.phone; if (p) window.open(`tel:${p}`); else alert('No phone number available'); }} className="p-2 rounded-xl transition-colors" style={{ color: T.inkSoft, background: T.raised }}>
+                <Button variant="ghost" size="sm" icon onClick={() => { const p = (activeConv as any)?.stylistId?.phone; if (p) window.open(`tel:${p}`); else alert('No phone number available'); }} className="bg-gray-50 dark:bg-surface-dark-tertiary">
                   <Phone size={15} />
-                </button>
+                </Button>
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3" style={{ background: T.bg }}>
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-gray-50 dark:bg-surface-dark-tertiary">
                 {messages.map(msg => {
                   const isMe = msg.senderRole === 'client';
                   return (
                     <motion.div key={msg._id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                       className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                       <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${isMe
-                        ? 'rounded-br-md'
-                        : 'rounded-bl-md'
-                      }`} style={{
-                        background: isMe ? `linear-gradient(135deg,${T.navy},${T.navyLight})` : T.canvas,
-                        color: isMe ? '#fff' : T.ink,
-                        boxShadow: isMe ? `0 2px 8px rgba(11,26,51,0.15)` : T.shadowSm,
-                      }}>
+                        ? 'bg-brand-500 text-white rounded-br-md'
+                        : 'bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary rounded-bl-md shadow-sm'
+                      }`}>
                         <p className="text-sm leading-relaxed">{msg.content}</p>
-                        <p className={`text-[10px] mt-1.5 font-medium ${isMe ? 'opacity-60' : ''}`} style={{ color: isMe ? '#fff' : T.inkFaint }}>
+                        <p className={`text-[10px] mt-1.5 font-medium ${isMe ? 'text-white/60' : 'text-text-muted dark:text-text-dark-muted'}`}>
                           {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
@@ -250,18 +219,15 @@ export default function ConsumerMessages() {
               </div>
 
               {/* Input */}
-              <div className="px-5 py-3.5" style={{ borderTop: `1px solid ${T.line}`, background: T.canvas }}>
+              <div className="px-5 py-3.5 border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-surface-dark-secondary">
                 <div className="flex items-center gap-2">
                   <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
                     placeholder="Type a message..." rows={1}
-                    className="flex-1 rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 transition-all"
-                    style={{ border: `1px solid ${T.line}`, background: T.raised, color: T.ink, caretColor: T.navy }}
+                    className="flex-1 rounded-xl px-4 py-2.5 text-sm resize-none input-field"
                   />
-                  <button onClick={handleSend} disabled={!input.trim() || sending}
-                    className="p-2.5 rounded-xl text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ background: `linear-gradient(135deg,${T.navy},${T.navyLight})`, boxShadow: `0 2px 8px rgba(11,26,51,0.2)` }}>
-                    {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                  </button>
+                  <Button onClick={handleSend} disabled={!input.trim() || sending} loading={sending} icon size="md">
+                    <Send className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             </>

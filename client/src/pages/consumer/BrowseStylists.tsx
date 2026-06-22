@@ -78,9 +78,9 @@ function ListCard({ stylist, index }: { stylist: Stylist; index: number }) {
       exit={{ opacity: 0, x: 8 }}
       transition={{ delay: index * 0.03, duration: 0.25, layout: { duration: 0.3 } }}
       onClick={() => navigate(`/app/stylist/${stylist.id}`)}
-      className="group flex items-center gap-4 p-3 rounded-xl bg-white border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all duration-200 cursor-pointer"
+      className="group flex items-center gap-4 p-3 rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 hover:border-brand-100 dark:hover:border-brand-900/30 hover:shadow-sm transition-all duration-200 cursor-pointer"
     >
-      <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+      <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0">
         {stylist.image ? (
           <img
             src={stylist.image}
@@ -88,18 +88,18 @@ function ListCard({ stylist, index }: { stylist: Stylist; index: number }) {
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-lg font-bold text-gray-300">
+          <div className="w-full h-full flex items-center justify-center text-lg font-bold text-gray-300 dark:text-gray-600">
             {stylist.name?.charAt(0)?.toUpperCase() || "?"}
           </div>
         )}
         {stylist.isLive && (
-          <span className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-full bg-red-500 ring-1 ring-white" />
+          <span className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-full bg-red-500 ring-1 ring-white dark:ring-gray-900" />
         )}
       </div>
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <p className="text-sm font-semibold text-gray-900 truncate">
+          <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary truncate">
             {stylist.name}
           </p>
           {stylist.isVerified && (
@@ -108,14 +108,14 @@ function ListCard({ stylist, index }: { stylist: Stylist; index: number }) {
         </div>
 
         <div className="flex items-center gap-2 mt-0.5">
-          <div className="flex items-center gap-0.5 text-[11px] text-gray-500">
+          <div className="flex items-center gap-0.5 text-[11px] text-text-secondary dark:text-text-dark-secondary">
             <Star size={9} className="fill-amber-400 text-amber-400" />
             {stylist.rating || "-"}
           </div>
           {stylist.location && (
             <>
-              <span className="text-gray-300">·</span>
-              <span className="flex items-center gap-0.5 text-[11px] text-gray-400 truncate max-w-[140px]">
+              <span className="text-gray-300 dark:text-gray-600">·</span>
+              <span className="flex items-center gap-0.5 text-[11px] text-text-muted dark:text-text-dark-muted truncate max-w-[140px]">
                 <MapPin size={8} />
                 {typeof stylist.location === "string"
                   ? stylist.location
@@ -127,14 +127,14 @@ function ListCard({ stylist, index }: { stylist: Stylist; index: number }) {
 
         <div className="flex items-center gap-1.5 mt-1.5">
           {stylist.priceRange && (
-            <span className="text-[11px] font-semibold text-gray-900 tabular-nums">
+            <span className="text-[11px] font-semibold text-text-primary dark:text-text-dark-primary tabular-nums">
               {stylist.priceRange}
             </span>
           )}
           {stylist.services && stylist.services.length > 0 && (
             <>
-              <span className="text-gray-300">·</span>
-              <span className="text-[11px] text-gray-400 truncate">
+              <span className="text-gray-300 dark:text-gray-600">·</span>
+              <span className="text-[11px] text-text-muted dark:text-text-dark-muted truncate">
                 {stylist.services
                   .slice(0, 2)
                   .map((s) => (typeof s === "string" ? s : s.name))
@@ -145,15 +145,18 @@ function ListCard({ stylist, index }: { stylist: Stylist; index: number }) {
         </div>
       </div>
 
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          navigate(`/app/stylist/${stylist.id}`);
-        }}
-        className="shrink-0 px-3.5 py-2 rounded-lg bg-gray-900 text-white text-[11px] font-semibold hover:bg-gray-800 transition-colors dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
-      >
-        View
-      </button>
+      <div className="shrink-0">
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/app/stylist/${stylist.id}`);
+          }}
+          variant="primary"
+          size="sm"
+        >
+          View
+        </Button>
+      </div>
     </motion.div>
   );
 }
@@ -247,7 +250,7 @@ export default function BrowseStylists() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-900 dark:text-text-dark-secondary dark:hover:text-text-dark-primary transition-colors mb-5"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-text-muted dark:text-text-dark-muted hover:text-text-primary dark:hover:text-text-dark-primary transition-colors mb-5"
           aria-label="Go back"
         >
           <ArrowLeft size={14} />
@@ -256,19 +259,19 @@ export default function BrowseStylists() {
 
         <div className="flex items-end justify-between mb-6">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-text-dark-primary">
+            <h1 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-text-dark-primary">
               {categoryName === "All"
                 ? "Browse Stylists"
                 : `${categoryName} Stylists`}
             </h1>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-text-dark-secondary mt-1">
+            <p className="text-xs sm:text-sm text-text-secondary dark:text-text-dark-secondary mt-1">
               {filtered.length} stylist
               {filtered.length !== 1 ? "s" : ""} found
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 mb-6">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 mb-6 scrollbar-hide">
           {CATEGORIES.map((cat) => {
             const isActive = category === cat.id;
             const Icon = cat.icon;
@@ -278,8 +281,8 @@ export default function BrowseStylists() {
                 onClick={() => setParam("category", cat.id)}
                 className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
                   isActive
-                    ? "bg-gray-900 text-white shadow-sm dark:bg-white dark:text-gray-900"
-                    : "bg-white text-gray-500 border border-gray-200 hover:border-gray-300 hover:text-gray-700 dark:bg-surface-dark dark:text-text-dark-secondary dark:border-gray-600 dark:hover:border-gray-500 dark:hover:text-text-dark-primary"
+                    ? "bg-brand-500 text-white shadow-sm"
+                    : "bg-white dark:bg-surface-dark text-text-secondary dark:text-text-dark-secondary border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:text-text-primary dark:hover:text-text-dark-primary"
                 }`}
               >
                 {Icon && <Icon size={12} />}
@@ -372,21 +375,23 @@ export default function BrowseStylists() {
                 className="text-gray-300 dark:text-text-dark-muted"
               />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-text-dark-primary">
+            <h3 className="text-lg font-semibold text-text-primary dark:text-text-dark-primary">
               No stylists found
             </h3>
-            <p className="text-sm text-gray-500 dark:text-text-dark-secondary mt-1 max-w-xs mx-auto">
+            <p className="text-sm text-text-secondary dark:text-text-dark-secondary mt-1 max-w-xs mx-auto">
               {category !== "all"
                 ? `No stylists available in ${categoryName} right now. Try another category.`
                 : "No stylists are available yet. Check back soon."}
             </p>
-            <button
+            <Button
               onClick={() => navigate("/app")}
-              className="inline-flex items-center gap-1.5 mt-5 px-4 py-2 rounded-full bg-gray-900 text-white text-xs font-semibold hover:bg-gray-800 transition-colors dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+              variant="primary"
+              size="md"
+              className="mt-5"
             >
               Back to Home
               <ArrowRight size={12} />
-            </button>
+            </Button>
           </div>
         ) : view === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

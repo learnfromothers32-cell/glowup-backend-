@@ -76,13 +76,13 @@ export default function LiveCreatorPanel(props: Props) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
             </>
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-neutral-500">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-text-secondary dark:text-text-dark-secondary">
               <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center text-2xl">📷</div>
               <span className="text-sm">Camera preview</span>
               {props.cameraDenied && (
                 <button
                   onClick={props.onRetryCamera}
-                  className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg text-xs text-neutral-400 transition-colors"
+                  className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-xs text-text-muted dark:text-text-dark-muted transition-colors"
                 >
                   Grant access
                 </button>
@@ -98,24 +98,24 @@ export default function LiveCreatorPanel(props: Props) {
         </div>
 
         {/* Bottom sheet - setup form */}
-        <div className="shrink-0 bg-neutral-900/95 backdrop-blur-xl border-t border-white/5 px-4 py-4 pb-6 space-y-3">
+        <div className="shrink-0 bg-surface-dark-secondary backdrop-blur-xl border-t border-gray-700/40 px-4 py-4 pb-6 space-y-3">
           <input
             value={props.streamTitle}
             onChange={e => props.onTitleChange(e.target.value)}
             placeholder="Stream title *"
-            className="w-full px-3.5 py-2.5 bg-white/5 rounded-lg text-sm text-white placeholder-neutral-600 outline-none focus:ring-1 focus:ring-pink-500/40 transition-all"
+            className="w-full px-3.5 py-2.5 bg-white/5 rounded-xl text-sm text-white placeholder-text-muted outline-none focus:ring-1 focus:ring-brand-500/40 transition-all"
           />
           <textarea
             value={props.streamDescription}
             onChange={e => props.onDescriptionChange(e.target.value)}
             placeholder="Description (optional)"
             rows={1}
-            className="w-full px-3.5 py-2.5 bg-white/5 rounded-lg text-sm text-white placeholder-neutral-600 outline-none focus:ring-1 focus:ring-pink-500/40 resize-none transition-all"
+            className="w-full px-3.5 py-2.5 bg-white/5 rounded-xl text-sm text-white placeholder-text-muted outline-none focus:ring-1 focus:ring-brand-500/40 resize-none transition-all"
           />
           <select
             value={props.streamCategory}
             onChange={e => props.onCategoryChange(e.target.value)}
-            className="w-full px-3.5 py-2.5 bg-white/5 rounded-lg text-sm text-white outline-none focus:ring-1 focus:ring-pink-500/40 appearance-none cursor-pointer transition-all"
+            className="w-full px-3.5 py-2.5 bg-white/5 rounded-xl text-sm text-white outline-none focus:ring-1 focus:ring-brand-500/40 appearance-none cursor-pointer transition-all"
           >
             {CATEGORIES.map(c => (
               <option key={c} value={c.toLowerCase().replace(/\s+/g, "-")} className="bg-neutral-900">{c}</option>
@@ -125,8 +125,7 @@ export default function LiveCreatorPanel(props: Props) {
           <button
             onClick={() => props.onGoLive(props.streamTitle.trim())}
             disabled={!canGoLive}
-            className="w-full py-3 rounded-lg text-sm font-bold text-white transition-all active:scale-[0.98] disabled:opacity-40 disabled:active:scale-100 disabled:cursor-not-allowed"
-            style={{ background: "linear-gradient(135deg, #FE2C55, #ff6b8a)" }}
+            className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-[0.98] disabled:opacity-40 disabled:active:scale-100 disabled:cursor-not-allowed bg-brand-500 hover:bg-brand-600"
           >
             {props.loading ? (
               <span className="inline-flex items-center justify-center gap-2">
@@ -221,38 +220,38 @@ export default function LiveCreatorPanel(props: Props) {
       </div>
 
       {/* Bottom controls */}
-      <div className="shrink-0 flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 bg-neutral-900 border-t border-white/5">
+      <div className="shrink-0 flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 bg-surface-dark-secondary border-t border-gray-700/40">
         <div className="flex items-center gap-0.5 sm:gap-1">
           <button
             onClick={props.onToggleMic}
-            className={`p-1.5 sm:p-2 rounded-lg transition-all ${props.isMuted ? "bg-red-500/20 text-red-400" : "bg-white/5 text-neutral-400 hover:bg-white/10 hover:text-white"}`}
+            className={`p-1.5 sm:p-2 rounded-xl transition-all ${props.isMuted ? "bg-red-500/20 text-red-400" : "bg-white/5 text-text-muted dark:text-text-dark-muted hover:bg-white/10 hover:text-white"}`}
             title={props.isMuted ? "Unmute" : "Mute"}
           >
             {props.isMuted ? <MicOff size={14} className="sm:size-[16px]" /> : <Mic size={14} className="sm:size-[16px]" />}
           </button>
           <button
             onClick={props.onToggleVideo}
-            className={`p-1.5 sm:p-2 rounded-lg transition-all ${props.isVideoOff ? "bg-red-500/20 text-red-400" : "bg-white/5 text-neutral-400 hover:bg-white/10 hover:text-white"}`}
+            className={`p-1.5 sm:p-2 rounded-xl transition-all ${props.isVideoOff ? "bg-red-500/20 text-red-400" : "bg-white/5 text-text-muted dark:text-text-dark-muted hover:bg-white/10 hover:text-white"}`}
             title={props.isVideoOff ? "Turn on camera" : "Turn off camera"}
           >
             {props.isVideoOff ? <CameraOff size={14} className="sm:size-[16px]" /> : <Camera size={14} className="sm:size-[16px]" />}
           </button>
           <button
             onClick={props.onSwitchCamera}
-            className="hidden sm:inline-flex p-2 rounded-lg bg-white/5 text-neutral-400 hover:bg-white/10 hover:text-white transition-all"
+            className="hidden sm:inline-flex p-2 rounded-xl bg-white/5 text-text-muted dark:text-text-dark-muted hover:bg-white/10 hover:text-white transition-all"
             title="Switch camera"
           >
             <SwitchCamera size={16} />
           </button>
         </div>
 
-        <div className="flex-1 flex items-center bg-white/5 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 ring-1 ring-white/5 focus-within:ring-pink-500/30 transition-all">
+        <div className="flex-1 flex items-center bg-white/5 rounded-xl px-2 sm:px-3 py-1 sm:py-1.5 ring-1 ring-white/5 focus-within:ring-brand-500/30 transition-all">
           <input
             value={chatInput}
             onChange={e => setChatInput(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter") handleSend(); }}
             placeholder="Message..."
-            className="flex-1 bg-transparent text-xs sm:text-sm text-white placeholder-neutral-500 outline-none"
+            className="flex-1 bg-transparent text-xs sm:text-sm text-white placeholder-text-muted outline-none"
           />
           <button onClick={handleSend} disabled={!chatInput.trim()} className="p-1 disabled:opacity-30 transition-opacity">
             <Send size={12} className="sm:size-[14px]" style={{ color: "#FE2C55" }} />
@@ -261,7 +260,7 @@ export default function LiveCreatorPanel(props: Props) {
 
         <button
           onClick={props.onEndLive}
-          className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-bold text-white transition-all active:scale-[0.97] bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20"
+          className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-bold text-white transition-all active:scale-[0.97] bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20"
         >
           <LogOut size={12} className="sm:size-[14px]" />
           <span className="hidden sm:inline">End</span>

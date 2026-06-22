@@ -59,7 +59,7 @@ export default function TimeStep({
     >
       <div className="mt-2">
         {loading ? (
-          <div className="flex items-center justify-center py-8 text-gray-400">
+          <div className="flex items-center justify-center py-8 text-text-muted dark:text-text-dark-muted">
             <Loader2 className="animate-spin h-5 w-5 mr-2" />
             <span className="text-sm">Checking availability…</span>
           </div>
@@ -71,7 +71,7 @@ export default function TimeStep({
 
               return (
                 <div key={period}>
-                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                  <p className="text-[11px] font-semibold text-text-muted dark:text-text-dark-muted uppercase tracking-wider mb-2">
                     {periodLabel}
                   </p>
                   <div className="grid grid-cols-3 gap-2">
@@ -86,15 +86,15 @@ export default function TimeStep({
                           disabled={unavailable}
                           className={`py-2.5 px-2 rounded-xl border text-center text-xs font-medium transition-all duration-200 ${
                             unavailable
-                              ? "border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed"
+                              ? "border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary text-gray-300 dark:text-gray-600 cursor-not-allowed"
                               : isSelected
-                                ? "border-gray-900 bg-gray-900 text-white shadow-md"
-                                : "border-gray-100 bg-white text-gray-700 hover:border-gray-200"
+                                ? "border-brand-500 bg-brand-500 text-white shadow-md active:bg-brand-500 active:text-white"
+                                : "border-gray-100 dark:border-gray-700/40 bg-white dark:bg-surface-dark-secondary text-text-secondary dark:text-text-dark-secondary hover:border-gray-200 dark:hover:border-gray-600"
                           }`}
                         >
                           {label}
                           {unavailable && (
-                            <span className="block text-[9px] text-gray-300 mt-0.5">Booked</span>
+                            <span className="block text-[9px] text-gray-300 dark:text-gray-600 mt-0.5">Booked</span>
                           )}
                         </button>
                       );

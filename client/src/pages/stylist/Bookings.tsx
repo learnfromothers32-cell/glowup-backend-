@@ -130,9 +130,9 @@ export default function StylistBookings() {
     return (
       <div className="space-y-3">
         <div className="flex gap-3 overflow-x-auto pb-2">
-          {[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-24 w-36 sm:w-auto sm:flex-1 rounded-xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/50 animate-pulse shrink-0" />)}
+          {[1, 2, 3, 4, 5].map((i) => <div key={i} className="h-24 w-36 sm:w-auto sm:flex-1 rounded-2xl skeleton-pulse shrink-0" />)}
         </div>
-        {[1, 2, 3, 4].map((i) => <div key={i} className="h-20 rounded-xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/50 animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />)}
+        {[1, 2, 3, 4].map((i) => <div key={i} className="h-20 rounded-2xl skeleton-pulse" style={{ animationDelay: `${i * 0.1}s` }} />)}
       </div>
     );
   }
@@ -158,12 +158,12 @@ export default function StylistBookings() {
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-6 sm:gap-3 sm:overflow-visible sm:pb-0">
-          <StatCard label="Pending" value={counts.pending} icon={Clock} color={{ bg: "bg-amber-50", text: "text-amber-700", icon: "text-amber-500" }} />
-          <StatCard label="In Progress" value={counts.inProgress} icon={Play} color={{ bg: "bg-orange-50", text: "text-orange-700", icon: "text-orange-500" }} />
-          <StatCard label="Today" value={counts.today} icon={CalendarCheck} color={{ bg: "bg-green-50", text: "text-green-700", icon: "text-green-500" }} />
-          <StatCard label="Upcoming" value={counts.upcoming} icon={CalendarClock} color={{ bg: "bg-blue-50", text: "text-blue-700", icon: "text-blue-500" }} />
-          <StatCard label="Completed" value={counts.past} icon={CheckCircle} color={{ bg: "bg-gray-50", text: "text-gray-700", icon: "text-gray-500" }} />
-          <StatCard label="Cancelled" value={counts.cancelled} icon={CalendarX} color={{ bg: "bg-red-50", text: "text-red-600", icon: "text-red-400" }} />
+          <StatCard label="Pending" value={counts.pending} icon={Clock} color={{ bg: "bg-amber-50 dark:bg-amber-950/20", text: "text-amber-700 dark:text-amber-400", icon: "text-amber-500 dark:text-amber-400" }} />
+          <StatCard label="In Progress" value={counts.inProgress} icon={Play} color={{ bg: "bg-orange-50 dark:bg-orange-950/20", text: "text-orange-700 dark:text-orange-400", icon: "text-orange-500 dark:text-orange-400" }} />
+          <StatCard label="Today" value={counts.today} icon={CalendarCheck} color={{ bg: "bg-green-50 dark:bg-green-950/20", text: "text-green-700 dark:text-green-400", icon: "text-green-500 dark:text-green-400" }} />
+          <StatCard label="Upcoming" value={counts.upcoming} icon={CalendarClock} color={{ bg: "bg-blue-50 dark:bg-blue-950/20", text: "text-blue-700 dark:text-blue-400", icon: "text-blue-500 dark:text-blue-400" }} />
+          <StatCard label="Completed" value={counts.past} icon={CheckCircle} color={{ bg: "bg-gray-50 dark:bg-surface-dark-tertiary", text: "text-text-secondary dark:text-text-dark-secondary", icon: "text-text-muted dark:text-text-dark-muted" }} />
+          <StatCard label="Cancelled" value={counts.cancelled} icon={CalendarX} color={{ bg: "bg-red-50 dark:bg-red-950/20", text: "text-red-600 dark:text-red-400", icon: "text-red-400 dark:text-red-400" }} />
         </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
@@ -173,7 +173,7 @@ export default function StylistBookings() {
           <div className="relative shrink-0">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-text-dark-muted pointer-events-none" />
             <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search client or service…"
-              className="w-full sm:w-48 pl-9 pr-3 py-2.5 rounded-xl input-field text-sm" />
+              className="w-full sm:w-48 pl-9 pr-3 py-2.5 input-field-sm" />
           </div>
         </div>
 
@@ -191,34 +191,34 @@ export default function StylistBookings() {
               return (
                 <motion.div key={b._id} onClick={() => setDetail(b)}
                   initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                  className={`group bg-white rounded-xl border border-gray-100 cursor-pointer hover:border-gray-200 hover:shadow-md transition-all duration-200 ${isCancelled ? "opacity-60" : ""} ${isPending ? "border-amber-200 bg-amber-50/30" : ""}`}>
+                  className={`group bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 cursor-pointer hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-md transition-all duration-200 ${isCancelled ? "opacity-60" : ""} ${isPending ? "border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/10" : ""}`}>
                   <div className="flex flex-col sm:flex-row sm:items-center p-3 sm:p-4">
 
                     <div className="flex items-center gap-2 sm:gap-4 w-full">
                       <div className="hidden sm:flex sm:flex-col sm:items-center sm:w-16 shrink-0 sm:leading-tight">
-                        <p className="text-sm font-bold text-gray-900 tabular-nums">{fmtISO(b.startTime).split(" ")[0]}</p>
-                        <p className="text-[10px] text-gray-400 font-medium">{fmtISO(b.startTime).split(" ")[1]}</p>
+                        <p className="text-sm font-bold text-text-primary dark:text-text-dark-primary tabular-nums">{fmtISO(b.startTime).split(" ")[0]}</p>
+                        <p className="text-[10px] text-text-muted dark:text-text-dark-muted font-medium">{fmtISO(b.startTime).split(" ")[1]}</p>
                       </div>
-                      <div className="hidden sm:block w-px h-10 shrink-0 self-center bg-gray-200" />
+                      <div className="hidden sm:block w-px h-10 shrink-0 self-center bg-gray-200 dark:bg-gray-600" />
 
                       <div className="shrink-0">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gray-100 flex items-center justify-center ring-1 ring-gray-100">
-                          <span className="text-[11px] font-bold text-gray-400">{initials(clientName)}</span>
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center ring-1 ring-gray-100 dark:ring-gray-700/40">
+                          <span className="text-[11px] font-bold text-text-muted dark:text-text-dark-muted">{initials(clientName)}</span>
                         </div>
                       </div>
 
-                      <span className="sm:hidden text-xs font-medium text-gray-500">{fmtISO(b.startTime)}</span>
+                      <span className="sm:hidden text-xs font-medium text-text-secondary dark:text-text-dark-secondary">{fmtISO(b.startTime)}</span>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <p className={`text-sm font-semibold truncate ${isCancelled ? "text-gray-400 line-through" : "text-gray-900"}`}>{clientName}</p>
+                          <p className={`text-sm font-semibold truncate ${isCancelled ? "text-text-muted dark:text-text-dark-muted line-through" : "text-text-primary dark:text-text-dark-primary"}`}>{clientName}</p>
                           <StatusBadge status={b.status} date={dateStr} />
                         </div>
-                        <p className="text-xs text-gray-500 truncate sm:block">{serviceName}</p>
+                        <p className="text-xs text-text-secondary dark:text-text-dark-secondary truncate sm:block">{serviceName}</p>
                       </div>
 
                       {b.totalPrice > 0 && (
-                        <p className={`hidden sm:block text-sm font-bold shrink-0 ${isCancelled ? "text-gray-300" : "text-gray-900"}`}>
+                        <p className={`hidden sm:block text-sm font-bold shrink-0 ${isCancelled ? "text-gray-300 dark:text-gray-600" : "text-text-primary dark:text-text-dark-primary"}`}>
                           GH₵{b.totalPrice}
                         </p>
                       )}
@@ -228,30 +228,30 @@ export default function StylistBookings() {
                       {isPending && (
                         <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={(e) => { e.stopPropagation(); handleConfirm(b._id); }} disabled={actionLoading === b._id}
-                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-gray-200 text-[11px] font-semibold text-green-600 hover:bg-green-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-green-300 text-[11px] font-semibold text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                             {actionLoading === b._id ? <Loader2 size={12} className="animate-spin" /> : <CheckIcon size={12} />} Confirm
                           </button>
                           <button onClick={(e) => { e.stopPropagation(); handleCancel(b._id); }} disabled={actionLoading === b._id}
-                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-gray-200 text-[11px] font-semibold text-red-500 hover:bg-red-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-red-300 text-[11px] font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                             {actionLoading === b._id ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />} Cancel
                           </button>
                         </div>
                       )}
                       {b.status === "confirmed" && (
                         <button onClick={(e) => { e.stopPropagation(); handleStartService(b._id); }} disabled={actionLoading === b._id}
-                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-blue-200 bg-blue-50 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-blue-300 bg-blue-50 dark:bg-blue-950/20 text-[11px] font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                           {actionLoading === b._id ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />} Start Service
                         </button>
                       )}
                       {b.status === "in-progress" && (
                         <div className="flex flex-col items-end gap-1">
                           {elapsed[b._id] && (
-                            <span className="flex items-center gap-1 text-[11px] font-mono text-orange-600 font-semibold">
+                            <span className="flex items-center gap-1 text-[11px] font-mono text-orange-600 dark:text-orange-400 font-semibold">
                               <Timer size={12} /> {elapsed[b._id]}
                             </span>
                           )}
                           <button onClick={(e) => { e.stopPropagation(); handleComplete(b._id); }} disabled={actionLoading === b._id}
-                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-green-200 bg-green-50 text-[11px] font-semibold text-green-700 hover:bg-green-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-green-300 bg-green-50 dark:bg-green-950/20 text-[11px] font-semibold text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-950/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                             {actionLoading === b._id ? <Loader2 size={12} className="animate-spin" /> : <StopCircle size={12} />} Complete
                           </button>
                         </div>
@@ -262,36 +262,36 @@ export default function StylistBookings() {
                       {isPending && (
                         <>
                           <button onClick={(e) => { e.stopPropagation(); handleConfirm(b._id); }} disabled={actionLoading === b._id}
-                            className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-green-200 bg-green-50 text-[11px] font-semibold text-green-700 flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                            className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl border border-green-300 bg-green-50 dark:bg-green-950/20 text-[11px] font-semibold text-green-700 dark:text-green-400 flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
                             {actionLoading === b._id ? <Loader2 size={12} className="animate-spin" /> : <CheckIcon size={12} />} Confirm
                           </button>
                           <button onClick={(e) => { e.stopPropagation(); handleCancel(b._id); }} disabled={actionLoading === b._id}
-                            className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-[11px] font-semibold text-red-600 flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                            className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl border border-red-300 bg-red-50 dark:bg-red-950/20 text-[11px] font-semibold text-red-600 dark:text-red-400 flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
                             {actionLoading === b._id ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />} Cancel
                           </button>
                         </>
                       )}
                       {b.status === "confirmed" && (
                         <button onClick={(e) => { e.stopPropagation(); handleStartService(b._id); }} disabled={actionLoading === b._id}
-                          className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-[11px] font-semibold text-blue-700 flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                          className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl border border-blue-300 bg-blue-50 dark:bg-blue-950/20 text-[11px] font-semibold text-blue-700 dark:text-blue-400 flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
                           {actionLoading === b._id ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />} Start Service
                         </button>
                       )}
                       {b.status === "in-progress" && (
                         <>
                           {elapsed[b._id] && (
-                            <span className="flex items-center gap-1 text-[11px] font-mono text-orange-600 font-semibold shrink-0">
+                            <span className="flex items-center gap-1 text-[11px] font-mono text-orange-600 dark:text-orange-400 font-semibold shrink-0">
                               <Timer size={12} /> {elapsed[b._id]}
                             </span>
                           )}
                           <button onClick={(e) => { e.stopPropagation(); handleComplete(b._id); }} disabled={actionLoading === b._id}
-                            className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-green-200 bg-green-50 text-[11px] font-semibold text-green-700 flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                            className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl border border-green-300 bg-green-50 dark:bg-green-950/20 text-[11px] font-semibold text-green-700 dark:text-green-400 flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
                             {actionLoading === b._id ? <Loader2 size={12} className="animate-spin" /> : <StopCircle size={12} />} Complete
                           </button>
                         </>
                       )}
                       {b.totalPrice > 0 && (
-                          <span className="sm:hidden shrink-0 text-xs font-semibold text-gray-700">GH₵{b.totalPrice}</span>
+                          <span className="sm:hidden shrink-0 text-xs font-semibold text-text-secondary dark:text-text-dark-secondary">GH₵{b.totalPrice}</span>
                       )}
                     </div>
                   </div>

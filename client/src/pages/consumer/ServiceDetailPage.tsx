@@ -58,12 +58,7 @@ interface StylistItem {
   services: { name: string; price: string; duration: string }[];
 }
 
-/* ─── Font import only ───────────────────────────────── */
-const FontLoader = () => (
-  <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
-  `}</style>
-);
+
 
 /* ─── Mock Data (unchanged) ──────────────────────────── */
 const MOCK_SERVICE: ServiceItem = {
@@ -168,14 +163,14 @@ function StarRow({
         <Star
           key={i}
           size={small ? 10 : 13}
-          fill={i <= Math.round(rating) ? "#C8973F" : "none"}
-          color={i <= Math.round(rating) ? "#C8973F" : "#C5BFB5"}
+          fill={i <= Math.round(rating) ? "currentColor" : "none"}
+          className={i <= Math.round(rating) ? "text-amber-500" : "text-warm-300 dark:text-gray-600"}
           strokeWidth={1.5}
         />
       ))}
       {count !== undefined && (
         <span
-          className={`ml-0.5 font-['Plus_Jakarta_Sans'] ${small ? "text-[11px]" : "text-xs"} text-[#7A7770] dark:text-gray-400`}
+          className={`ml-0.5 ${small ? "text-[11px]" : "text-xs"} text-text-secondary dark:text-text-dark-secondary`}
         >
           ({count})
         </span>
@@ -195,11 +190,11 @@ function Tag({
     <span
       className={`
         inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold
-        uppercase tracking-wider font-['Plus_Jakarta_Sans']
+        uppercase tracking-wider
         ${
           accent
-            ? "border border-[#B8895A] dark:border-amber-500 bg-[#F0E6D6] dark:bg-amber-900/30 text-[#B8895A] dark:text-amber-400"
-            : "border border-[#E4E0D8] dark:border-gray-700 bg-transparent text-[#7A7770] dark:text-gray-400"
+            ? "border border-amber-500 dark:border-amber-500 bg-warm-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"
+            : "border border-warm-200 dark:border-gray-700 bg-transparent text-text-secondary dark:text-text-dark-secondary"
         }
       `}
     >
@@ -218,7 +213,7 @@ function HeroGallery({
   const [activeIdx, setActiveIdx] = useState(0);
 
   return (
-    <div className="relative w-full aspect-video rounded-[22px] overflow-hidden bg-[#1A1A18] dark:bg-black">
+    <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-surface-dark dark:bg-black">
       <AnimatePresence mode="wait">
         <motion.img
           key={activeIdx}
@@ -232,7 +227,7 @@ function HeroGallery({
         />
       </AnimatePresence>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(13,12,11,0.68)] via-[rgba(13,12,11,0.1)] to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
         {gallery.map((_, i) => (
@@ -269,22 +264,22 @@ function ProcessSteps({ steps }: { steps: StepItem[] }) {
           className="flex gap-[18px] relative"
         >
           <div className="flex flex-col items-center shrink-0">
-            <div className="w-9 h-9 rounded-full border-[1.5px] border-[#B8895A] dark:border-amber-500 bg-[#F0E6D6] dark:bg-amber-900/30 flex items-center justify-center shrink-0">
-              <span className="font-['Cormorant_Garamond'] text-xs font-semibold text-[#B8895A] dark:text-amber-400">
+            <div className="w-9 h-9 rounded-full border-[1.5px] border-amber-500 dark:border-amber-500 bg-warm-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+              <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">
                 {step.step}
               </span>
             </div>
             {i < steps.length - 1 && (
-              <div className="w-px flex-1 min-h-[20px] bg-[#E4E0D8] dark:bg-gray-700 my-1.5" />
+              <div className="w-px flex-1 min-h-[20px] bg-warm-200 dark:bg-gray-700 my-1.5" />
             )}
           </div>
           <div
             className={`pb-5 pt-1.5 ${i === steps.length - 1 ? "pb-0" : ""}`}
           >
-            <p className="font-['Plus_Jakarta_Sans'] font-semibold text-[13.5px] text-[#0D0C0B] dark:text-white leading-tight">
+            <p className="font-semibold text-sm text-text-primary dark:text-text-dark-primary leading-tight">
               {step.title}
             </p>
-            <p className="font-['Plus_Jakarta_Sans'] text-[12.5px] text-[#7A7770] dark:text-gray-400 mt-1 leading-relaxed">
+            <p className="text-xs text-text-secondary dark:text-text-dark-secondary mt-1 leading-relaxed">
               {step.desc}
             </p>
           </div>
@@ -303,25 +298,25 @@ function ReviewCard({ review }: { review: ReviewItem }) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#F3F0EA] dark:bg-gray-800 rounded-[14px] p-[18px_20px] border border-[#E4E0D8] dark:border-gray-700"
+      className="bg-warm-100 dark:bg-gray-800 rounded-2xl p-[18px_20px] border border-warm-200 dark:border-gray-700"
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-full bg-[#F0E6D6] dark:bg-amber-900/30 border-[1.5px] border-[#B8895A] dark:border-amber-500 flex items-center justify-center font-['Cormorant_Garamond'] font-semibold text-[13px] text-[#B8895A] dark:text-amber-400">
+          <div className="w-9 h-9 rounded-full bg-warm-100 dark:bg-amber-900/30 border-[1.5px] border-amber-500 dark:border-amber-500 flex items-center justify-center font-semibold text-[13px] text-amber-600 dark:text-amber-400">
             {initials}
           </div>
           <div>
-            <p className="font-['Plus_Jakarta_Sans'] font-semibold text-[13.5px] text-[#0D0C0B] dark:text-white">
+            <p className="font-semibold text-sm text-text-primary dark:text-text-dark-primary">
               {review.user}
             </p>
-            <p className="font-['Plus_Jakarta_Sans'] text-[11px] text-[#7A7770] dark:text-gray-400 mt-0.5">
+            <p className="text-[11px] text-text-secondary dark:text-text-dark-secondary mt-0.5">
               {review.date}
             </p>
           </div>
         </div>
         <StarRow rating={review.rating} small />
       </div>
-      <p className="font-['Plus_Jakarta_Sans'] text-[13px] text-[#3D3B38] dark:text-gray-300 leading-relaxed italic">
+      <p className="text-[13px] text-text-secondary dark:text-text-dark-secondary leading-relaxed italic">
         &ldquo;{review.comment}&rdquo;
       </p>
     </motion.div>
@@ -340,40 +335,40 @@ function RelatedServiceRow({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={`
-        flex items-center justify-between p-[14px_16px] rounded-[14px] cursor-pointer
+        flex items-center justify-between p-[14px_16px] rounded-2xl cursor-pointer
         transition-all duration-200
         ${
           hovered
-            ? "border border-[#B8895A] dark:border-amber-500 bg-[#F0E6D6] dark:bg-amber-900/30"
-            : "border border-[#E4E0D8] dark:border-gray-700 bg-white dark:bg-gray-900"
+            ? "border border-amber-500 dark:border-amber-500 bg-warm-100 dark:bg-amber-900/30"
+            : "border border-warm-200 dark:border-gray-700 bg-white dark:bg-surface-dark-secondary"
         }
       `}
     >
       <div className="flex items-center gap-3">
         <div
           className={`
-            w-9 h-9 rounded-lg flex items-center justify-center transition-all
-            ${hovered ? "bg-[rgba(184,137,90,0.15)] dark:bg-amber-900/20" : "bg-[#F3F0EA] dark:bg-gray-800"}
+            w-9 h-9 rounded-xl flex items-center justify-center transition-all
+            ${hovered ? "bg-amber-500/15 dark:bg-amber-900/20" : "bg-warm-100 dark:bg-gray-800"}
           `}
         >
-          <Scissors size={15} color={hovered ? "#B8895A" : "#7A7770"} />
+          <Scissors size={15} className={hovered ? "text-amber-500" : "text-text-secondary"} />
         </div>
         <div>
-          <p className="font-['Plus_Jakarta_Sans'] font-semibold text-[13.5px] text-[#0D0C0B] dark:text-white">
+          <p className="font-semibold text-sm text-text-primary dark:text-text-dark-primary">
             {svc.name}
           </p>
           {svc.duration && (
-            <p className="font-['Plus_Jakarta_Sans'] text-[11.5px] text-[#7A7770] dark:text-gray-400 mt-0.5">
+            <p className="text-[11.5px] text-text-secondary dark:text-text-dark-secondary mt-0.5">
               {svc.duration}
             </p>
           )}
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <span className="font-['Plus_Jakarta_Sans'] font-semibold text-sm text-[#0D0C0B] dark:text-white">
+        <span className="font-semibold text-sm text-text-primary dark:text-text-dark-primary">
           {svc.price}
         </span>
-        <ChevronRight size={15} color={hovered ? "#B8895A" : "#7A7770"} />
+        <ChevronRight size={15} className={hovered ? "text-amber-500" : "text-text-secondary"} />
       </div>
     </div>
   );
@@ -392,9 +387,9 @@ function BookingSidebar({
 
   return (
     <div className="sticky top-6 flex flex-col gap-3.5">
-      <div className="bg-white dark:bg-gray-900 rounded-[22px] border border-[#E4E0D8] dark:border-gray-700 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.05)]">
+      <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-warm-200 dark:border-gray-700 overflow-hidden shadow-card">
         <div className="p-5 pb-0">
-          <p className="font-['Plus_Jakarta_Sans'] text-[10.5px] font-semibold tracking-[0.08em] uppercase text-[#7A7770] dark:text-gray-400 mb-3">
+          <p className="text-[10.5px] font-semibold tracking-[0.08em] uppercase text-text-secondary dark:text-text-dark-secondary mb-3">
             Your Specialist
           </p>
           <div className="flex items-center gap-3 mb-4">
@@ -402,19 +397,19 @@ function BookingSidebar({
               <img
                 src={stylist.image}
                 alt={stylist.name}
-                className="w-14 h-14 rounded-full object-cover border-2 border-[#F0E6D6] dark:border-gray-700"
+                className="w-14 h-14 rounded-full object-cover border-2 border-warm-100 dark:border-gray-700"
               />
               {stylist.isVerified && (
-                <div className="absolute -bottom-0.5 -right-0.5 w-[18px] h-[18px] rounded-full bg-[#1D4E89] dark:bg-blue-700 border-2 border-white dark:border-gray-800 flex items-center justify-center">
+                <div className="absolute -bottom-0.5 -right-0.5 w-[18px] h-[18px] rounded-full bg-blue-700 dark:bg-blue-700 border-2 border-white dark:border-surface-dark flex items-center justify-center">
                   <BadgeCheck size={10} color="white" />
                 </div>
               )}
             </div>
             <div>
-              <p className="font-['Cormorant_Garamond'] font-semibold text-[19px] text-[#0D0C0B] dark:text-white leading-tight">
+              <p className="font-semibold text-lg text-text-primary dark:text-text-dark-primary leading-tight">
                 {stylist.name}
               </p>
-              <p className="font-['Plus_Jakarta_Sans'] text-xs text-[#B8895A] dark:text-amber-400 font-medium mt-0.5">
+              <p className="text-xs text-amber-600 dark:text-amber-400 font-medium mt-0.5">
                 {stylist.title}
               </p>
             </div>
@@ -432,13 +427,13 @@ function BookingSidebar({
             ].map(({ icon: Icon, label, val }) => (
               <div
                 key={label}
-                className="bg-[#F3F0EA] dark:bg-gray-800 rounded-lg p-[10px_8px] text-center"
+                className="bg-warm-100 dark:bg-gray-800 rounded-xl p-[10px_8px] text-center"
               >
-                <Icon size={13} color="#B8895A" className="mx-auto mb-1" />
-                <p className="font-['Plus_Jakarta_Sans'] font-bold text-[13.5px] text-[#0D0C0B] dark:text-white">
+                <Icon size={13} className="mx-auto mb-1 text-amber-500" />
+                <p className="font-bold text-sm text-text-primary dark:text-text-dark-primary">
                   {val}
                 </p>
-                <p className="font-['Plus_Jakarta_Sans'] text-[10px] text-[#7A7770] dark:text-gray-400 mt-0.5">
+                <p className="text-[10px] text-text-secondary dark:text-text-dark-secondary mt-0.5">
                   {label}
                 </p>
               </div>
@@ -446,10 +441,10 @@ function BookingSidebar({
           </div>
         </div>
 
-        <div className="h-px bg-[#E4E0D8] dark:bg-gray-700" />
+        <div className="h-px bg-warm-200 dark:bg-gray-700" />
 
         <div className="px-5 py-4">
-          <p className="font-['Plus_Jakarta_Sans'] text-[10.5px] font-semibold tracking-[0.08em] uppercase text-[#7A7770] dark:text-gray-400 mb-3">
+          <p className="text-[10.5px] font-semibold tracking-[0.08em] uppercase text-text-secondary dark:text-text-dark-secondary mb-3">
             Price Breakdown
           </p>
           {[
@@ -457,26 +452,26 @@ function BookingSidebar({
             { label: "Service fee", price: "GHC 0" },
           ].map(({ label, price }) => (
             <div key={label} className="flex justify-between items-center mb-2">
-              <span className="font-['Plus_Jakarta_Sans'] text-[13px] text-[#3D3B38] dark:text-gray-300">
+              <span className="text-[13px] text-text-secondary dark:text-text-dark-secondary">
                 {label}
               </span>
-              <span className="font-['Plus_Jakarta_Sans'] text-[13px] font-semibold text-[#0D0C0B] dark:text-white">
+              <span className="text-[13px] font-semibold text-text-primary dark:text-text-dark-primary">
                 {price}
               </span>
             </div>
           ))}
-          <div className="h-px bg-[#E4E0D8] dark:bg-gray-700 my-2.5" />
+          <div className="h-px bg-warm-200 dark:bg-gray-700 my-2.5" />
           <div className="flex justify-between items-baseline">
-            <span className="font-['Cormorant_Garamond'] text-base text-[#0D0C0B] dark:text-white font-medium">
+            <span className="text-base text-text-primary dark:text-text-dark-primary font-medium">
               Total
             </span>
-            <span className="font-['Cormorant_Garamond'] text-[26px] font-semibold text-[#0D0C0B] dark:text-white">
+            <span className="text-[26px] font-semibold text-text-primary dark:text-text-dark-primary">
               {service.price}
             </span>
           </div>
           <div className="flex items-center gap-1.5 mt-1">
-            <Clock size={11} color="#7A7770" />
-            <span className="font-['Plus_Jakarta_Sans'] text-[11px] text-[#7A7770] dark:text-gray-400">
+            <Clock size={11} className="text-text-secondary" />
+            <span className="text-[11px] text-text-secondary dark:text-text-dark-secondary">
               {service.duration} · Free cancellation up to 24h
             </span>
           </div>
@@ -487,7 +482,7 @@ function BookingSidebar({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={onBook}
-            className="w-full py-[15px] rounded-[14px] bg-[#0D0C0B] dark:bg-white text-white dark:text-gray-900 font-['Plus_Jakarta_Sans'] font-semibold text-sm tracking-[0.01em] flex items-center justify-center gap-2 cursor-pointer border-none"
+            className="w-full py-[15px] rounded-xl bg-text-primary dark:bg-white text-white dark:text-gray-900 font-semibold text-sm tracking-[0.01em] flex items-center justify-center gap-2 cursor-pointer border-none"
           >
             <Calendar size={16} />
             Book Appointment
@@ -497,21 +492,21 @@ function BookingSidebar({
               whileTap={{ scale: 0.95 }}
               onClick={() => setLiked(!liked)}
               className={`
-                flex-1 py-[11px] rounded-[14px] font-['Plus_Jakarta_Sans'] font-medium text-[13px]
+                flex-1 py-[11px] rounded-xl font-medium text-[13px]
                 flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer
                 ${
                   liked
-                    ? "border border-[#B8895A] dark:border-amber-500 bg-[#F0E6D6] dark:bg-amber-900/30 text-[#B8895A] dark:text-amber-400"
-                    : "border border-[#E4E0D8] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#7A7770] dark:text-gray-400"
+                    ? "border border-amber-500 dark:border-amber-500 bg-warm-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"
+                    : "border border-warm-200 dark:border-gray-700 bg-white dark:bg-surface-dark-secondary text-text-secondary dark:text-text-dark-secondary"
                 }
               `}
             >
-              <Heart size={14} fill={liked ? "#B8895A" : "none"} />
+              <Heart size={14} className={liked ? "text-amber-500 fill-amber-500" : ""} />
               {liked ? "Saved" : "Save"}
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.95 }}
-              className="flex-1 py-[11px] rounded-[14px] border border-[#E4E0D8] dark:border-gray-700 bg-white dark:bg-gray-900 text-[#7A7770] dark:text-gray-400 font-['Plus_Jakarta_Sans'] font-medium text-[13px] flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer"
+              className="flex-1 py-[11px] rounded-xl border border-warm-200 dark:border-gray-700 bg-white dark:bg-surface-dark-secondary text-text-secondary dark:text-text-dark-secondary font-medium text-[13px] flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer"
             >
               <Share2 size={14} />
               Share
@@ -520,15 +515,15 @@ function BookingSidebar({
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded-[14px] border border-[#E4E0D8] dark:border-gray-700 p-4 flex flex-col gap-2.5">
+      <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-warm-200 dark:border-gray-700 p-4 flex flex-col gap-2.5">
         {[
           { icon: Shield, label: "Secure & verified booking" },
           { icon: CheckCircle, label: "Free cancellation within 24h" },
           { icon: Award, label: "Satisfaction guaranteed" },
         ].map(({ icon: Icon, label }) => (
           <div key={label} className="flex items-center gap-2.5">
-            <Icon size={14} color="#2D6A4F" />
-            <span className="font-['Plus_Jakarta_Sans'] text-[12.5px] text-[#3D3B38] dark:text-gray-300">
+            <Icon size={14} className="text-success" />
+            <span className="text-xs text-text-secondary dark:text-text-dark-secondary">
               {label}
             </span>
           </div>
@@ -553,8 +548,7 @@ export default function ServiceDetailPage() {
 
   return (
     <>
-      <FontLoader />
-      <div className="min-h-screen bg-[#FAFAF8] dark:bg-gray-950 font-['Plus_Jakarta_Sans']">
+      <div className="min-h-screen bg-warm-50 dark:bg-surface-dark">
         {/* Topbar */}
         <motion.div
           initial={false}
@@ -565,7 +559,7 @@ export default function ServiceDetailPage() {
             sticky top-0 z-[100] transition-all duration-300
             ${
               scrolled
-                ? "border-b border-[#E4E0D8] dark:border-gray-700 backdrop-blur-xl"
+                ? "border-b border-warm-200 dark:border-gray-700 backdrop-blur-xl"
                 : "border-b border-transparent"
             }
           `}
@@ -573,7 +567,7 @@ export default function ServiceDetailPage() {
           <div className="max-w-[1140px] mx-auto px-4 md:px-8 py-3.5 flex items-center justify-between">
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-2 bg-white dark:bg-gray-900 border border-[#E4E0D8] dark:border-gray-700 rounded-full px-3 md:px-4 py-2 font-['Plus_Jakarta_Sans'] text-[13px] font-medium text-[#3D3B38] dark:text-gray-300 cursor-pointer"
+              className="flex items-center gap-2 bg-white dark:bg-surface-dark-secondary border border-warm-200 dark:border-gray-700 rounded-full px-3 md:px-4 py-2 text-[13px] font-medium text-text-secondary dark:text-text-dark-secondary cursor-pointer"
             >
               <ArrowLeft size={14} />{" "}
               <span className="hidden sm:inline">Back to Stylist</span>
@@ -581,17 +575,17 @@ export default function ServiceDetailPage() {
 
             {/* Breadcrumb – hidden on mobile */}
             <div className="hidden md:flex items-center gap-1.5">
-              <span className="text-xs text-[#7A7770] dark:text-gray-400">Stylists</span>
-              <ChevronRight size={11} color="#7A7770" />
-              <span className="text-xs text-[#7A7770] dark:text-gray-400">{stylist.name}</span>
-              <ChevronRight size={11} color="#7A7770" />
-              <span className="text-xs font-semibold text-[#0D0C0B] dark:text-white">
+              <span className="text-xs text-text-secondary dark:text-text-dark-secondary">Stylists</span>
+              <ChevronRight size={11} className="text-text-secondary" />
+              <span className="text-xs text-text-secondary dark:text-text-dark-secondary">{stylist.name}</span>
+              <ChevronRight size={11} className="text-text-secondary" />
+              <span className="text-xs font-semibold text-text-primary dark:text-text-dark-primary">
                 {service.name}
               </span>
             </div>
 
             <div className="flex gap-2">
-              <button className="flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-[#E4E0D8] dark:border-gray-700 rounded-full px-3 md:px-3.5 py-2 font-['Plus_Jakarta_Sans'] text-[13px] font-medium text-[#3D3B38] dark:text-gray-300 cursor-pointer">
+              <button className="flex items-center gap-1.5 bg-white dark:bg-surface-dark-secondary border border-warm-200 dark:border-gray-700 rounded-full px-3 md:px-3.5 py-2 text-[13px] font-medium text-text-secondary dark:text-text-dark-secondary cursor-pointer">
                 <Share2 size={13} />{" "}
                 <span className="hidden sm:inline">Share</span>
               </button>
@@ -615,17 +609,17 @@ export default function ServiceDetailPage() {
                 </Tag>
               )}
             </div>
-            <h1 className="font-['Cormorant_Garamond'] text-3xl md:text-5xl lg:text-[52px] font-light text-[#0D0C0B] dark:text-white leading-tight tracking-[-0.01em]">
+            <h1 className="text-3xl md:text-5xl lg:text-[52px] font-light text-text-primary dark:text-text-dark-primary leading-tight tracking-[-0.01em]">
               {service.name}
             </h1>
             <div className="flex flex-wrap items-center gap-3 md:gap-5 mt-3">
               <StarRow rating={stylist.rating} count={stylist.totalReviews} />
-              <span className="hidden md:inline text-[#E4E0D8] dark:text-gray-500">·</span>
-              <span className="flex items-center gap-1.5 text-[13px] text-[#7A7770] dark:text-gray-400">
+              <span className="hidden md:inline text-warm-200 dark:text-gray-500">·</span>
+              <span className="flex items-center gap-1.5 text-[13px] text-text-secondary dark:text-text-dark-secondary">
                 <Clock size={13} /> {service.duration}
               </span>
-              <span className="hidden md:inline text-[#E4E0D8] dark:text-gray-500">·</span>
-              <span className="flex items-center gap-1.5 text-[13px] text-[#7A7770] dark:text-gray-400">
+              <span className="hidden md:inline text-warm-200 dark:text-gray-500">·</span>
+              <span className="flex items-center gap-1.5 text-[13px] text-text-secondary dark:text-text-dark-secondary">
                 <MapPin size={13} /> {getLocationString(stylist.location)}
               </span>
             </div>
@@ -650,12 +644,12 @@ export default function ServiceDetailPage() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-white dark:bg-gray-900 rounded-[22px] border border-[#E4E0D8] dark:border-gray-700 p-5 md:p-8"
+                className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-warm-200 dark:border-gray-700 p-5 md:p-8"
               >
-                <h2 className="font-['Cormorant_Garamond'] text-2xl md:text-[26px] font-normal text-[#0D0C0B] dark:text-white mb-3.5">
+                <h2 className="text-2xl md:text-[26px] font-normal text-text-primary dark:text-text-dark-primary mb-3.5">
                   About this service
                 </h2>
-                <p className="font-['Plus_Jakarta_Sans'] text-sm md:text-[14.5px] text-[#3D3B38] dark:text-gray-300 leading-[1.8]">
+                <p className="text-sm md:text-[14.5px] text-text-secondary dark:text-text-dark-secondary leading-[1.8]">
                   {service.description}
                 </p>
               </motion.div>
@@ -664,9 +658,9 @@ export default function ServiceDetailPage() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="bg-white dark:bg-gray-900 rounded-[22px] border border-[#E4E0D8] dark:border-gray-700 p-5 md:p-8"
+                className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-warm-200 dark:border-gray-700 p-5 md:p-8"
               >
-                <h2 className="font-['Cormorant_Garamond'] text-2xl md:text-[26px] font-normal text-[#0D0C0B] dark:text-white mb-6">
+                <h2 className="text-2xl md:text-[26px] font-normal text-text-primary dark:text-text-dark-primary mb-6">
                   What's included
                 </h2>
                 <ProcessSteps steps={service.whatsIncluded || []} />
@@ -676,20 +670,20 @@ export default function ServiceDetailPage() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white dark:bg-gray-900 rounded-[22px] border border-[#E4E0D8] dark:border-gray-700 p-5 md:p-8"
+                className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-warm-200 dark:border-gray-700 p-5 md:p-8"
               >
                 <div className="flex items-baseline justify-between mb-5">
-                  <h2 className="font-['Cormorant_Garamond'] text-2xl md:text-[26px] font-normal text-[#0D0C0B] dark:text-white">
+                  <h2 className="text-2xl md:text-[26px] font-normal text-text-primary dark:text-text-dark-primary">
                     Reviews
                   </h2>
                   <div className="flex items-center gap-2.5">
                     <div className="flex items-baseline gap-1.5">
-                      <span className="font-['Cormorant_Garamond'] text-3xl md:text-[40px] font-medium text-[#0D0C0B] dark:text-white leading-none">
+                      <span className="text-3xl md:text-[40px] font-medium text-text-primary dark:text-text-dark-primary leading-none">
                         {stylist.rating}
                       </span>
                       <div>
                         <StarRow rating={stylist.rating} />
-                        <p className="font-['Plus_Jakarta_Sans'] text-[11px] text-[#7A7770] dark:text-gray-400 mt-1">
+                        <p className="text-[11px] text-text-secondary dark:text-text-dark-secondary mt-1">
                           {stylist.totalReviews} reviews
                         </p>
                       </div>
@@ -701,7 +695,7 @@ export default function ServiceDetailPage() {
                     <ReviewCard key={i} review={rev} />
                   ))}
                 </div>
-                <button className="mt-4 w-full py-3 rounded-[14px] border border-[#E4E0D8] dark:border-gray-700 bg-transparent font-['Plus_Jakarta_Sans'] text-[13px] font-semibold text-[#3D3B38] dark:text-gray-300 cursor-pointer flex items-center justify-center gap-1.5">
+                <button className="mt-4 w-full py-3 rounded-xl border border-warm-200 dark:border-gray-700 bg-transparent text-[13px] font-semibold text-text-secondary dark:text-text-dark-secondary cursor-pointer flex items-center justify-center gap-1.5">
                   <MessageSquare size={14} />
                   View all {stylist.totalReviews} reviews
                   <ChevronRight size={14} />
@@ -712,9 +706,9 @@ export default function ServiceDetailPage() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 }}
-                className="bg-white dark:bg-gray-900 rounded-[22px] border border-[#E4E0D8] dark:border-gray-700 p-5 md:p-8"
+                className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-warm-200 dark:border-gray-700 p-5 md:p-8"
               >
-                <h2 className="font-['Cormorant_Garamond'] text-2xl md:text-[26px] font-normal text-[#0D0C0B] dark:text-white mb-5">
+                <h2 className="text-2xl md:text-[26px] font-normal text-text-primary dark:text-text-dark-primary mb-5">
                   More from {stylist.name}
                 </h2>
                 <div className="flex flex-col gap-2.5">

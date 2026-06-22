@@ -291,8 +291,8 @@ export default function LiveRoom() {
 
   if (loading || sessionLoading) {
     return (
-      <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-3" style={{ background: "#0a0a0a" }}>
-        <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-[#FE2C55] animate-spin" />
+      <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-3 bg-black">
+        <div className="w-10 h-10 rounded-full border-2 border-white/20 border-t-brand-500 animate-spin" />
         <span className="text-white/60 text-sm tracking-widest uppercase">Joining live...</span>
       </div>
     );
@@ -300,9 +300,9 @@ export default function LiveRoom() {
 
   if (!stylist || streamEnded) {
     return (
-      <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-5" style={{ background: "#0a0a0a" }}>
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.06)" }}>
-          <X size={28} style={{ color: "rgba(255,255,255,0.3)" }} />
+      <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-5 bg-black">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-white/10">
+          <X size={28} className="text-white/30" />
         </div>
         <div className="text-center">
           <p className="text-white text-lg font-bold mb-1">{streamEnded ? "Stream Ended" : "Stylist not found"}</p>
@@ -312,8 +312,7 @@ export default function LiveRoom() {
         </div>
         <button
           onClick={() => navigate("/app/live")}
-          className="px-6 py-2.5 rounded-full text-sm font-bold transition-all"
-          style={{ background: "#FE2C55", color: "white" }}
+          className="px-6 py-2.5 rounded-full text-sm font-bold transition-all bg-brand-500 text-white hover:bg-brand-600"
         >
           Browse Live
         </button>
@@ -384,8 +383,7 @@ export default function LiveRoom() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[202] backdrop-blur-md text-white text-sm px-4 py-2 rounded-full"
-            style={{ background: "rgba(0,0,0,0.7)" }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[202] backdrop-blur-md text-white text-sm px-4 py-2 rounded-full bg-black/70"
           >
             {giftToast}
           </motion.div>

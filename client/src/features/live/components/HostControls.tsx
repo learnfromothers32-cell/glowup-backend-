@@ -21,12 +21,12 @@ const fmt = (s: number) => {
 export function HostControls({ isLive, loading, duration, onGoLive, onEndLive, onToggleMic, onToggleVideo, isMuted, isVideoOff }: Props) {
   if (isLive) {
     return (
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-900 border-t border-white/10 dark:bg-white dark:text-gray-900">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-900 border-t border-white/10 dark:bg-white dark:text-text-primary">
         <div className="flex items-center gap-2">
-          <button onClick={onToggleMic} className={`p-2 rounded-lg transition-all ${isMuted ? "bg-red-500/20 text-red-400" : "text-white/60 hover:bg-white/10"}`}>
+          <button onClick={onToggleMic} className={`p-2 rounded-xl transition-all ${isMuted ? "bg-red-500/20 text-red-400" : "text-white/60 hover:bg-white/10"}`}>
             {isMuted ? <MicOff size={18} /> : <Mic size={18} />}
           </button>
-          <button onClick={onToggleVideo} className={`p-2 rounded-lg transition-all ${isVideoOff ? "bg-red-500/20 text-red-400" : "text-white/60 hover:bg-white/10"}`}>
+          <button onClick={onToggleVideo} className={`p-2 rounded-xl transition-all ${isVideoOff ? "bg-red-500/20 text-red-400" : "text-white/60 hover:bg-white/10"}`}>
             {isVideoOff ? <VideoOff size={18} /> : <Video size={18} />}
           </button>
         </div>
@@ -34,7 +34,7 @@ export function HostControls({ isLive, loading, duration, onGoLive, onEndLive, o
           <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
           <span>{fmt(duration)}</span>
         </div>
-        <button onClick={onEndLive} className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-red-500 hover:bg-red-600 text-white transition-all active:scale-95">
+        <button onClick={onEndLive} className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-red-500 hover:bg-red-600 text-white transition-all active:scale-95">
           <Square size={12} /> End
         </button>
       </div>

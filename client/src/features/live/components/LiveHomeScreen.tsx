@@ -123,7 +123,7 @@ export function LiveHomeScreen() {
                 <X size={20} className="text-white" />
               </button>
               <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-500/90 backdrop-blur-sm text-[10px] font-bold text-white">
+                <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-500/90 dark:bg-green-600/90 backdrop-blur-sm text-[10px] font-bold text-white">
                   <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> LIVE
                 </span>
                 <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-xs text-white">
@@ -149,7 +149,7 @@ export function LiveHomeScreen() {
               <button
                 onClick={goPrev}
                 disabled={currentIndex === 0}
-                className="flex-1 py-2 rounded-lg text-xs font-bold disabled:opacity-30 transition-all bg-white/10 text-white active:bg-white/20"
+                className="flex-1 py-2 rounded-xl text-xs font-bold disabled:opacity-30 transition-all bg-white/10 text-white active:bg-white/20"
               >
                 ← Prev
               </button>
@@ -157,7 +157,7 @@ export function LiveHomeScreen() {
               <button
                 onClick={goNext}
                 disabled={currentIndex >= allSessions.length - 1}
-                className="flex-1 py-2 rounded-lg text-xs font-bold disabled:opacity-30 transition-all bg-white/10 text-white active:bg-white/20"
+                className="flex-1 py-2 rounded-xl text-xs font-bold disabled:opacity-30 transition-all bg-white/10 text-white active:bg-white/20"
               >
                 Next →
               </button>
@@ -174,24 +174,24 @@ export function LiveHomeScreen() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 dark:bg-surface-dark">
+      <div className="min-h-screen bg-gray-50 dark:bg-surface-dark-tertiary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2.5">
+              <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary flex items-center gap-2.5">
                 <Radio size={22} className="text-blue-500" />
                 Live
               </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-sm text-text-secondary dark:text-text-dark-muted mt-1">
                 Learn from experts. Connect with community. Grow together.
               </p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="relative p-2.5 rounded-xl border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-colors"
               >
-                <Bell size={18} className="text-gray-600 dark:text-gray-400" />
+                <Bell size={18} className="text-text-secondary dark:text-text-dark-muted" />
                 {notifications.filter((n) => !n.read).length > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                     {notifications.filter((n) => !n.read).length}
@@ -200,7 +200,7 @@ export function LiveHomeScreen() {
               </button>
               <button
                 onClick={() => setShowSchedule(true)}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-xl text-sm font-semibold hover:opacity-80 transition-opacity"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white hover:bg-brand-600 rounded-xl text-sm font-semibold transition-colors"
               >
                 <CalendarPlus size={16} />
                 Schedule
@@ -215,8 +215,8 @@ export function LiveHomeScreen() {
                 onClick={() => setCategory(cat.key)}
                 className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-all ${
                   category === cat.key
-                    ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white"
-                    : "bg-white dark:bg-[#1a1a2e] text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-300"
+                    ? "bg-brand-500 text-white dark:bg-brand-600 border-brand-500 dark:border-brand-600"
+                    : "bg-white dark:bg-surface-dark-secondary text-text-secondary dark:text-text-dark-muted border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
                 }`}
               >
                 {cat.label}
@@ -224,7 +224,7 @@ export function LiveHomeScreen() {
             ))}
           </div>
 
-          <div className="flex items-center gap-1 mb-6 border-b border-gray-100 dark:border-0">
+          <div className="flex items-center gap-1 mb-6 border-b border-gray-100 dark:border-gray-700/40">
             {[
               { key: "live", label: "Live Now", icon: Radio },
               { key: "upcoming", label: "Upcoming", icon: Clock },
@@ -235,14 +235,14 @@ export function LiveHomeScreen() {
                 onClick={() => setActiveTab(tab.key as Tab)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all ${
                   activeTab === tab.key
-                    ? "border-black dark:border-white text-black dark:text-white"
-                    : "border-transparent text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                    ? "border-brand-500 dark:border-brand-400 text-text-primary dark:text-text-dark-primary"
+                    : "border-transparent text-text-muted dark:text-text-dark-muted hover:text-text-secondary dark:hover:text-text-dark-secondary"
                 }`}
               >
                 <tab.icon size={16} />
                 {tab.label}
                 {tab.key === "live" && liveSessions.length > 0 && (
-                  <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">
+                  <span className="px-1.5 py-0.5 bg-green-500 dark:bg-green-600 text-white text-[10px] font-bold rounded-full">
                     {liveSessions.length}
                   </span>
                 )}
@@ -254,7 +254,7 @@ export function LiveHomeScreen() {
             <>
               {allSessions.length > 0 && (
                 <section className="mb-8">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  <h2 className="text-lg font-semibold text-text-primary dark:text-text-dark-primary mb-4">
                     Live Now
                   </h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -272,10 +272,10 @@ export function LiveHomeScreen() {
               {allSessions.length === 0 && (
                 <div className="text-center py-20">
                   <Radio size={48} className="mx-auto text-gray-200 dark:text-gray-700 mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-400 dark:text-gray-500">
+                  <h3 className="text-lg font-semibold text-text-muted dark:text-text-dark-secondary">
                     No live sessions right now
                   </h3>
-                  <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+                  <p className="text-sm text-text-muted dark:text-text-dark-secondary mt-2">
                     Check back soon or browse upcoming sessions
                   </p>
                 </div>
@@ -286,7 +286,7 @@ export function LiveHomeScreen() {
           {activeTab === "upcoming" && (
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-lg font-semibold text-text-primary dark:text-text-dark-primary">
                   Upcoming Sessions
                 </h2>
               </div>
@@ -303,7 +303,7 @@ export function LiveHomeScreen() {
               ) : (
                 <div className="text-center py-16">
                   <Clock size={40} className="mx-auto text-gray-200 dark:text-gray-700 mb-3" />
-                  <p className="text-sm text-gray-400 dark:text-gray-500">No upcoming sessions scheduled</p>
+                  <p className="text-sm text-text-muted dark:text-text-dark-secondary">No upcoming sessions scheduled</p>
                 </div>
               )}
             </section>
@@ -312,10 +312,10 @@ export function LiveHomeScreen() {
           {activeTab === "recordings" && (
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-lg font-semibold text-text-primary dark:text-text-dark-primary">
                   Past Sessions
                 </h2>
-                <button className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1">
+                <button className="text-xs text-text-secondary dark:text-text-dark-muted hover:text-text-primary dark:hover:text-text-dark-primary flex items-center gap-1">
                   View all <ChevronRight size={14} />
                 </button>
               </div>
@@ -332,7 +332,7 @@ export function LiveHomeScreen() {
               ) : (
                 <div className="text-center py-16">
                   <History size={40} className="mx-auto text-gray-200 dark:text-gray-700 mb-3" />
-                  <p className="text-sm text-gray-400 dark:text-gray-500">No past recordings yet</p>
+                  <p className="text-sm text-text-muted dark:text-text-dark-secondary">No past recordings yet</p>
                 </div>
               )}
             </section>
@@ -343,7 +343,7 @@ export function LiveHomeScreen() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="mt-6 p-4 bg-white dark:bg-[#1a1a2e] rounded-2xl border border-gray-100 dark:border-0 shadow-sm"
+              className="mt-6 p-4 bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm"
             >
               <LiveNotifications
                 notifications={notifications}

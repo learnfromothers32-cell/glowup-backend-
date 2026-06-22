@@ -19,14 +19,14 @@ function StatCard({
   color: { bg: string; icon: string; text: string };
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-sm transition-shadow">
+    <div className="card p-4">
       <div className="flex items-center justify-between mb-2">
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${color.bg}`}>
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color.bg}`}>
           <Icon size={16} className={color.icon} />
         </div>
         <span className={`text-2xl font-bold tabular-nums ${color.text}`}>{value}</span>
       </div>
-      <p className="text-xs font-medium text-gray-500">{label}</p>
+      <p className="text-xs font-medium text-text-secondary dark:text-text-dark-secondary">{label}</p>
     </div>
   );
 }
@@ -35,13 +35,13 @@ function InfoRow({ icon: Icon, label, value }: {
   icon: typeof Mail; label: string; value: string;
 }) {
   return (
-    <div className="flex items-center gap-3.5 py-3.5 border-b border-gray-50 last:border-0">
-      <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+    <div className="flex items-center gap-3.5 py-3.5 border-b border-gray-100 dark:border-gray-700/20 last:border-0">
+      <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center text-gray-500 dark:text-text-dark-muted shrink-0">
         <Icon size={16} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">{label}</p>
-        <p className="text-sm font-medium text-gray-900 truncate">{value || "Not set"}</p>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted mb-0.5">{label}</p>
+        <p className="text-sm font-medium text-text-primary dark:text-text-dark-primary truncate">{value || "Not set"}</p>
       </div>
     </div>
   );
@@ -96,37 +96,37 @@ function EditModal({
         exit={{ scale: 0.95, y: 16, opacity: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
         onClick={e => e.stopPropagation()}
-        className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
+        className="relative w-full max-w-md bg-white dark:bg-surface-dark-secondary rounded-2xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700/40 shrink-0">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">Edit Profile</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Update your personal information</p>
+            <h2 className="text-base font-semibold text-text-primary dark:text-text-dark-primary">Edit Profile</h2>
+            <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">Update your personal information</p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors">
+          <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center text-text-muted dark:text-text-dark-muted hover:text-text-primary dark:hover:text-text-dark-primary hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary transition-colors">
             <X size={16} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-4">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs">
+            <div className="p-3 bg-error/10 border border-error/20 text-error rounded-xl text-xs">
               {error}
             </div>
           )}
 
           {fields.map(({ key, label, type, icon: Icon }) => (
             <div key={key}>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-text-secondary dark:text-text-dark-secondary uppercase tracking-wider mb-1.5">
                 {label}
               </label>
               <div className="relative">
-                <Icon size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <Icon size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted dark:text-text-dark-muted pointer-events-none" />
                 <input
                   type={type}
                   value={form[key]}
                   onChange={e => setForm({ ...form, [key]: e.target.value })}
-                  className="w-full pl-10 pr-3.5 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100 transition-all"
+                  className="input-field pl-10"
                   required={key === "name" || key === "email"}
                 />
               </div>
@@ -139,24 +139,19 @@ function EditModal({
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                className="flex items-center gap-2 p-3 rounded-xl bg-green-50 border border-green-100 text-green-700 text-xs font-medium"
+                className="flex items-center gap-2 p-3 rounded-xl bg-success/10 border border-success/20 text-success-dark dark:text-success text-xs font-medium"
               >
                 <Check size={14} />Profile updated successfully!
               </motion.div>
             )}
           </AnimatePresence>
 
-          <button
+          <Button
             type="submit"
             disabled={saving}
-            className={`
-              w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold
-              transition-all duration-200 active:scale-[0.98]
-              ${saving
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-gray-900 text-white hover:bg-gray-800 shadow-md dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
-              }
-            `}
+            variant="primary"
+            size="md"
+            className="w-full"
           >
             {saving ? (
               <><Loader2 size={16} className="animate-spin" />Saving…</>
@@ -165,7 +160,7 @@ function EditModal({
             ) : (
               "Save Changes"
             )}
-          </button>
+          </Button>
         </form>
       </motion.div>
     </motion.div>
@@ -244,31 +239,30 @@ export default function ConsumerProfile() {
   const initials = displayName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-warm-50 dark:bg-surface-dark">
       <div className="max-w-2xl mx-auto px-4 pb-20">
         <div className="pt-14 pb-4">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors mb-5"
+            className="flex items-center gap-1.5 text-sm text-text-muted dark:text-text-dark-muted hover:text-text-primary dark:hover:text-text-dark-primary transition-colors mb-5"
           >
             <ArrowLeft size={16} />
             Back
           </button>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-4">
+        <Card className="overflow-hidden mb-4">
           <div className="p-6 pb-5">
             <div className="flex items-start gap-4">
               <div className="relative shrink-0">
-                {profileUser?.avatar ? (
-                  <button onClick={() => setShowImagePreview(true)} className="block">
-                    <img src={profileUser.avatar} alt="" className="w-20 h-20 rounded-2xl object-cover cursor-pointer hover:opacity-90 transition-opacity" />
-                  </button>
-                ) : (
-                  <div className="w-20 h-20 rounded-2xl bg-gray-900 text-white flex items-center justify-center text-2xl font-bold dark:bg-white dark:text-gray-900">
-                    {initials}
-                  </div>
-                )}
+                <Avatar
+                  src={profileUser?.avatar}
+                  name={displayName}
+                  size="xl"
+                  ring
+                  className="cursor-pointer"
+                  onClick={() => profileUser?.avatar && setShowImagePreview(true)}
+                />
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
@@ -286,53 +280,54 @@ export default function ConsumerProfile() {
               </div>
 
               <div className="flex-1 min-w-0 pt-1">
-                <h1 className="text-xl font-bold text-gray-900 tracking-tight mb-0.5">
+                <h1 className="text-xl font-bold text-text-primary dark:text-text-dark-primary tracking-tight mb-0.5">
                   {displayName}
                 </h1>
-                <p className="text-sm text-gray-400 mb-3">
+                <p className="text-sm text-text-muted dark:text-text-dark-muted mb-3">
                   Member since {memberSince}
                 </p>
-                <button
+                <Button
                   onClick={() => setShowEdit(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all"
+                  variant="outline"
+                  size="sm"
                 >
                   <Edit3 size={12} />
                   Edit Profile
-                </button>
+                </Button>
               </div>
             </div>
           </div>
 
-          <div className="mx-5 h-px bg-gray-100" />
+          <div className="divider mx-5" />
 
           <div className="px-5 py-2">
             <InfoRow icon={Mail} label="Email" value={displayEmail} />
             <InfoRow icon={Phone} label="Phone" value={localUser.phone || (profileUser as any)?.phone || "Not set"} />
             <InfoRow icon={MapPin} label="Location" value={localUser.location || (profileUser as any)?.location || "Not set"} />
           </div>
-        </div>
+        </Card>
 
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <StatCard label="Points" value={points} icon={Trophy} color={{ bg: "bg-amber-50", icon: "text-amber-500", text: "text-amber-700" }} />
-          <StatCard label="Badges" value={badges.length} icon={Award} color={{ bg: "bg-blue-50", icon: "text-blue-500", text: "text-blue-700" }} />
-          <StatCard label="Streak" value={`${checkInStreak}d`} icon={Flame} color={{ bg: "bg-orange-50", icon: "text-orange-500", text: "text-orange-700" }} />
+          <StatCard label="Points" value={points} icon={Trophy} color={{ bg: "bg-amber-50 dark:bg-amber-950/30", icon: "text-amber-500", text: "text-amber-700 dark:text-amber-400" }} />
+          <StatCard label="Badges" value={badges.length} icon={Award} color={{ bg: "bg-blue-50 dark:bg-blue-950/30", icon: "text-blue-500", text: "text-blue-700 dark:text-blue-400" }} />
+          <StatCard label="Streak" value={`${checkInStreak}d`} icon={Flame} color={{ bg: "bg-orange-50 dark:bg-orange-950/30", icon: "text-orange-500", text: "text-orange-700 dark:text-orange-400" }} />
         </div>
 
         {badges.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-4">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <Card className="overflow-hidden mb-4 !p-0">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700/40">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
-                  <Award size={15} className="text-amber-500" />
+                <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center">
+                  <Award size={15} className="text-amber-500 dark:text-amber-400" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-semibold text-gray-900">Recent Badges</h2>
-                  <p className="text-xs text-gray-400 mt-0.5">{badges.length} earned</p>
+                  <h2 className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">Recent Badges</h2>
+                  <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">{badges.length} earned</p>
                 </div>
               </div>
               <Link
                 to="/app/rewards"
-                className="text-xs font-medium text-gray-400 hover:text-gray-700 transition-colors flex items-center gap-1"
+                className="text-xs font-medium text-text-muted dark:text-text-dark-muted hover:text-text-primary dark:hover:text-text-dark-primary transition-colors flex items-center gap-1"
               >
                 View all <ChevronRight size={12} />
               </Link>
@@ -346,23 +341,23 @@ export default function ConsumerProfile() {
                   transition={{ delay: i * 0.06 }}
                   className="shrink-0 flex flex-col items-center gap-2 w-[72px]"
                 >
-                  <div className="w-14 h-14 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-2xl">
+                  <div className="w-14 h-14 rounded-xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40 flex items-center justify-center text-2xl">
                     {badge.icon}
                   </div>
-                  <p className="text-[10px] font-medium text-gray-600 text-center truncate w-full">
+                  <p className="text-[10px] font-medium text-text-secondary dark:text-text-dark-secondary text-center truncate w-full">
                     {badge.name}
                   </p>
                 </motion.div>
               ))}
             </div>
-          </div>
+          </Card>
         )}
 
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-4">
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h2 className="text-sm font-semibold text-gray-900">Quick Actions</h2>
+        <Card className="overflow-hidden mb-4 !p-0">
+          <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/40">
+            <h2 className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">Quick Actions</h2>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-gray-50 dark:divide-gray-700/20">
             {[
               { label: "My Bookings", description: "View upcoming and past appointments", to: "/app/my-bookings", icon: Calendar },
               { label: "Favorites", description: "Stylists you've saved", to: "/app/favorites", icon: Heart },
@@ -372,65 +367,65 @@ export default function ConsumerProfile() {
               <Link
                 key={label}
                 to={to}
-                className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-gray-50 transition-colors group"
+                className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-colors group"
               >
-                <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 shrink-0 group-hover:bg-gray-200 transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center text-gray-500 dark:text-text-dark-muted shrink-0 group-hover:bg-gray-200 dark:group-hover:bg-surface-dark transition-colors">
                   <Icon size={16} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors">{label}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{description}</p>
+                  <p className="text-sm font-medium text-text-primary dark:text-text-dark-primary group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{label}</p>
+                  <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">{description}</p>
                 </div>
-                <ChevronRight size={14} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
+                <ChevronRight size={14} className="text-gray-300 dark:text-gray-600 group-hover:text-gray-400 dark:group-hover:text-gray-500 transition-colors" />
               </Link>
             ))}
           </div>
-        </div>
+        </Card>
 
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100">
+        <Card className="overflow-hidden !p-0">
+          <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/40">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
+              <div className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center text-gray-500 dark:text-text-dark-muted">
                 <Shield size={15} />
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-gray-900">Account</h2>
-                <p className="text-xs text-gray-400 mt-0.5">Security & data</p>
+                <h2 className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">Account</h2>
+                <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">Security & data</p>
               </div>
             </div>
           </div>
-          <div className="divide-y divide-gray-50">
+          <div className="divide-y divide-gray-50 dark:divide-gray-700/20">
             <Link
               to="/app/settings"
-              className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-gray-50 transition-colors group"
+              className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-colors group"
             >
-              <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center text-gray-500 dark:text-text-dark-muted shrink-0">
                 <Shield size={16} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900">Privacy & Security</p>
-                <p className="text-xs text-gray-400 mt-0.5">Password, privacy settings, delete account</p>
+                <p className="text-sm font-medium text-text-primary dark:text-text-dark-primary">Privacy & Security</p>
+                <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">Password, privacy settings, delete account</p>
               </div>
-              <ChevronRight size={14} className="text-gray-300" />
+              <ChevronRight size={14} className="text-gray-300 dark:text-gray-600" />
             </Link>
-            <a
-              href="/help"
-              className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-gray-50 transition-colors group"
+            <Link
+              to="/help"
+              className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-colors group"
             >
-              <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center text-gray-500 dark:text-text-dark-muted shrink-0">
                 <ExternalLink size={16} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900">Help & Support</p>
-                <p className="text-xs text-gray-400 mt-0.5">FAQs, contact support, report a problem</p>
+                <p className="text-sm font-medium text-text-primary dark:text-text-dark-primary">Help & Support</p>
+                <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">FAQs, contact support, report a problem</p>
               </div>
-              <ChevronRight size={14} className="text-gray-300" />
-            </a>
+              <ChevronRight size={14} className="text-gray-300 dark:text-gray-600" />
+            </Link>
           </div>
-        </div>
+        </Card>
 
         <div className="text-center mt-8">
-          <p className="text-[11px] text-gray-300">GlowUp · Member since {memberSince}</p>
+          <p className="text-[11px] text-text-muted dark:text-text-dark-muted">GlowUp · Member since {memberSince}</p>
         </div>
       </div>
 

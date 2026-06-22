@@ -45,23 +45,23 @@ export function ScheduleSessionForm({ onClose, onSubmit }: Props) {
         initial={{ scale: 0.95, y: 10 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95, y: 10 }}
-        className="w-full max-w-lg bg-white dark:bg-[#1a1a2e] rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700/50 overflow-hidden"
+        className="w-full max-w-lg bg-white dark:bg-surface-dark-secondary rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700/40 overflow-hidden"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700/50">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700/40">
+          <h2 className="text-lg font-semibold text-text-primary dark:text-text-dark-primary">
             Schedule a Session
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary transition-colors"
           >
-            <X size={18} className="text-gray-500" />
+            <X size={18} className="text-text-secondary dark:text-text-dark-secondary" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-dark-secondary mb-1.5">
               Title
             </label>
             <input
@@ -71,12 +71,12 @@ export function ScheduleSessionForm({ onClose, onSubmit }: Props) {
               placeholder="e.g., Morning Mobility & Stretch"
               maxLength={100}
               required
-              className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+              className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-surface-dark-tertiary rounded-2xl text-sm text-text-primary dark:text-text-dark-primary placeholder-gray-400 border border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-dark-secondary mb-1.5">
               Description
             </label>
             <textarea
@@ -84,12 +84,12 @@ export function ScheduleSessionForm({ onClose, onSubmit }: Props) {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What will you cover? Who is this for?"
               rows={3}
-              className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 resize-none"
+              className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-surface-dark-tertiary rounded-2xl text-sm text-text-primary dark:text-text-dark-primary placeholder-gray-400 border border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-dark-secondary mb-1.5">
               Category
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -101,7 +101,7 @@ export function ScheduleSessionForm({ onClose, onSubmit }: Props) {
                   className={`px-3 py-2 rounded-xl text-xs font-medium border transition-all ${
                     category === cat.key
                       ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white"
-                      : "bg-white dark:bg-[#1a1a2e] text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-300"
+                      : "bg-white dark:bg-surface-dark-secondary text-text-secondary dark:text-text-dark-secondary border-gray-200 dark:border-gray-600 hover:border-gray-300"
                   }`}
                 >
                   {cat.label}
@@ -112,7 +112,7 @@ export function ScheduleSessionForm({ onClose, onSubmit }: Props) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary dark:text-text-dark-secondary mb-1.5">
                 <span className="inline-flex items-center gap-1.5">
                   <Calendar size={14} /> Date
                 </span>
@@ -123,11 +123,11 @@ export function ScheduleSessionForm({ onClose, onSubmit }: Props) {
                 onChange={(e) => setDate(e.target.value)}
                 min={minDate}
                 required
-                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-surface-dark-tertiary rounded-2xl text-sm text-text-primary dark:text-text-dark-primary border border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              <label className="block text-sm font-medium text-text-secondary dark:text-text-dark-secondary mb-1.5">
                 <span className="inline-flex items-center gap-1.5">
                   <Clock size={14} /> Time
                 </span>
@@ -137,13 +137,13 @@ export function ScheduleSessionForm({ onClose, onSubmit }: Props) {
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
                 required
-                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+                className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-surface-dark-tertiary rounded-2xl text-sm text-text-primary dark:text-text-dark-primary border border-gray-200 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-sm font-medium text-text-secondary dark:text-text-dark-secondary mb-1.5">
               Duration
             </label>
             <div className="flex gap-2">
@@ -155,7 +155,7 @@ export function ScheduleSessionForm({ onClose, onSubmit }: Props) {
                   className={`flex-1 py-2 rounded-xl text-xs font-medium border transition-all ${
                     duration === mins
                       ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white"
-                      : "bg-white dark:bg-[#1a1a2e] text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-300"
+                      : "bg-white dark:bg-surface-dark-secondary text-text-secondary dark:text-text-dark-secondary border-gray-200 dark:border-gray-600 hover:border-gray-300"
                   }`}
                 >
                   {mins < 60 ? `${mins}m` : `${mins / 60}h`}
@@ -167,7 +167,7 @@ export function ScheduleSessionForm({ onClose, onSubmit }: Props) {
           <button
             type="submit"
             disabled={!title.trim() || !date || !time}
-            className="w-full py-3 bg-black dark:bg-white text-white dark:text-black rounded-xl text-sm font-semibold hover:opacity-80 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-brand-500 text-white hover:bg-brand-600 rounded-2xl text-sm font-semibold transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
           >
             Schedule Session
           </button>

@@ -1,4 +1,3 @@
-// src/pages/consumer/components/SearchResultsPage.tsx
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -13,6 +12,7 @@ import {
 import { getStylists } from "../../api/stylists";
 import type { Stylist } from "@/domain/stylist/stylist.types";
 import { getLocationString } from "@/utils/location";
+import { Button } from "../../components/ui/Button";
 
 export default function SearchResultsPage() {
   const [searchParams] = useSearchParams();
@@ -64,15 +64,16 @@ export default function SearchResultsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-surface-dark-tertiary flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-500 text-sm mb-4">{error}</p>
-          <button
+          <Button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-gray-900 text-white text-sm rounded-xl hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+            variant="primary"
+            size="sm"
           >
             Retry
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -80,27 +81,50 @@ export default function SearchResultsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-gray-50 dark:bg-surface-dark-tertiary">
+        <div className="max-w-5xl mx-auto px-4 py-8">
+          <div className="mb-6">
+            <div className="h-8 w-64 skeleton-pulse mb-2" />
+            <div className="h-4 w-32 skeleton-pulse" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 overflow-hidden">
+                <div className="aspect-[4/3] skeleton-pulse rounded-none" />
+                <div className="p-4 space-y-3">
+                  <div className="h-4 w-3/4 skeleton-pulse" />
+                  <div className="h-3 w-1/2 skeleton-pulse" />
+                  <div className="flex gap-2">
+                    <div className="h-5 w-16 skeleton-pulse" />
+                    <div className="h-5 w-16 skeleton-pulse" />
+                  </div>
+                  <div className="h-9 w-full skeleton-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-surface-dark-tertiary">
       {/* Top bar */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <div className="bg-white dark:bg-surface-dark-secondary border-b border-gray-200 dark:border-gray-600 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-4">
-          <button
+          <Button
             onClick={() => navigate(-1)}
-            className="p-2 rounded-lg hover:bg-gray-100 text-gray-500"
+            variant="ghost-gray"
+            size="sm"
+            icon
           >
             <ArrowLeft size={18} />
-          </button>
+          </Button>
           <div className="flex-1 relative">
             <Search
               size={18}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-text-dark-muted"
             />
             <input
               type="text"
@@ -118,7 +142,7 @@ export default function SearchResultsPage() {
                 }
               }}
               placeholder="Search stylists, services..."
-              className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-gray-100 border border-gray-200 focus:bg-white focus:border-gray-300 outline-none"
+              className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-gray-100 border border-gray-200 dark:border-gray-600 focus:bg-white dark:focus:bg-surface-dark-secondary focus:border-gray-300 outline-none"
             />
           </div>
         </div>
@@ -127,8 +151,8 @@ export default function SearchResultsPage() {
       {/* Results */}
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <h2 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary">{title}</h2>
+          <p className="text-sm text-text-secondary dark:text-text-dark-secondary mt-1">
             {filtered.length} stylist{filtered.length !== 1 && "s"} found
           </p>
         </div>
@@ -138,15 +162,15 @@ export default function SearchResultsPage() {
             <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
               <Users size={24} className="text-gray-300" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-700">
+            <h3 className="text-lg font-semibold text-text-primary dark:text-text-dark-primary">
               No stylists found
             </h3>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-text-muted dark:text-text-dark-muted mt-1">
               Try a different search term or browse all categories.
             </p>
             <button
               onClick={() => navigate("/app")}
-              className="mt-4 text-indigo-600 underline text-sm"
+              className="mt-4 text-brand-500 underline text-sm"
             >
               Browse all stylists
             </button>
@@ -162,7 +186,7 @@ export default function SearchResultsPage() {
               >
                 <Link
                   to={`/app/stylist/${stylist.id}`}
-                  className="group block bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 hover:shadow-lg transition-all duration-200"
+                  className="group block bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 overflow-hidden hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200"
                 >
                   {/* Image */}
                   <div className="relative aspect-[4/3] bg-gray-100">
@@ -198,14 +222,14 @@ export default function SearchResultsPage() {
                   {/* Info */}
                   <div className="p-4">
                     <div className="flex items-center gap-1.5 mb-1">
-                      <p className="text-sm font-semibold text-gray-900 truncate">
+                      <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary truncate">
                         {stylist.name}
                       </p>
                       {stylist.isVerified && (
                         <BadgeCheck size={13} className="text-blue-500" />
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+                    <div className="flex items-center gap-1.5 text-[11px] text-text-muted dark:text-text-dark-muted">
                       <MapPin size={9} />
                       {getLocationString(stylist.location)}
                     </div>
@@ -213,13 +237,13 @@ export default function SearchResultsPage() {
                       {stylist.services?.slice(0, 3).map((svc, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-0.5 rounded-full bg-gray-50 text-[10px] text-gray-500"
+                          className="px-2 py-0.5 rounded-full bg-gray-50 dark:bg-surface-dark-tertiary text-[10px] text-text-secondary dark:text-text-dark-secondary"
                         >
                           {typeof svc === "string" ? svc : svc.name}
                         </span>
                       ))}
                     </div>
-                    <div className="mt-3 w-full py-2 rounded-lg bg-gray-900 text-white text-xs font-semibold text-center hover:bg-gray-800 transition dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
+                    <div className="mt-3 w-full py-2 rounded-xl bg-brand-500 text-white text-xs font-semibold text-center hover:bg-brand-600 transition">
                       View Profile
                     </div>
                   </div>

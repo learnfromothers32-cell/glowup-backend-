@@ -169,7 +169,7 @@ export function LivePlayerScreen({
             />
           ) : (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-700 to-gray-600 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-700 to-gray-600 skeleton-pulse flex items-center justify-center">
                 <span className="text-3xl font-bold text-white">{hostInitial}</span>
               </div>
               <p className="text-white/50 text-xs">Waiting for stream...</p>

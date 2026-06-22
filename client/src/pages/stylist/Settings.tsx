@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Bell, Shield, Palette, Sun, Moon, Monitor, Loader2, AlertCircle, X } from 'lucide-react';
+import { Bell, Shield, Palette, Sun, Moon, Monitor, AlertCircle, X } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { logger } from '../../utils/logger';
 import { getMyStylistSettings, updateMyStylistSettings } from '../../api/settings';
+import { Button } from '../../components/ui/Button';
 
 export default function Settings() {
   const { theme, setTheme } = useTheme();
@@ -48,7 +49,15 @@ export default function Settings() {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-text-secondary dark:text-text-dark-secondary" /></div>;
+    return (
+      <div className="max-w-2xl space-y-6">
+        <div className="h-7 w-24 skeleton-pulse rounded mb-1" />
+        <div className="h-4 w-48 skeleton-pulse rounded mb-6" />
+        {[1,2,3].map(i => (
+          <div key={i} className="rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 p-4 skeleton-pulse h-32" />
+        ))}
+      </div>
+    );
   }
 
   return (
@@ -57,8 +66,8 @@ export default function Settings() {
       <p className="text-text-secondary dark:text-text-dark-secondary text-sm mb-6">Manage your account preferences</p>
 
       {error && (
-        <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 text-red-700 rounded-lg text-sm">
-          <AlertCircle className="w-4 h-4" /> {error}
+        <div className="flex items-center gap-2 p-3 mb-4 rounded-2xl bg-error/10 border border-error/20 text-error text-sm">
+          <AlertCircle className="w-4 h-4 shrink-0" /> {error}
           <button onClick={() => setError('')} className="ml-auto"><X className="w-4 h-4" /></button>
         </div>
       )}
@@ -78,7 +87,7 @@ export default function Settings() {
                 <span className="text-sm text-text-primary dark:text-text-dark-primary">{item.label}</span>
                 <input type="checkbox" checked={(notifications as any)[item.key]}
                   onChange={e => setNotifications({ ...notifications, [item.key]: e.target.checked })}
-                  className="rounded border-gray-300 dark:border-gray-600 text-brand-500 focus:ring-brand-500 shrink-0" />
+                  className="rounded border-gray-200 dark:border-gray-600 text-brand-500 focus:ring-brand-500 shrink-0" />
               </label>
             ))}
           </div>
@@ -96,7 +105,7 @@ export default function Settings() {
                 <span className="text-sm text-text-primary dark:text-text-dark-primary">{item.label}</span>
                 <input type="checkbox" checked={(privacy as any)[item.key]}
                   onChange={e => setPrivacy({ ...privacy, [item.key]: e.target.checked })}
-                  className="rounded border-gray-300 dark:border-gray-600 text-brand-500 focus:ring-brand-500 shrink-0" />
+                  className="rounded border-gray-200 dark:border-gray-600 text-brand-500 focus:ring-brand-500 shrink-0" />
               </label>
             ))}
           </div>
@@ -111,7 +120,7 @@ export default function Settings() {
               { key: 'system', icon: Monitor, label: 'System' },
             ].map(option => (
               <button key={option.key} onClick={() => setTheme(option.key as any)}
-                className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-3 rounded-lg border text-xs sm:text-sm transition-colors min-h-[44px] ${
+                className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-3 rounded-xl border text-xs sm:text-sm transition-colors min-h-[44px] ${
                   theme === option.key
                     ? 'border-brand-500 bg-brand-500/10 text-brand-600 dark:text-brand-400'
                     : 'border-gray-200 dark:border-gray-600 text-text-secondary dark:text-text-dark-secondary hover:border-gray-300 dark:hover:border-gray-500'
@@ -122,11 +131,9 @@ export default function Settings() {
           </div>
         </div>
 
-        <button onClick={handleSave} disabled={saving}
-          className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 py-3 sm:py-2.5 rounded-lg text-sm hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-h-[44px]">
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+        <Button onClick={handleSave} loading={saving} className="w-full" size="lg">
           {saving ? 'Saving...' : saved ? 'Saved!' : 'Save Settings'}
-        </button>
+        </Button>
       </div>
     </motion.div>
   );

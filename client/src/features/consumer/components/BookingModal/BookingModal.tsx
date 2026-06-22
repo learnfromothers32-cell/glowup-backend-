@@ -301,7 +301,7 @@ export default function BookingModal({
           role="dialog"
           aria-modal="true"
           aria-label={`Book with ${stylist.name}`}
-          className="relative w-full max-w-3xl bg-white rounded-t-3xl lg:rounded-2xl max-h-[92dvh] flex flex-col overflow-hidden shadow-2xl shadow-black/20"
+          className="relative w-full max-w-3xl bg-white dark:bg-surface-dark-secondary rounded-t-3xl lg:rounded-2xl max-h-[92dvh] flex flex-col overflow-hidden shadow-2xl shadow-black/20"
           initial={{ y: "100%" }}
           animate={{ y: 0 }}
           exit={{ y: "100%" }}
@@ -311,16 +311,16 @@ export default function BookingModal({
           <OfflineBanner />
 
           <div className="flex justify-center pt-3 pb-1 lg:hidden">
-            <div className="w-10 h-1 rounded-full bg-gray-300" />
+            <div className="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-600" />
           </div>
 
-          <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 shrink-0">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-gray-700/40 shrink-0">
             <div>
-              <h2 className="text-base font-semibold text-gray-900">
+              <h2 className="text-base font-semibold text-text-primary dark:text-text-dark-primary">
                 {phase === "success" ? "Booking Confirmed" : `Book with ${stylist.name}`}
               </h2>
               {phase !== "success" && (
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">
                   Complete each section below to finish your booking
                 </p>
               )}
@@ -328,7 +328,7 @@ export default function BookingModal({
             <button
               onClick={onClose}
               aria-label="Close"
-              className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-text-muted dark:text-text-dark-muted hover:text-text-primary dark:hover:text-text-dark-primary hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               <X size={16} />
             </button>
@@ -354,20 +354,20 @@ export default function BookingModal({
               />
             ) : (
               <div className="lg:flex lg:min-h-0">
-                <div className="hidden lg:block w-72 shrink-0 p-5 border-r border-gray-100 bg-gray-50/50 overflow-y-auto">
+                <div className="hidden lg:block w-72 shrink-0 p-5 border-r border-gray-100 dark:border-gray-700/40 bg-gray-50/50 dark:bg-surface-dark-tertiary/50 overflow-y-auto">
                   <LiveSummary stylist={stylist} state={state} />
                 </div>
 
                 <div className="flex-1 p-4 lg:p-6 space-y-3 overflow-y-auto">
                   <div className="lg:hidden">
-                    <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                    <div className="rounded-2xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-surface-dark-tertiary p-3">
                       <div className="flex items-center gap-3">
                         {stylist.image && (
                           <img src={stylist.image} alt={stylist.name} className="w-10 h-10 rounded-xl object-cover" />
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">{stylist.name}</p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary truncate">{stylist.name}</p>
+                          <p className="text-xs text-text-muted dark:text-text-dark-muted">
                             {[
                               state.selectedService?.name,
                               state.selectedDate && new Date(state.selectedDate).toLocaleDateString("en-US", {
@@ -386,7 +386,7 @@ export default function BookingModal({
                           </p>
                         </div>
                         {state.selectedService && (
-                          <p className="text-sm font-bold text-gray-900 shrink-0">{state.selectedService.price}</p>
+                          <p className="text-sm font-bold text-text-primary dark:text-text-dark-primary shrink-0">{state.selectedService.price}</p>
                         )}
                       </div>
                     </div>

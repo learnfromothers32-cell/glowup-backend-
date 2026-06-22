@@ -12,6 +12,7 @@ import {
 import { getQueueStatus, advanceQueue, markQueueDone } from "../../api/queue";
 import { useAuth } from "../../context/authUtils";
 import { connectQueue, getQueueSocket, subscribeToQueue, unsubscribeFromQueue } from "../../services/socket";
+import { Button } from "../../components/ui/Button";
 
 interface QueueEntry {
   userId: string;
@@ -111,15 +112,15 @@ export default function QueueManagement() {
   const hasInService = inService.length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-surface-dark-tertiary">
       <div className="max-w-3xl mx-auto px-4 pb-20">
         <div className="pt-14 pb-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Queue</h1>
-              <p className="text-sm text-gray-400 mt-1">Manage your waiting customers</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-text-dark-primary tracking-tight">Queue</h1>
+              <p className="text-sm text-text-muted dark:text-text-dark-muted mt-1">Manage your waiting customers</p>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-text-secondary dark:text-text-dark-secondary">
               <Users size={16} />
               <span className="font-semibold tabular-nums">{waiting.length} waiting</span>
             </div>
@@ -136,16 +137,16 @@ export default function QueueManagement() {
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 rounded-xl bg-white border border-gray-100 animate-pulse" />
+              <div key={i} className="h-20 rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 skeleton-pulse" />
             ))}
           </div>
         ) : waiting.length === 0 && !hasInService ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-5">
+            <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center mb-5">
               <Users size={28} className="text-gray-300" />
             </div>
-            <p className="text-base font-semibold text-gray-700 mb-1">Queue is empty</p>
-            <p className="text-sm text-gray-400 max-w-[280px]">
+            <p className="text-base font-semibold text-text-primary dark:text-text-dark-primary mb-1">Queue is empty</p>
+            <p className="text-sm text-text-muted dark:text-text-dark-muted max-w-[280px]">
               Customers you add to your queue will appear here.
             </p>
           </div>
@@ -153,22 +154,22 @@ export default function QueueManagement() {
           <div className="space-y-6">
             {hasInService && (
               <div>
-                <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted mb-3 flex items-center gap-2">
                   <UserCheck size={14} /> Now serving
                 </h2>
-                <div className="bg-white rounded-xl border border-green-200 overflow-hidden">
+                <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-green-200 overflow-hidden">
                   {inService.map((entry) => (
                     <div key={entry.userId} className="p-4">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-sm font-bold text-green-700 shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-sm font-bold text-green-700 dark:text-green-300 shrink-0">
                             {initials(entry.userId)}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-gray-900">
+                            <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">
                               In service
                             </p>
-                            <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                            <p className="text-xs text-text-muted dark:text-text-dark-muted flex items-center gap-1 mt-0.5">
                               <Clock size={10} />
                               Since {fmtTime(entry.joinedAt)}
                             </p>
@@ -196,10 +197,10 @@ export default function QueueManagement() {
             {waiting.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted flex items-center gap-2">
                     <Clock size={14} /> Waiting list
                   </h2>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-text-muted dark:text-text-dark-muted">
                     Est. wait ~{queue?.predictedWaitMins || "—"} min
                   </span>
                 </div>
@@ -210,24 +211,24 @@ export default function QueueManagement() {
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.03 }}
-                      className="bg-white rounded-xl border border-gray-100 p-4 hover:border-gray-200 transition-all"
+                      className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 p-4 hover:border-gray-200 dark:hover:border-gray-600 transition-all"
                     >
                       <div className="flex items-center gap-4">
                         <div className="flex flex-col items-center min-w-[40px] shrink-0">
                           <span className={`text-lg font-black tabular-nums ${
-                            entry.position === 1 ? "text-green-600" : "text-amber-600"
+                            entry.position === 1 ? "text-brand-500" : "text-amber-600"
                           }`}>
                             #{entry.position}
                           </span>
-                          <span className="text-[9px] text-gray-400 font-medium">Queue</span>
+                          <span className="text-[9px] text-text-muted dark:text-text-dark-muted font-medium">Queue</span>
                         </div>
-                        <div className="w-px h-8 bg-gray-100 shrink-0" />
-                        <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500 shrink-0">
+                        <div className="w-px h-8 bg-gray-100 dark:bg-gray-700/40 shrink-0" />
+                        <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center text-xs font-bold text-text-secondary dark:text-text-dark-secondary shrink-0">
                           {initials(entry.userId)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">Customer</p>
-                          <p className="text-xs text-gray-400 truncate">
+                          <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary truncate">Customer</p>
+                          <p className="text-xs text-text-muted dark:text-text-dark-muted truncate">
                             ~{entry.estimatedServiceMins} min · Joined {fmtTime(entry.joinedAt)}
                           </p>
                         </div>
@@ -239,18 +240,16 @@ export default function QueueManagement() {
             )}
 
             {!hasInService && waiting.length > 0 && (
-              <button
+              <Button
                 onClick={handleAdvance}
                 disabled={actionLoading === "advance"}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 disabled:opacity-50 shadow-sm transition-all min-h-[48px] dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+                loading={actionLoading === "advance"}
+                className="w-full"
+                size="lg"
               >
-                {actionLoading === "advance" ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  <ArrowRight size={16} />
-                )}
+                <ArrowRight size={16} />
                 Call next customer
-              </button>
+              </Button>
             )}
           </div>
         )}

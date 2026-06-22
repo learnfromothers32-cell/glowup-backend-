@@ -43,14 +43,14 @@ export default function BookingDetailModal({
 
   return (
     <Modal onClose={onClose} wide>
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700/40 shrink-0">
         <div>
-          <h2 className="text-base font-semibold text-gray-900">Booking Details</h2>
-          <p className="text-xs text-gray-400 mt-0.5">{serviceName}</p>
+          <h2 className="text-base font-semibold text-text-primary dark:text-text-dark-primary">Booking Details</h2>
+          <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">{serviceName}</p>
         </div>
         <button
           onClick={onClose}
-          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-text-muted dark:text-text-dark-muted hover:text-text-primary dark:hover:text-text-dark-primary hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary transition-colors"
         >
           <X size={16} />
         </button>
@@ -62,61 +62,61 @@ export default function BookingDetailModal({
             <img
               src={stylistImage}
               alt={name}
-              className={`w-12 h-12 rounded-xl object-cover ring-1 ring-gray-100 ${isCancelled ? "grayscale" : ""}`}
+              className={`w-12 h-12 rounded-2xl object-cover ring-1 ring-gray-100 dark:ring-gray-700/40 ${isCancelled ? "grayscale" : ""}`}
             />
           ) : (
-            <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
-              <span className="text-sm font-bold text-gray-400">{initials(name)}</span>
+            <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center">
+              <span className="text-sm font-bold text-text-muted dark:text-text-dark-muted">{initials(name)}</span>
             </div>
           )}
           <div>
-            <p className={`text-sm font-semibold ${isCancelled ? "text-gray-400 line-through" : "text-gray-900"}`}>
+            <p className={`text-sm font-semibold ${isCancelled ? "text-text-muted dark:text-text-dark-muted line-through" : "text-text-primary dark:text-text-dark-primary"}`}>
               {name}
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-text-secondary dark:text-text-dark-secondary">
               <StatusBadge status={booking.status} date={dateStr} />
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-3 rounded-xl bg-gray-50 border border-gray-100">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Date</p>
-            <p className="text-sm font-semibold text-gray-900">{booking.startTime ? fmtDate(new Date(booking.startTime)) : "—"}</p>
+          <div className="p-3 rounded-2xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted mb-1">Date</p>
+            <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">{booking.startTime ? fmtDate(new Date(booking.startTime)) : "—"}</p>
           </div>
-          <div className="p-3 rounded-xl bg-gray-50 border border-gray-100">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Time</p>
-            <p className="text-sm font-semibold text-gray-900">{booking.startTime ? fmtISO(booking.startTime) : "—"}</p>
+          <div className="p-3 rounded-2xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted mb-1">Time</p>
+            <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">{booking.startTime ? fmtISO(booking.startTime) : "—"}</p>
           </div>
-          <div className="p-3 rounded-xl bg-gray-50 border border-gray-100">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Status</p>
+          <div className="p-3 rounded-2xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted mb-1">Status</p>
             <p><StatusBadge status={booking.status} date={dateStr} /></p>
           </div>
           {booking.totalPrice > 0 && (
-            <div className="p-3 rounded-xl bg-gray-50 border border-gray-100">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Price</p>
-              <p className="text-sm font-semibold text-gray-900">${booking.totalPrice}</p>
+            <div className="p-3 rounded-2xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted mb-1">Price</p>
+              <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">${booking.totalPrice}</p>
             </div>
           )}
         </div>
 
         {location && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100">
-            <MapPin size={14} className="text-gray-400 shrink-0" />
-            <p className="text-xs text-gray-600">{getLocationString(location)}</p>
+          <div className="flex items-center gap-2 p-3 rounded-2xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40">
+            <MapPin size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
+            <p className="text-xs text-text-secondary dark:text-text-dark-secondary">{getLocationString(location)}</p>
           </div>
         )}
 
         {booking.notes && (
-          <div className="p-3 rounded-xl bg-gray-50 border border-gray-100">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Notes</p>
-            <p className="text-xs text-gray-600">{booking.notes}</p>
+          <div className="p-3 rounded-2xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted mb-1">Notes</p>
+            <p className="text-xs text-text-secondary dark:text-text-dark-secondary">{booking.notes}</p>
           </div>
         )}
 
-        <div className="p-3 rounded-xl bg-gray-50 border border-gray-100">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Booking ID</p>
-          <p className="text-xs text-gray-500 font-mono">{booking._id}</p>
+        <div className="p-3 rounded-2xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-text-muted dark:text-text-dark-muted mb-1">Booking ID</p>
+          <p className="text-xs text-text-secondary dark:text-text-dark-secondary font-mono">{booking._id}</p>
         </div>
       </div>
     </Modal>

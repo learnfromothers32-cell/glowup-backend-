@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Plus, Clock, Trash2, Save, Loader2, AlertCircle, Scissors, RefreshCcw, Check } from "lucide-react";
 import { getMyStylistProfile, addMyService, updateMyService, deleteMyService } from "../../api/stylists";
 import { getStylistServices } from "../../api/stylists";
+import { Button } from "../../components/ui/Button";
 
 interface ServiceItem {
   id?: string;
@@ -115,8 +116,17 @@ export default function Services() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin text-text-muted dark:text-text-dark-muted" size={24} />
+      <div className="max-w-3xl mx-auto space-y-6">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="space-y-2">
+            <div className="h-6 w-40 skeleton-pulse rounded" />
+            <div className="h-4 w-56 skeleton-pulse rounded" />
+          </div>
+          <div className="h-9 w-28 skeleton-pulse rounded-xl" />
+        </div>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-20 rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 skeleton-pulse" />
+        ))}
       </div>
     );
   }
@@ -141,25 +151,22 @@ export default function Services() {
           >
             <RefreshCcw size={15} />
           </button>
-          <button
-            onClick={handleAdd}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all bg-gradient-to-br from-brand-700 to-brand-900 text-white"
-          >
+          <Button onClick={handleAdd} size="sm">
             <Plus size={14} />
             Add Service
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Error / Success */}
       {error && (
-        <div className="flex items-center gap-2 rounded-xl px-4 py-2.5 bg-error/10 border border-error/20">
+        <div className="flex items-center gap-2 rounded-2xl px-4 py-2.5 bg-error/10 border border-error/20">
           <AlertCircle size={14} className="text-error" />
           <p className="text-xs font-medium text-error">{error}</p>
         </div>
       )}
       {successMsg && (
-        <div className="flex items-center gap-2 rounded-xl px-4 py-2.5 bg-success/10 border border-success/20">
+        <div className="flex items-center gap-2 rounded-2xl px-4 py-2.5 bg-success/10 border border-success/20">
           <Check size={14} className="text-success" />
           <p className="text-xs font-medium text-success">{successMsg}</p>
         </div>
@@ -172,13 +179,10 @@ export default function Services() {
           </div>
           <p className="text-sm font-semibold mb-1 text-text-primary dark:text-text-dark-primary">No services yet</p>
           <p className="text-xs mb-5 text-text-muted dark:text-text-dark-muted">Add your first service to start getting booked</p>
-          <button
-            onClick={handleAdd}
-            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all bg-gradient-to-br from-brand-700 to-brand-900 text-white"
-          >
+          <Button onClick={handleAdd} size="sm">
             <Plus size={14} />
             Add Service
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="space-y-2">
@@ -248,7 +252,7 @@ export default function Services() {
                     <button
                       onClick={() => svc.id && handleSave(svc.id)}
                       disabled={saving === svc.id}
-                      className="p-2 rounded-lg transition-all text-text-muted dark:text-text-dark-muted"
+                      className="p-2 rounded-xl transition-all text-text-muted dark:text-text-dark-muted"
                       title="Save"
                     >
                       {saving === svc.id
@@ -258,7 +262,7 @@ export default function Services() {
                     </button>
                     <button
                       onClick={() => svc.id && handleDelete(svc.id)}
-                      className="p-2 rounded-lg transition-all text-text-muted dark:text-text-dark-muted"
+                      className="p-2 rounded-xl transition-all text-text-secondary dark:text-text-dark-secondary hover:text-error"
                       title="Delete"
                     >
                       <Trash2 size={15} />

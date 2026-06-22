@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CreditCard, Smartphone, Wallet, Check, Shield, AlertCircle, Loader2, ArrowRight, Lock, Receipt } from "lucide-react";
+import { CreditCard, Smartphone, Wallet, Check, Shield, AlertCircle, ArrowRight, Lock, Receipt } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Textarea } from "@/components/ui/Input";
 import Section from "./Section";
 import type { PaymentMethod } from "@/domain/booking/booking.types";
 import type { ServiceObject, BookingPhase } from "./BookingModal";
@@ -77,38 +79,36 @@ export default function PaymentStep({
       disabled={disabled}
     >
       <div className="mt-2 space-y-5">
-        {/* ── Order summary ── */}
-        <div className="rounded-2xl border border-gray-100 bg-gray-50/50 overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
-            <Receipt size={13} className="text-gray-400" />
-            <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Order Summary</span>
+        <div className="rounded-2xl border border-gray-100 dark:border-gray-700/40 bg-gray-50/50 dark:bg-surface-dark-tertiary/50 overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700/40 flex items-center gap-2">
+            <Receipt size={13} className="text-text-muted dark:text-text-dark-muted" />
+            <span className="text-[11px] font-semibold text-text-secondary dark:text-text-dark-secondary uppercase tracking-wider">Order Summary</span>
           </div>
           <div className="p-4 space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">{selectedService?.name || "Service"}</span>
-              <span className="font-semibold text-gray-900">GH₵ {price.subtotal.toFixed(2)}</span>
+              <span className="text-text-secondary dark:text-text-dark-secondary">{selectedService?.name || "Service"}</span>
+              <span className="font-semibold text-text-primary dark:text-text-dark-primary">GH₵ {price.subtotal.toFixed(2)}</span>
             </div>
             {selectedDate && selectedTime && (
-              <div className="text-xs text-gray-400">
+              <div className="text-xs text-text-muted dark:text-text-dark-muted">
                 {formatDate(selectedDate)} · {formatSlot(selectedTime)}
               </div>
             )}
-            <div className="border-t border-gray-200 pt-3 space-y-1.5">
+            <div className="border-t border-gray-200 dark:border-gray-600 pt-3 space-y-1.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-400">Platform fee <span className="text-[10px]">(13%)</span></span>
-                <span className="text-gray-600">GH₵ {price.fee.toFixed(2)}</span>
+                <span className="text-text-muted dark:text-text-dark-muted">Platform fee <span className="text-[10px]">(13%)</span></span>
+                <span className="text-text-secondary dark:text-text-dark-secondary">GH₵ {price.fee.toFixed(2)}</span>
               </div>
-              <div className="flex items-center justify-between text-sm font-semibold border-t border-gray-200 pt-1.5">
-                <span className="text-gray-900">Total</span>
-                <span className="text-gray-900">GH₵ {price.total.toFixed(2)}</span>
+              <div className="flex items-center justify-between text-sm font-semibold border-t border-gray-200 dark:border-gray-600 pt-1.5">
+                <span className="text-text-primary dark:text-text-dark-primary">Total</span>
+                <span className="text-text-primary dark:text-text-dark-primary">GH₵ {price.total.toFixed(2)}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* ── Payment method ── */}
         <div>
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2.5">Payment Method</p>
+          <p className="text-xs font-semibold text-text-secondary dark:text-text-dark-secondary uppercase tracking-wider mb-2.5">Payment Method</p>
           <div className="space-y-2">
             {PAYMENT_METHODS.map((method) => {
               const isSelected = paymentMethod === method.id;
@@ -119,25 +119,25 @@ export default function PaymentStep({
                   type="button"
                   onClick={() => onPaymentMethodChange(method.id)}
                   className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all duration-200 ${
-                    isSelected ? "border-gray-900 bg-gray-50" : "border-gray-100 hover:border-gray-200 bg-white"
+                    isSelected ? "border-brand-500 bg-brand-50 dark:bg-brand-950/20" : "border-gray-100 dark:border-gray-700/40 hover:border-gray-200 dark:hover:border-gray-600 bg-white dark:bg-surface-dark-secondary"
                   }`}
                 >
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    isSelected ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-400"
+                    isSelected ? "bg-brand-500 text-white" : "bg-gray-100 dark:bg-gray-800 text-text-muted dark:text-text-dark-muted"
                   }`}>
                     <Icon size={17} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-gray-900">{method.label}</p>
+                      <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">{method.label}</p>
                       {method.badge && (
-                        <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-gray-900 text-white">{method.badge}</span>
+                        <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full bg-brand-500 text-white">{method.badge}</span>
                       )}
                     </div>
-                    <p className="text-[11px] text-gray-400">{method.detail}</p>
+                    <p className="text-[11px] text-text-muted dark:text-text-dark-muted">{method.detail}</p>
                   </div>
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                    isSelected ? "border-gray-900 bg-gray-900" : "border-gray-300"
+                    isSelected ? "border-brand-500 bg-brand-500" : "border-gray-300 dark:border-gray-600"
                   }`}>
                     {isSelected && <Check size={10} className="text-white" strokeWidth={3} />}
                   </div>
@@ -147,24 +147,22 @@ export default function PaymentStep({
           </div>
         </div>
 
-        {/* ── Note ── */}
         <div>
-          <label htmlFor={noteId} className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-            Note <span className="normal-case font-normal text-gray-400">(optional)</span>
+          <label htmlFor={noteId} className="text-xs font-semibold text-text-secondary dark:text-text-dark-secondary uppercase tracking-wider block mb-2">
+            Note <span className="normal-case font-normal text-text-muted dark:text-text-dark-muted">(optional)</span>
           </label>
-          <textarea
+          <Textarea
             id={noteId}
             value={note}
             onChange={(e) => onNoteChange(e.target.value)}
             maxLength={200}
             rows={2}
             placeholder="Any special requests for your stylist?"
-            className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-300 resize-none focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100 transition-all bg-white"
+            className="resize-none min-h-0"
           />
-          <p className="text-right text-[11px] text-gray-300 mt-1">{note.length}/200</p>
+          <p className="text-right text-[11px] text-text-muted dark:text-text-dark-muted mt-1">{note.length}/200</p>
         </div>
 
-        {/* ── Error ── */}
         <AnimatePresence>
           {paymentError && (
             <motion.div
@@ -179,35 +177,27 @@ export default function PaymentStep({
           )}
         </AnimatePresence>
 
-        {/* ── Security badges ── */}
-        <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-400">
+        <div className="flex flex-wrap items-center gap-3 text-[11px] text-text-muted dark:text-text-dark-muted">
           <span className="flex items-center gap-1.5"><Lock size={11} /> 256-bit SSL</span>
           <span className="flex items-center gap-1.5"><Shield size={11} /> Secured by Paystack</span>
           <span className="flex items-center gap-1.5 text-green-600 font-medium">No hidden fees</span>
         </div>
 
-        {/* ── Pay button ── */}
-        <button
+        <Button
           onClick={onPay}
           disabled={phase === "paying"}
-          className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-[0.98] ${
-            phase === "paying"
-              ? "bg-gray-400 text-white cursor-wait"
-              : "bg-gray-900 text-white hover:bg-gray-800 shadow-lg shadow-gray-900/20"
-          }`}
+          variant="primary"
+          size="lg"
+          loading={phase === "paying"}
+          className="w-full shadow-lg shadow-brand-500/20"
         >
-          {phase === "paying" ? (
-            <>
-              <Loader2 size={16} className="animate-spin" />
-              Processing payment…
-            </>
-          ) : (
+          {phase === "paying" ? "Processing payment…" : (
             <>
               Pay GH₵ {price.total.toFixed(2)}
               <ArrowRight size={14} />
             </>
           )}
-        </button>
+        </Button>
       </div>
     </Section>
   );

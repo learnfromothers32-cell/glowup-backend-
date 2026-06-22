@@ -1,10 +1,8 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useAuth } from "../../context/authUtils";
 import { Button } from "../../components/ui/Button";
 import { Sparkles } from "lucide-react";
-import { fadeSlideUp, pageTransition } from "../../utils/animations";
 
 export default function LoginPage() {
   const { login, socialLogin, isLoading, isAuthenticated, user } = useAuth();
@@ -34,13 +32,7 @@ export default function LoginPage() {
   };
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={fadeSlideUp}
-      transition={pageTransition}
-      className="min-h-screen grid lg:grid-cols-2 bg-gray-50 dark:bg-surface-dark"
-    >
+    <div className="min-h-screen grid lg:grid-cols-2 bg-gray-50 dark:bg-surface-dark">
       {/* Left — Brand panel */}
       <div className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-brand-600 via-brand-500 to-brand-700 p-12 text-white relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 opacity-10" style={{ backgroundImage: `radial-gradient(circle at 20% 50%, #fff 0%, transparent 50%), radial-gradient(circle at 80% 50%, #fff 0%, transparent 50%)` }} />
@@ -143,6 +135,6 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

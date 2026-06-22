@@ -29,6 +29,8 @@ import {
   savePortfolioMedia,
 } from "../../api/stylists";
 import api, { API_SERVER_URL } from "../../api/axios";
+import { Button } from "../../components/ui/Button";
+import { Card } from "../../components/ui/Card";
 
 function withTimeout<T>(
   promise: Promise<T>,
@@ -66,7 +68,6 @@ type TrendingStat = {
   shares?: number;
 };
 
-// Normalize old string-format portfolio items to the new object format
 const normalizeItem = (item: PortfolioItemInput): PortfolioItem =>
   typeof item === "string"
     ? { url: item, type: "image" }
@@ -234,12 +235,10 @@ export default function Portfolio() {
   const [editMode, setEditMode] = useState(false);
   const mountedRef = useRef(true);
 
-  // Pending files state
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
-  // Transformation state
   interface BeforeAfterItem {
     _id?: string;
     before: string;
@@ -389,7 +388,6 @@ export default function Portfolio() {
     return url.startsWith("http") ? url : `${API_SERVER_URL}${url}`;
   };
 
-  // File selection handlers
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
@@ -438,7 +436,6 @@ export default function Portfolio() {
     );
   };
 
-  // Save pending files
   const handleSaveAll = async () => {
     if (pendingFiles.length === 0) return;
     try {
@@ -450,7 +447,6 @@ export default function Portfolio() {
       const result = await savePortfolioMedia(formData);
       if (!mountedRef.current) return;
       setPortfolioItems(result.portfolioImages);
-      // Cleanup pending
       pendingFiles.forEach((p) => {
         if (p.preview) revokePreview(p.preview);
       });
@@ -486,15 +482,20 @@ export default function Portfolio() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="animate-spin text-gray-400" size={24} />
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="h-8 w-40 skeleton-pulse" />
+        <div className="h-4 w-64 skeleton-pulse" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 sm:gap-1.5">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="aspect-square skeleton-pulse" />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-bold font-display text-text-primary dark:text-text-dark-primary">
@@ -505,13 +506,15 @@ export default function Portfolio() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             onClick={fetchPortfolio}
-            className="p-2 rounded-xl hover:bg-gray-100 transition-all"
+            variant="ghost-gray"
+            size="sm"
+            icon
             title="Refresh"
           >
-            <RefreshCcw size={15} className="text-gray-400" />
-          </button>
+            <RefreshCcw size={15} />
+          </Button>
           {portfolioItems.length > 0 && (
             <button
               onClick={() => setEditMode((v) => !v)}
@@ -527,7 +530,6 @@ export default function Portfolio() {
         </div>
       </div>
 
-      {/* Error / Success */}
       {error && (
         <div className="flex items-center gap-2 rounded-xl px-4 py-2.5 bg-error/10 border border-error/20">
           <AlertCircle size={14} className="text-error" />
@@ -541,115 +543,114 @@ export default function Portfolio() {
         </div>
       )}
 
-      {/* Pending files preview bar */}
       <AnimatePresence>
         {pendingFiles.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            className="rounded-2xl p-4 bg-gray-50 dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/50"
           >
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-text-primary dark:text-text-dark-primary">
-                {pendingFiles.length}{" "}
-                {pendingFiles.length === 1 ? "item" : "items"} ready to save
-              </p>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    pendingFiles.forEach((p) => {
-                      if (p.preview) revokePreview(p.preview);
-                    });
-                    setPendingFiles([]);
-                  }}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-gray-100 dark:bg-surface-dark-tertiary text-text-muted dark:text-text-dark-muted"
-                >
-                  Clear all
-                </button>
-                <button
-                  onClick={handleSaveAll}
-                  disabled={saving}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-gradient-to-br from-brand-700 to-brand-900 text-white"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 size={13} className="animate-spin" /> Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Upload size={13} /> Save to Portfolio
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {pendingFiles.map((p) => (
-                <div
-                  key={p.id}
-                  className="relative shrink-0 w-16 h-16 min-[480px]:w-20 min-[480px]:h-20 rounded-xl overflow-hidden group bg-gray-100 dark:bg-surface-dark-tertiary"
-                >
-                  {p.type === "video" ? (
-                    <video
-                      src={p.preview}
-                      className="w-full h-full object-cover"
-                      muted
-                      playsInline
-                      preload="metadata"
-                    />
-                  ) : p.preview ? (
-                    <img
-                      src={p.preview}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Film
-                        size={20}
-                        className="text-text-muted dark:text-text-dark-muted"
-                      />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-1">
-                    <button
-                      onClick={() => togglePendingType(p.id)}
-                      className={`text-[9px] px-1.5 py-0.5 rounded font-semibold text-white ${
-                        p.type === "video" ? "bg-amber-400 dark:bg-amber-500" : "bg-gray-900 dark:bg-gray-200"
-                      }`}
+            <Card elevated padding="none" className="overflow-hidden">
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-semibold text-text-primary dark:text-text-dark-primary">
+                    {pendingFiles.length}{" "}
+                    {pendingFiles.length === 1 ? "item" : "items"} ready to save
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => {
+                        pendingFiles.forEach((p) => {
+                          if (p.preview) revokePreview(p.preview);
+                        });
+                        setPendingFiles([]);
+                      }}
+                      variant="secondary"
+                      size="sm"
                     >
-                      {p.type === "video" ? "Video" : "Image"}
-                    </button>
-                    <button
-                      onClick={() => removePendingFile(p.id)}
-                      className="w-5 h-5 rounded-full flex items-center justify-center bg-white/90"
+                      Clear all
+                    </Button>
+                    <Button
+                      onClick={handleSaveAll}
+                      disabled={saving}
+                      variant="primary"
+                      size="sm"
                     >
-                      <X size={9} className="text-error" />
-                    </button>
-                  </div>
-                  <div
-                    className={`absolute top-1 left-1 text-[9px] px-1.5 py-0.5 rounded font-semibold text-white ${
-                      p.type === "video" ? "bg-amber-400 dark:bg-amber-500" : "bg-gray-900 dark:bg-gray-200"
-                    }`}
-                  >
-                    {p.type === "video" ? "V" : "I"}
+                      {saving ? (
+                        <><Loader2 size={13} className="animate-spin" /> Saving...</>
+                      ) : (
+                        <><Upload size={13} /> Save to Portfolio</>
+                      )}
+                    </Button>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {pendingFiles.map((p) => (
+                    <div
+                      key={p.id}
+                      className="relative shrink-0 w-16 h-16 min-[480px]:w-20 min-[480px]:h-20 rounded-xl overflow-hidden group bg-gray-100 dark:bg-surface-dark-tertiary"
+                    >
+                      {p.type === "video" ? (
+                        <video
+                          src={p.preview}
+                          className="w-full h-full object-cover"
+                          muted
+                          playsInline
+                          preload="metadata"
+                        />
+                      ) : p.preview ? (
+                        <img
+                          src={p.preview}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Film
+                            size={20}
+                            className="text-text-muted dark:text-text-dark-muted"
+                          />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center gap-1">
+                        <button
+                          onClick={() => togglePendingType(p.id)}
+                          className={`text-[9px] px-1.5 py-0.5 rounded font-semibold text-white ${
+                            p.type === "video" ? "bg-amber-400 dark:bg-amber-500" : "bg-gray-900 dark:bg-gray-200"
+                          }`}
+                        >
+                          {p.type === "video" ? "Video" : "Image"}
+                        </button>
+                        <button
+                          onClick={() => removePendingFile(p.id)}
+                          className="w-5 h-5 rounded-full flex items-center justify-center bg-white/90"
+                        >
+                          <X size={9} className="text-error" />
+                        </button>
+                      </div>
+                      <div
+                        className={`absolute top-1 left-1 text-[9px] px-1.5 py-0.5 rounded font-semibold text-white ${
+                          p.type === "video" ? "bg-amber-400 dark:bg-amber-500" : "bg-gray-900 dark:bg-gray-200"
+                        }`}
+                      >
+                        {p.type === "video" ? "V" : "I"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Upload inputs row */}
       <div className="flex flex-col min-[480px]:flex-row gap-3">
-        <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer transition-all hover:border-indigo-300 dark:hover:border-indigo-500 border-gray-100 dark:border-gray-700/50 bg-white dark:bg-surface-dark-secondary">
+        <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer transition-all hover:border-indigo-300 dark:hover:border-indigo-500 border-gray-100 dark:border-gray-700/40 bg-white dark:bg-surface-dark-secondary">
           <ImageIcon
             size={18}
             className="text-text-muted dark:text-text-dark-muted"
           />
-          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+          <span className="text-xs font-medium text-text-secondary dark:text-text-dark-secondary">
             Add Images
           </span>
           <input
@@ -661,12 +662,12 @@ export default function Portfolio() {
             onChange={handleImageSelect}
           />
         </label>
-        <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer transition-all hover:border-indigo-300 dark:hover:border-indigo-500 border-gray-100 dark:border-gray-700/50 bg-white dark:bg-surface-dark-secondary">
+        <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer transition-all hover:border-indigo-300 dark:hover:border-indigo-500 border-gray-100 dark:border-gray-700/40 bg-white dark:bg-surface-dark-secondary">
           <Film
             size={18}
             className="text-text-muted dark:text-text-dark-muted"
           />
-          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+          <span className="text-xs font-medium text-text-secondary dark:text-text-dark-secondary">
             Add Videos
           </span>
           <input
@@ -680,22 +681,23 @@ export default function Portfolio() {
         </label>
       </div>
 
-      {/* Portfolio Gallery */}
       {portfolioItems.length === 0 && pendingFiles.length === 0 ? (
-        <div className="text-center py-12 sm:py-20 rounded-2xl border-2 border-dashed border-gray-200 bg-white dark:bg-surface-dark-secondary">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-gray-100 dark:bg-surface-dark-tertiary">
-            <Camera
-              size={28}
-              className="text-text-muted dark:text-text-dark-muted"
-            />
+        <Card elevated padding="none" className="overflow-hidden">
+          <div className="text-center py-12 sm:py-20 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl bg-white dark:bg-surface-dark-secondary">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-gray-100 dark:bg-surface-dark-tertiary">
+              <Camera
+                size={28}
+                className="text-text-muted dark:text-text-dark-muted"
+              />
+            </div>
+            <p className="text-sm font-semibold mb-1 text-text-primary dark:text-text-dark-primary">
+              No portfolio items yet
+            </p>
+            <p className="text-xs mb-5 text-text-muted dark:text-text-dark-muted">
+              Upload images or videos to showcase your work
+            </p>
           </div>
-          <p className="text-sm font-semibold mb-1 text-text-primary dark:text-text-dark-primary">
-            No portfolio items yet
-          </p>
-          <p className="text-xs mb-5 text-text-muted dark:text-text-dark-muted">
-            Upload images or videos to showcase your work
-          </p>
-        </div>
+        </Card>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 sm:gap-1.5">
           {portfolioItems.map((item, i) => (
@@ -704,7 +706,7 @@ export default function Portfolio() {
               initial={{ opacity: 0, scale: 0.94 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.03 }}
-              className="group relative aspect-square overflow-hidden bg-gray-100 dark:bg-surface-dark-tertiary"
+              className="group relative aspect-square overflow-hidden bg-gray-100 dark:bg-surface-dark-tertiary card-hover"
             >
               {item.type === "video" ? (
                 <button
@@ -770,8 +772,7 @@ export default function Portfolio() {
         </div>
       )}
 
-      {/* ── Transformations Section ── */}
-      <div className="pt-8 border-t border-gray-200">
+      <div className="pt-8 border-t border-gray-200 dark:border-gray-600">
         <div className="flex flex-col min-[480px]:flex-row items-start min-[480px]:items-center justify-between gap-3 mb-4">
           <div className="min-w-0 flex-1">
             <h2 className="text-lg font-bold font-display text-text-primary dark:text-text-dark-primary">
@@ -781,155 +782,161 @@ export default function Portfolio() {
               Showcase your work — appears in portfolio &amp; trending feed
             </p>
           </div>
-          <button
+          <Button
             onClick={() => setShowTransformForm(!showTransformForm)}
-            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all bg-gradient-to-br from-brand-700 to-brand-900 text-white"
+            variant="primary"
+            size="md"
           >
             {showTransformForm ? <X size={14} /> : <Plus size={14} />}
             {showTransformForm ? "Cancel" : "Add Transformation"}
-          </button>
+          </Button>
         </div>
 
         {showTransformForm && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl p-5 mb-6 bg-gray-50 dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/50"
           >
-            {/* Single file upload */}
-            <div className="mb-4">
-              <p className="text-xs font-medium mb-1.5 text-gray-700 dark:text-gray-300">
-                Transformation Photo *
-              </p>
-              <label className="block cursor-pointer">
-                <div className="rounded-xl border-2 border-dashed flex items-center justify-center hover:border-indigo-300 dark:hover:border-indigo-500 transition-all border-gray-100 dark:border-gray-700/50 bg-white dark:bg-surface-dark-secondary overflow-hidden min-h-40 min-[480px]:min-h-48">
-                  <input
-                    ref={transformInputRef}
-                    type="file"
-                    accept="image/*,video/*"
-                    className="hidden"
-                    onChange={handleTransformFile}
-                  />
-                  {transformPreview ? (
-                    <div className="relative w-full h-full flex flex-col items-center justify-center p-2">
-                      {transformFileName?.match(/\.(mp4|webm|mov|avi|mkv)$/i) ? (
-                        <video
-                          src={transformPreview}
-                          className="w-full object-contain rounded-lg max-h-32 min-[480px]:max-h-40"
-                          muted
-                          playsInline
-                          preload="metadata"
-                        />
+            <Card elevated padding="none" className="overflow-hidden mb-6">
+              <div className="p-5">
+                <div className="mb-4">
+                  <p className="text-xs font-medium mb-1.5 text-text-secondary dark:text-text-dark-secondary">
+                    Transformation Photo *
+                  </p>
+                  <label className="block cursor-pointer">
+                    <div className="rounded-xl border-2 border-dashed flex items-center justify-center hover:border-indigo-300 dark:hover:border-indigo-500 transition-all border-gray-100 dark:border-gray-700/40 bg-white dark:bg-surface-dark-secondary overflow-hidden min-h-40 min-[480px]:min-h-48">
+                      <input
+                        ref={transformInputRef}
+                        type="file"
+                        accept="image/*,video/*"
+                        className="hidden"
+                        onChange={handleTransformFile}
+                      />
+                      {transformPreview ? (
+                        <div className="relative w-full h-full flex flex-col items-center justify-center p-2">
+                          {transformFileName?.match(/\.(mp4|webm|mov|avi|mkv)$/i) ? (
+                            <video
+                              src={transformPreview}
+                              className="w-full object-contain rounded-lg max-h-32 min-[480px]:max-h-40"
+                              muted
+                              playsInline
+                              preload="metadata"
+                            />
+                          ) : (
+                            <img
+                              src={transformPreview}
+                              alt="Preview"
+                              className="w-full object-contain rounded-lg max-h-32 min-[480px]:max-h-40"
+                            />
+                          )}
+                          <p className="text-xs font-medium truncate text-text-primary dark:text-text-dark-primary max-w-full mt-1 shrink-0">
+                            {transformFileName}
+                          </p>
+                        </div>
                       ) : (
-                        <img
-                          src={transformPreview}
-                          alt="Preview"
-                          className="w-full object-contain rounded-lg max-h-32 min-[480px]:max-h-40"
-                        />
+                        <div className="flex flex-col items-center gap-2 py-4">
+                          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-surface-dark-tertiary">
+                            <ImageIcon size={22} className="text-text-muted dark:text-text-dark-muted" />
+                          </div>
+                          <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">
+                            Upload transformation photo
+                          </p>
+                          <p className="text-[11px] text-text-muted dark:text-text-dark-muted">
+                            Tap to select · PNG, JPG, MP4 up to 100MB
+                          </p>
+                        </div>
                       )}
-                      <p className="text-xs font-medium truncate text-text-primary dark:text-text-dark-primary max-w-full mt-1 shrink-0">
-                        {transformFileName}
-                      </p>
                     </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 py-4">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-surface-dark-tertiary">
-                        <ImageIcon size={22} className="text-text-muted dark:text-text-dark-muted" />
-                      </div>
-                      <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">
-                        Upload transformation photo
-                      </p>
-                      <p className="text-[11px] text-text-muted dark:text-text-dark-muted">
-                        Tap to select · PNG, JPG, MP4 up to 100MB
-                      </p>
-                    </div>
-                  )}
+                  </label>
                 </div>
-              </label>
-            </div>
 
-            <div className="grid sm:grid-cols-2 gap-3 mb-4">
-              <input
-                value={transformCaption}
-                onChange={(e) => setTransformCaption(e.target.value)}
-                placeholder="Caption (optional)"
-                className="rounded-xl px-3 py-2.5 text-xs outline-none bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/50 text-text-primary dark:text-text-dark-primary"
-              />
-              <input
-                value={transformService}
-                onChange={(e) => setTransformService(e.target.value)}
-                placeholder="Service name (optional)"
-                className="rounded-xl px-3 py-2.5 text-xs outline-none bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/50 text-text-primary dark:text-text-dark-primary"
-              />
-            </div>
+                <div className="grid sm:grid-cols-2 gap-3 mb-4">
+                  <input
+                    value={transformCaption}
+                    onChange={(e) => setTransformCaption(e.target.value)}
+                    placeholder="Caption (optional)"
+                    className="rounded-xl px-3 py-2.5 text-xs outline-none bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40 text-text-primary dark:text-text-dark-primary"
+                  />
+                  <input
+                    value={transformService}
+                    onChange={(e) => setTransformService(e.target.value)}
+                    placeholder="Service name (optional)"
+                    className="rounded-xl px-3 py-2.5 text-xs outline-none bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40 text-text-primary dark:text-text-dark-primary"
+                  />
+                </div>
 
-            {transformFileError && (
-              <div className="flex items-center gap-2 mb-3 rounded-xl px-3 py-2 bg-error/10">
-                <AlertCircle size={12} className="text-error" />
-                <p className="text-xs text-error">{transformFileError}</p>
+                {transformFileError && (
+                  <div className="flex items-center gap-2 mb-3 rounded-xl px-3 py-2 bg-error/10">
+                    <AlertCircle size={12} className="text-error" />
+                    <p className="text-xs text-error">{transformFileError}</p>
+                  </div>
+                )}
+
+                <Button
+                  onClick={async () => {
+                    const file = transformInputRef.current?.files?.[0];
+                    if (!file) {
+                      setError("Please select a photo");
+                      return;
+                    }
+                    if (file.size > MAX_FILE_SIZE) {
+                      setTransformFileError("File must be under 100MB");
+                      return;
+                    }
+                    setTransformUploading(true);
+                    setError(null);
+                    setTransformFileError(null);
+                    try {
+                      const formData = new FormData();
+                      formData.append("image", file);
+                      if (transformCaption.trim())
+                        formData.append("caption", transformCaption.trim());
+                      if (transformService.trim())
+                        formData.append("service", transformService.trim());
+                      const result = await addBeforeAfter(formData);
+                      setBeforeAfterItems(result.beforeAfter);
+                      setTransformCaption("");
+                      setTransformService("");
+                      setTransformPreview(null);
+                      setTransformFileName("");
+                      revokePreview(transformUrlRef.current);
+                      transformUrlRef.current = null;
+                      if (transformInputRef.current) transformInputRef.current.value = "";
+                      setShowTransformForm(false);
+                      showSuccess("Transformation added!");
+                    } catch (err: unknown) {
+                      setError(getErrorMessage(err, "Upload failed"));
+                    } finally {
+                      setTransformUploading(false);
+                    }
+                  }}
+                  disabled={transformUploading}
+                  variant="primary"
+                  size="md"
+                >
+                  {transformUploading ? (
+                    <><Loader2 size={14} className="animate-spin" /> Uploading...</>
+                  ) : (
+                    "Save Transformation"
+                  )}
+                </Button>
               </div>
-            )}
-
-            <button
-              onClick={async () => {
-                const file = transformInputRef.current?.files?.[0];
-                if (!file) {
-                  setError("Please select a photo");
-                  return;
-                }
-                if (file.size > MAX_FILE_SIZE) {
-                  setTransformFileError("File must be under 100MB");
-                  return;
-                }
-                setTransformUploading(true);
-                setError(null);
-                setTransformFileError(null);
-                try {
-                  const formData = new FormData();
-                  formData.append("image", file);
-                  if (transformCaption.trim())
-                    formData.append("caption", transformCaption.trim());
-                  if (transformService.trim())
-                    formData.append("service", transformService.trim());
-                  const result = await addBeforeAfter(formData);
-                  setBeforeAfterItems(result.beforeAfter);
-                  setTransformCaption("");
-                  setTransformService("");
-                  setTransformPreview(null);
-                  setTransformFileName("");
-                  revokePreview(transformUrlRef.current);
-                  transformUrlRef.current = null;
-                  if (transformInputRef.current) transformInputRef.current.value = "";
-                  setShowTransformForm(false);
-                  showSuccess("Transformation added!");
-                } catch (err: unknown) {
-                  setError(getErrorMessage(err, "Upload failed"));
-                } finally {
-                  setTransformUploading(false);
-                }
-              }}
-              disabled={transformUploading}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-semibold shadow-md hover:shadow-lg transition-all bg-gradient-to-br from-brand-700 to-brand-900 text-white"
-            >
-              {transformUploading ? (
-                <><Loader2 size={14} className="animate-spin" /> Uploading...</>
-              ) : (
-                "Save Transformation"
-              )}
-            </button>
+            </Card>
           </motion.div>
         )}
 
         {beforeAfterItems.length === 0 && !showTransformForm ? (
-          <div className="text-center py-8 sm:py-12 rounded-2xl bg-gray-50 dark:bg-surface-dark-secondary">
-            <Scissors size={28} className="mx-auto mb-2 text-text-muted dark:text-text-dark-muted" />
-            <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">
-              No transformations yet
-            </p>
-            <p className="text-xs mt-1 text-text-muted dark:text-text-dark-muted">
-              Add your work to appear in the portfolio &amp; trending feed
-            </p>
-          </div>
+          <Card elevated padding="none" className="overflow-hidden">
+            <div className="text-center py-8 sm:py-12">
+              <Scissors size={28} className="mx-auto mb-2 text-text-muted dark:text-text-dark-muted" />
+              <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">
+                No transformations yet
+              </p>
+              <p className="text-xs mt-1 text-text-muted dark:text-text-dark-muted">
+                Add your work to appear in the portfolio &amp; trending feed
+              </p>
+            </div>
+          </Card>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {beforeAfterItems.map((item: BeforeAfterItem, i: number) => {
@@ -947,7 +954,7 @@ export default function Portfolio() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.05 }}
-                  className="group relative aspect-square rounded-xl overflow-hidden bg-white dark:bg-surface-dark-secondary shadow-card"
+                  className="group relative aspect-square rounded-2xl overflow-hidden bg-white dark:bg-surface-dark-secondary card-hover"
                 >
                   {item.mediaType === "video" ? (
                     <button
@@ -987,10 +994,8 @@ export default function Portfolio() {
                     </div>
                   )}
 
-                  {/* Top gradient overlay */}
                   <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                  {/* Delete button */}
                   <button
                     onClick={async () => {
                       if (!window.confirm("Remove this transformation?")) return;
@@ -1018,7 +1023,6 @@ export default function Portfolio() {
                     )}
                   </button>
 
-                  {/* Bottom info */}
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-2.5">
                     <div className="flex items-center justify-between">
                       <div className="min-w-0 flex-1">
@@ -1055,7 +1059,6 @@ export default function Portfolio() {
         )}
       </div>
 
-      {/* Lightbox */}
       <AnimatePresence>
         {activeVideo && (
           <VideoViewer

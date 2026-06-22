@@ -35,8 +35,8 @@ export function FollowButton({
       disabled={animating}
       className={`font-bold transition-all duration-200 active:scale-95 shrink-0 ${sizeStyles} ${
         isFollowing
-          ? "border border-white/40 text-white bg-transparent hover:border-white/60"
-          : "bg-[#fe2c55] text-white hover:bg-[#e01e4a]"
+          ? "bg-brand-500 text-white hover:bg-brand-600"
+          : "bg-brand-50 text-brand-600 hover:bg-brand-100"
       } ${className}`}
     >
       {animating ? "..." : isFollowing ? "Following" : "Follow"}

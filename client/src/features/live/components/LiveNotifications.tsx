@@ -18,11 +18,11 @@ export function LiveNotifications({
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-text-primary dark:text-text-dark-primary flex items-center gap-2">
           {unread.length > 0 ? (
             <BellRing size={16} className="text-blue-500" />
           ) : (
-            <Bell size={16} className="text-gray-400" />
+            <Bell size={16} className="text-text-muted dark:text-text-dark-muted" />
           )}
           Notifications
           {unread.length > 0 && (
@@ -45,11 +45,11 @@ export function LiveNotifications({
         <AnimatePresence initial={false}>
           {notifications.length === 0 && (
             <div className="text-center py-8">
-              <Bell size={28} className="mx-auto text-gray-300 dark:text-gray-600 mb-2" />
-              <p className="text-sm text-gray-400 dark:text-gray-500">
+              <Bell size={28} className="mx-auto text-text-muted dark:text-text-dark-muted mb-2" />
+              <p className="text-sm text-text-muted dark:text-text-dark-muted">
                 No notifications yet
               </p>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              <p className="text-xs text-text-muted dark:text-text-dark-muted mt-1">
                 You'll be notified when your favorite hosts go live
               </p>
             </div>
@@ -62,24 +62,24 @@ export function LiveNotifications({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, height: 0, marginTop: 0 }}
               onClick={() => !notif.read && onMarkRead(notif.id)}
-              className={`relative flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-colors ${
+              className={`relative flex items-start gap-3 p-3 rounded-2xl cursor-pointer transition-colors ${
                 notif.read
-                  ? "bg-white dark:bg-[#1a1a2e]"
+                  ? "bg-white dark:bg-surface-dark-secondary"
                   : "bg-blue-50 dark:bg-blue-900/10"
               }`}
             >
               <div className="shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
                 {notif.type === "host-live" ? (
-                  <User size={16} className="text-gray-500 dark:text-gray-300" />
+                  <User size={16} className="text-text-secondary dark:text-text-dark-secondary" />
                 ) : (
-                  <Calendar size={16} className="text-gray-500 dark:text-gray-300" />
+                  <Calendar size={16} className="text-text-secondary dark:text-text-dark-secondary" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-gray-800 dark:text-gray-200 leading-snug">
+                <p className="text-sm text-text-primary dark:text-text-dark-primary leading-snug">
                   {notif.message}
                 </p>
-                <span className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 block">
+                <span className="text-[11px] text-text-muted dark:text-text-dark-muted mt-1 block">
                   {new Date(notif.createdAt).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",

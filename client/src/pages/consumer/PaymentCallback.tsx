@@ -35,21 +35,21 @@ export default function PaymentCallback() {
   }, [reference]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-surface-dark-tertiary p-4">
       <motion.div
         variants={fadeSlideUp}
         initial="hidden"
         animate="visible"
         transition={pageTransition}
-        className="w-full max-w-sm bg-white rounded-3xl shadow-xl shadow-black/5 p-8 text-center"
+        className="w-full max-w-sm bg-white dark:bg-surface-dark-secondary rounded-3xl shadow-xl shadow-black/5 dark:shadow-black/20 p-8 text-center"
       >
         {status === "verifying" && (
           <>
-            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-5 shadow-inner">
-              <Loader2 size={28} className="animate-spin text-gray-500" />
+            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center mb-5 shadow-inner">
+              <Loader2 size={28} className="animate-spin text-text-secondary dark:text-text-dark-secondary" />
             </div>
-            <h1 className="text-lg font-semibold text-gray-900 mb-1">Verifying Payment</h1>
-            <p className="text-sm text-gray-400">Please wait while we confirm your transaction…</p>
+            <h1 className="text-lg font-semibold text-text-primary dark:text-text-dark-primary mb-1">Verifying Payment</h1>
+            <p className="text-sm text-text-muted dark:text-text-dark-muted">Please wait while we confirm your transaction…</p>
           </>
         )}
 
@@ -59,15 +59,15 @@ export default function PaymentCallback() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200, damping: 15 }}
-              className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center mb-5 shadow-lg shadow-green-200"
+              className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 dark:from-green-500 dark:to-emerald-600 flex items-center justify-center mb-5 shadow-lg shadow-green-200 dark:shadow-green-900/30"
             >
               <CheckCircle2 size={28} className="text-white" />
             </motion.div>
-            <h1 className="text-lg font-semibold text-gray-900 mb-1">Payment Successful</h1>
-            <p className="text-sm text-gray-400 mb-6">{message}</p>
+            <h1 className="text-lg font-semibold text-text-primary dark:text-text-dark-primary mb-1">Payment Successful</h1>
+            <p className="text-sm text-text-muted dark:text-text-dark-muted mb-6">{message}</p>
             <button
               onClick={() => navigate("/app/my-bookings")}
-              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 transition-all dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600 transition-all"
             >
               View My Bookings <ArrowRight size={14} />
             </button>
@@ -76,21 +76,21 @@ export default function PaymentCallback() {
 
         {status === "error" && (
           <>
-            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center mb-5">
-              <XCircle size={28} className="text-red-500" />
+            <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 flex items-center justify-center mb-5">
+              <XCircle size={28} className="text-red-500 dark:text-red-400" />
             </div>
-            <h1 className="text-lg font-semibold text-gray-900 mb-1">Payment Issue</h1>
-            <p className="text-sm text-gray-400 mb-6">{message}</p>
+            <h1 className="text-lg font-semibold text-text-primary dark:text-text-dark-primary mb-1">Payment Issue</h1>
+            <p className="text-sm text-text-muted dark:text-text-dark-muted mb-6">{message}</p>
             <div className="space-y-2">
               <button
                 onClick={() => navigate("/app/my-bookings")}
-                className="w-full py-3.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 transition-all dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+                className="w-full py-3.5 rounded-xl bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600 transition-all"
               >
                 Go to My Bookings
               </button>
               <button
                 onClick={() => navigate(-1)}
-                className="w-full py-3.5 rounded-xl border-2 border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all"
+                className="w-full py-3.5 rounded-xl border-2 border-gray-200 dark:border-gray-600 text-sm font-medium text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-all"
               >
                 Try Again
               </button>

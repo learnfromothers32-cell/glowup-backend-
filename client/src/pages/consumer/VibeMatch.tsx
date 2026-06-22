@@ -233,7 +233,7 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
   const pct = ((current + 1) / total) * 100;
   return (
     <div className="flex items-center gap-3">
-      <div className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+      <div className="flex-1 h-1.5 rounded-full bg-gray-100 dark:bg-surface-dark-tertiary overflow-hidden">
         <motion.div
           className="h-full rounded-full bg-gray-900 dark:bg-gray-200"
           initial={{ width: 0 }}
@@ -241,7 +241,7 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
           transition={{ duration: 0.4, ease: "easeOut" }}
         />
       </div>
-      <span className="text-xs font-semibold text-gray-400 tabular-nums shrink-0">
+      <span className="text-xs font-semibold text-text-muted dark:text-text-dark-muted tabular-nums shrink-0">
         {current + 1}/{total}
       </span>
     </div>
@@ -271,10 +271,10 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight mb-3">
+          <h1 className="text-3xl sm:text-4xl font-bold text-text-primary dark:text-text-dark-primary tracking-tight mb-3">
             Try on hairstyles
           </h1>
-          <p className="text-gray-400 text-base leading-relaxed max-w-sm mx-auto mb-8">
+          <p className="text-text-muted dark:text-text-dark-muted text-base leading-relaxed max-w-sm mx-auto mb-8">
             Use your camera to see how different hairstyles look on you in real-time.
           </p>
         </motion.div>
@@ -287,7 +287,7 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
         >
           {["AR Try-On", "Your vibe", "Hair type", "Face shape", "Occasion", "Budget"].map(
             (q) => (
-              <span key={q} className="px-3 py-1.5 rounded-full bg-white border border-gray-200 text-xs text-gray-500 font-medium">
+              <span key={q} className="px-3 py-1.5 rounded-full bg-white dark:bg-surface-dark-secondary border border-gray-200 dark:border-gray-600 text-xs text-text-secondary dark:text-text-dark-secondary font-medium">
                 {q}
               </span>
             ),
@@ -308,7 +308,7 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
             <ArrowRight size={15} />
           </button>
 
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-text-muted dark:text-text-dark-muted">
             No uploads · Face detection runs in your browser
           </p>
         </motion.div>
@@ -350,7 +350,7 @@ function QuestionScreen({
         <div className="max-w-2xl mx-auto px-4 py-3">
           <div className="flex items-center gap-3 mb-3">
             {canGoBack && (
-              <button onClick={onBack} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-all">
+              <button onClick={onBack} className="w-8 h-8 rounded-xl flex items-center justify-center text-text-muted dark:text-text-dark-muted hover:text-text-primary dark:hover:text-text-dark-primary hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary transition-all">
                 <ArrowLeft size={16} />
               </button>
             )}
@@ -368,7 +368,7 @@ function QuestionScreen({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight mb-2"
+              className="text-2xl sm:text-3xl font-bold text-text-primary dark:text-text-dark-primary tracking-tight mb-2"
             >
               {question.text}
             </motion.h2>
@@ -376,7 +376,7 @@ function QuestionScreen({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="text-sm text-gray-400"
+              className="text-sm text-text-muted dark:text-text-dark-muted"
             >
               {question.subtitle}
             </motion.p>
@@ -393,27 +393,27 @@ function QuestionScreen({
                   transition={{ delay: 0.1 + i * 0.04, duration: 0.3 }}
                   onClick={() => toggle(opt.value)}
                   className={`group relative w-full text-left p-4 rounded-2xl border transition-all duration-200 ${
-                    isSelected ? "border-amber-500 bg-amber-50 shadow-md shadow-amber-100" : "border-gray-100 bg-white hover:border-gray-200 hover:shadow-sm"
+                    isSelected ? "border-amber-500 bg-amber-50 dark:bg-amber-950/20 shadow-md shadow-amber-100 dark:shadow-amber-900/20" : "border-gray-100 dark:border-gray-700/40 bg-white dark:bg-surface-dark-secondary hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-sm"
                   }`}
                 >
                   <div className="flex items-start gap-3.5">
                     {opt.emoji && (
                       <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg shrink-0 transition-all duration-200 ${
-                        isSelected ? "bg-amber-500 scale-105" : "bg-gray-50 group-hover:bg-gray-100"
+                        isSelected ? "bg-amber-500 scale-105" : "bg-gray-50 dark:bg-surface-dark-tertiary group-hover:bg-gray-100 dark:group-hover:bg-surface-dark-hover"
                       }`}>
                         {isSelected ? <Check size={18} className="text-white" /> : opt.emoji}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-semibold ${isSelected ? "text-amber-900" : "text-gray-800"}`}>
+                      <p className={`text-sm font-semibold ${isSelected ? "text-amber-900 dark:text-amber-400" : "text-text-primary dark:text-text-dark-primary"}`}>
                         {opt.label}
                       </p>
                       {opt.description && (
-                        <p className="text-xs text-gray-400 mt-0.5">{opt.description}</p>
+                        <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">{opt.description}</p>
                       )}
                     </div>
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all duration-200 ${
-                      isSelected ? "border-amber-500 bg-amber-500" : "border-gray-300 group-hover:border-gray-400"
+                      isSelected ? "border-amber-500 bg-amber-500" : "border-gray-300 dark:border-gray-600 group-hover:border-gray-400"
                     }`}>
                       {isSelected && <Check size={12} className="text-white" strokeWidth={3} />}
                     </div>
@@ -478,12 +478,12 @@ function LoadingScreen() {
           <Sparkles size={28} className="text-white animate-pulse" />
         </motion.div>
 
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <h3 className="text-lg font-semibold text-text-primary dark:text-text-dark-primary mb-2">
           Finding your matches
         </h3>
-        <p className="text-sm text-gray-400 mb-8">{messages[msgIndex]}</p>
+        <p className="text-sm text-text-muted dark:text-text-dark-muted mb-8">{messages[msgIndex]}</p>
 
-        <div className="w-full h-1.5 rounded-full bg-gray-100 overflow-hidden">
+        <div className="w-full h-1.5 rounded-full bg-gray-100 dark:bg-surface-dark-tertiary overflow-hidden">
           <motion.div
             className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
             animate={{ width: `${progress}%` }}
@@ -509,9 +509,9 @@ function ResultsScreen({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-[calc(100vh-64px)] bg-gray-50"
+      className="min-h-[calc(100vh-64px)] bg-gray-50 dark:bg-surface-dark"
     >
-      <div className="bg-white border-b border-gray-100">
+      <div className="bg-white dark:bg-surface-dark-secondary border-b border-gray-100 dark:border-gray-700/40">
         <div className="max-w-3xl mx-auto px-4 py-8 text-center">
           <motion.div
             initial={{ scale: 0 }}
@@ -527,10 +527,10 @@ function ResultsScreen({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">
+            <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary tracking-tight mb-1">
               Your Style Matches
             </h1>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-text-muted dark:text-text-dark-muted">
               {hairstyle
                 ? `You tried on ${hairstyle.name} — here's what matches`
                 : "Personalized recommendations based on your profile"}
@@ -546,18 +546,18 @@ function ResultsScreen({
           transition={{ delay: 0.22 }}
           className="max-w-3xl mx-auto px-4 pt-6"
         >
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-100 p-4">
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-2xl border border-amber-100 dark:border-amber-900/40 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm border border-amber-200"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm border border-amber-200 dark:border-amber-700"
                   style={{ backgroundColor: hairstyle.preview }}
                 >
                   <Sparkles size={16} className="text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-gray-900">Selected Style</p>
-                  <p className="text-xs text-gray-500 capitalize">{hairstyle.name} · {hairstyle.category}</p>
+                  <p className="text-sm font-bold text-text-primary dark:text-text-dark-primary">Selected Style</p>
+                  <p className="text-xs text-text-secondary dark:text-text-dark-secondary capitalize">{hairstyle.name} · {hairstyle.category}</p>
                 </div>
               </div>
             </div>
@@ -573,10 +573,10 @@ function ResultsScreen({
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-base font-semibold text-gray-900">Recommended Services</h2>
-              <p className="text-xs text-gray-400 mt-0.5">Tailored to your vibe and features</p>
+              <h2 className="text-base font-semibold text-text-primary dark:text-text-dark-primary">Recommended Services</h2>
+              <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">Tailored to your vibe and features</p>
             </div>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-surface-dark-tertiary text-text-secondary dark:text-text-dark-secondary">
               {services.length}
             </span>
           </div>
@@ -588,29 +588,29 @@ function ResultsScreen({
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + i * 0.05 }}
-                className="bg-white rounded-xl border border-gray-100 p-4 hover:border-gray-200 hover:shadow-sm transition-all"
+                className="card-hover"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm font-semibold text-gray-900">{svc.name}</p>
+                      <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">{svc.name}</p>
                       {svc.match >= 95 && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-green-50 text-green-600 border border-green-100 uppercase tracking-wider">
+                        <span className="badge-success text-[9px] uppercase tracking-wider">
                           Top match
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-400 mb-2">{svc.reason}</p>
-                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <p className="text-xs text-text-muted dark:text-text-dark-muted mb-2">{svc.reason}</p>
+                    <div className="flex items-center gap-3 text-xs text-text-secondary dark:text-text-dark-secondary">
                       <span className="flex items-center gap-1"><Clock size={11} />{svc.duration}</span>
                       <span>{svc.price}</span>
                     </div>
                   </div>
                   <div className="shrink-0 text-center">
-                    <div className="w-11 h-11 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center">
-                      <span className="text-sm font-bold text-gray-900">{svc.match}%</span>
+                    <div className="w-11 h-11 rounded-xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40 flex items-center justify-center">
+                      <span className="text-sm font-bold text-text-primary dark:text-text-dark-primary">{svc.match}%</span>
                     </div>
-                    <p className="text-[9px] text-gray-400 mt-1">match</p>
+                    <p className="text-[9px] text-text-muted dark:text-text-dark-muted mt-1">match</p>
                   </div>
                 </div>
               </motion.div>
@@ -625,12 +625,12 @@ function ResultsScreen({
         >
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-base font-semibold text-gray-900">Top Stylists for You</h2>
-              <p className="text-xs text-gray-400 mt-0.5">Matched by specialty, rating, and location</p>
+              <h2 className="text-base font-semibold text-text-primary dark:text-text-dark-primary">Top Stylists for You</h2>
+              <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">Matched by specialty, rating, and location</p>
             </div>
             <button
               onClick={() => navigate("/app")}
-              className="text-xs font-medium text-gray-400 hover:text-gray-700 transition-colors flex items-center gap-1"
+              className="text-xs font-medium text-text-muted dark:text-text-dark-muted hover:text-text-primary dark:hover:text-text-dark-primary transition-colors flex items-center gap-1"
             >
               Browse all
               <ChevronRight size={12} />
@@ -645,26 +645,26 @@ function ResultsScreen({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45 + i * 0.06 }}
                 onClick={() => onBookStylist(stylist.id)}
-                className="bg-white rounded-xl border border-gray-100 p-4 cursor-pointer hover:border-gray-200 hover:shadow-md transition-all group"
+                className="card-hover"
               >
                 <div className="flex items-start gap-3.5">
-                  <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 shrink-0 ring-2 ring-gray-100 group-hover:ring-gray-200 transition-all">
+                  <div className="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 dark:bg-surface-dark-tertiary shrink-0 ring-2 ring-gray-100 dark:ring-gray-700 group-hover:ring-gray-200 dark:group-hover:ring-gray-600 transition-all">
                     <img src={stylist.image} alt={stylist.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-gray-700 transition-colors">
+                      <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary truncate group-hover:text-text-secondary dark:group-hover:text-text-dark-secondary transition-colors">
                         {stylist.name}
                       </p>
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gradient-to-r from-amber-500 to-orange-600 text-white shrink-0">
                         {stylist.matchScore}%
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 mb-1.5">{stylist.category}</p>
-                    <div className="flex items-center gap-2 text-xs text-gray-400 flex-wrap">
+                    <p className="text-xs text-text-secondary dark:text-text-dark-secondary mb-1.5">{stylist.category}</p>
+                    <div className="flex items-center gap-2 text-xs text-text-muted dark:text-text-dark-muted flex-wrap">
                       <span className="flex items-center gap-0.5">
                         <Star size={10} fill="#f59e0b" stroke="#f59e0b" />
-                        <span className="font-semibold text-gray-700">{stylist.rating}</span>
+                        <span className="font-semibold text-text-primary dark:text-text-dark-primary">{stylist.rating}</span>
                         <span>({stylist.reviewCount})</span>
                       </span>
                       <span>·</span>
@@ -675,18 +675,18 @@ function ResultsScreen({
                     </div>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {stylist.specialties.slice(0, 3).map((s) => (
-                        <span key={s} className="px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100 text-[10px] font-medium text-gray-500">
+                        <span key={s} className="px-2 py-0.5 rounded-full bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40 text-[10px] font-medium text-text-secondary dark:text-text-dark-secondary">
                           {s}
                         </span>
                       ))}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
-                  <span className="text-xs text-gray-400">{stylist.priceRange}</span>
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/40">
+                  <span className="text-xs text-text-muted dark:text-text-dark-muted">{stylist.priceRange}</span>
                   <button
                     onClick={(e) => { e.stopPropagation(); onBookStylist(stylist.id); }}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 text-white text-xs font-semibold hover:from-amber-600 hover:to-orange-700 transition-all opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0"
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white text-xs font-semibold hover:from-amber-600 hover:to-orange-700 transition-all opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0"
                   >
                     Book now
                     <ArrowRight size={11} />
@@ -705,7 +705,7 @@ function ResultsScreen({
         >
           <button
             onClick={onRestart}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all"
+            className="btn-secondary btn-md"
           >
             <RotateCcw size={14} />
             Retake Quiz
@@ -791,7 +791,7 @@ export default function VibeMatch() {
   };
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white dark:bg-surface-dark-secondary min-h-screen">
       <AnimatePresence mode="wait">
         {phase === "welcome" && <WelcomeScreen key="welcome" onStart={handleStart} />}
 

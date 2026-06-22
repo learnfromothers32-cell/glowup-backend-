@@ -9,6 +9,9 @@ import {
 } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/authUtils";
+import { Button } from "../../components/ui/Button";
+import { Card } from "../../components/ui/Card";
+import { Avatar } from "../../components/ui/Avatar";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface UserSettings {
@@ -41,14 +44,14 @@ function Toggle({
 }) {
   return (
     <div className="flex items-center gap-3.5 py-3.5">
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${
-        checked ? "bg-gray-900 text-white dark:bg-indigo-500 dark:text-white" : "bg-gray-100 text-gray-400 dark:bg-surface-dark-tertiary dark:text-text-dark-muted"
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+        checked ? "bg-brand-500 text-white" : "bg-gray-100 text-gray-400 dark:bg-surface-dark-tertiary dark:text-text-dark-muted"
       } transition-colors duration-200`}>
         <Icon size={16} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900">{label}</p>
-        <p className="text-xs text-gray-400 mt-0.5">{description}</p>
+        <p className="text-sm font-medium text-text-primary dark:text-text-dark-primary">{label}</p>
+        <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">{description}</p>
       </div>
       <button
         role="switch"
@@ -56,7 +59,7 @@ function Toggle({
         onClick={() => onChange(!checked)}
         className={`
           relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0
-          ${checked ? "bg-gray-900 dark:bg-indigo-500" : "bg-gray-200 dark:bg-gray-600"}
+          ${checked ? "bg-brand-500" : "bg-gray-200 dark:bg-gray-600"}
         `}
       >
         <span className={`
@@ -84,23 +87,23 @@ function Section({
   danger?: boolean;
 }) {
   return (
-    <div className={`bg-white rounded-2xl border overflow-hidden ${
-      danger ? "border-red-200" : "border-gray-100"
+    <div className={`bg-white dark:bg-surface-dark-secondary rounded-2xl border overflow-hidden ${
+      danger ? "border-red-200 dark:border-red-900/30" : "border-gray-100 dark:border-gray-700/40"
     }`}>
-      <div className={`px-5 py-4 ${danger ? "border-b border-red-100 dark:border-red-900/30 bg-red-50/30" : "border-b border-gray-100"}`}>
+      <div className={`px-5 py-4 ${danger ? "border-b border-red-100 dark:border-red-900/20 bg-red-50/30 dark:bg-red-950/10" : "border-b border-gray-100 dark:border-gray-700/30"}`}>
         <div className="flex items-center gap-2.5">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
             danger ? "bg-red-100 text-red-500 dark:bg-red-900/30 dark:text-red-400" : "bg-gray-100 text-gray-500 dark:bg-surface-dark-tertiary dark:text-text-dark-muted"
           }`}>
             <Icon size={15} />
           </div>
           <div>
-            <h2 className={`text-sm font-semibold ${danger ? "text-red-700 dark:text-red-400" : "text-gray-900"}`}>{title}</h2>
-            {description && <p className="text-xs text-gray-400 mt-0.5">{description}</p>}
+            <h2 className={`text-sm font-semibold ${danger ? "text-red-700 dark:text-red-400" : "text-text-primary dark:text-text-dark-primary"}`}>{title}</h2>
+            {description && <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">{description}</p>}
           </div>
         </div>
       </div>
-      <div className="px-5 py-2 divide-y divide-gray-50">
+      <div className="px-5 py-2 divide-y divide-gray-50 dark:divide-gray-700/20">
         {children}
       </div>
     </div>
@@ -125,15 +128,15 @@ function NavRow({
 }) {
   const content = (
     <div className="flex items-center gap-3.5 py-3.5 group cursor-pointer">
-      <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 shrink-0 group-hover:bg-gray-200 transition-colors dark:bg-surface-dark-tertiary dark:text-text-dark-muted dark:group-hover:bg-surface-dark">
+      <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500 shrink-0 group-hover:bg-gray-200 transition-colors dark:bg-surface-dark-tertiary dark:text-text-dark-muted dark:group-hover:bg-surface-dark">
         <Icon size={16} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors dark:text-text-dark-primary">{label}</p>
-        {description && <p className="text-xs text-gray-400 mt-0.5 dark:text-text-dark-muted">{description}</p>}
+        <p className="text-sm font-medium text-text-primary dark:text-text-dark-primary group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{label}</p>
+        {description && <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">{description}</p>}
       </div>
       {badge && (
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 dark:bg-surface-dark-tertiary dark:text-dark-muted">
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 dark:bg-surface-dark-tertiary dark:text-text-dark-muted">
           {badge}
         </span>
       )}
@@ -181,7 +184,7 @@ function PasswordForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Current password */}
       <div>
-        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+        <label className="block text-xs font-semibold text-text-secondary dark:text-text-dark-secondary uppercase tracking-wider mb-1.5">
           Current password
         </label>
         <div className="relative">
@@ -189,7 +192,7 @@ function PasswordForm() {
             type={showCurrent ? "text" : "password"}
             value={form.current}
             onChange={e => setForm({ ...form, current: e.target.value })}
-            className="w-full px-3.5 py-2.5 pr-10 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100 transition-all dark:bg-surface-dark-secondary dark:border-gray-600 dark:text-text-dark-primary dark:placeholder:text-text-dark-muted dark:focus:border-indigo-400 dark:focus:ring-indigo-500/30"
+            className="input-field pr-10"
             required
           />
           <button
@@ -204,7 +207,7 @@ function PasswordForm() {
 
       {/* New password */}
       <div>
-        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+        <label className="block text-xs font-semibold text-text-secondary dark:text-text-dark-secondary uppercase tracking-wider mb-1.5">
           New password
         </label>
         <div className="relative">
@@ -212,7 +215,7 @@ function PasswordForm() {
             type={showNew ? "text" : "password"}
             value={form.new}
             onChange={e => setForm({ ...form, new: e.target.value })}
-            className="w-full px-3.5 py-2.5 pr-10 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100 transition-all dark:bg-surface-dark-secondary dark:border-gray-600 dark:text-text-dark-primary dark:placeholder:text-text-dark-muted dark:focus:border-indigo-400 dark:focus:ring-indigo-500/30"
+            className="input-field pr-10"
             required
           />
           <button
@@ -227,14 +230,14 @@ function PasswordForm() {
 
       {/* Confirm */}
       <div>
-        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+        <label className="block text-xs font-semibold text-text-secondary dark:text-text-dark-secondary uppercase tracking-wider mb-1.5">
           Confirm new password
         </label>
         <input
           type="password"
           value={form.confirm}
           onChange={e => setForm({ ...form, confirm: e.target.value })}
-          className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gray-100 transition-all dark:bg-surface-dark-secondary dark:border-gray-600 dark:text-text-dark-primary dark:placeholder:text-text-dark-muted dark:focus:border-indigo-400 dark:focus:ring-indigo-500/30"
+          className="input-field"
           required
         />
       </div>
@@ -246,7 +249,7 @@ function PasswordForm() {
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-100 text-red-700 text-xs font-medium"
+            className="flex items-center gap-2 p-3 rounded-xl bg-error/10 border border-error/20 text-error text-xs font-medium"
           >
             <AlertTriangle size={14} />
             {error}
@@ -257,7 +260,7 @@ function PasswordForm() {
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            className="flex items-center gap-2 p-3 rounded-xl bg-green-50 border border-green-100 text-green-700 text-xs font-medium"
+            className="flex items-center gap-2 p-3 rounded-xl bg-success/10 border border-success/20 text-success-dark dark:text-success text-xs font-medium"
           >
             <Check size={14} />
             {success}
@@ -265,24 +268,19 @@ function PasswordForm() {
         )}
       </AnimatePresence>
 
-      <button
+      <Button
         type="submit"
         disabled={saving}
-        className={`
-          flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
-          transition-all duration-200 active:scale-[0.98]
-          ${saving
-            ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-700"
-            : "bg-gray-900 text-white hover:bg-gray-800 shadow-md dark:bg-indigo-600 dark:hover:bg-indigo-500"
-          }
-        `}
+        variant="primary"
+        size="md"
+        className="w-full"
       >
         {saving ? (
           <><Loader2 size={14} className="animate-spin" />Updating…</>
         ) : (
           <><Key size={14} />Update Password</>
         )}
-      </button>
+      </Button>
     </form>
   );
 }
@@ -311,43 +309,41 @@ function DeleteModal({ onConfirm, onClose }: { onConfirm: () => void; onClose: (
       >
         <div className="h-1 bg-gradient-to-r from-red-500 to-red-300" />
         <div className="p-5">
-          <div className="w-12 h-12 rounded-xl bg-red-50 border border-red-100 flex items-center justify-center mb-4">
-            <AlertTriangle size={22} className="text-red-500" />
-          </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Delete your account?</h3>
-          <p className="text-sm text-gray-500 leading-relaxed mb-4">
-            This will permanently delete your account, bookings, reviews, and rewards. This action cannot be undone.
-          </p>
+        <div className="w-12 h-12 rounded-xl bg-error/10 border border-error/20 flex items-center justify-center mb-4">
+          <AlertTriangle size={22} className="text-error" />
+        </div>
+        <h3 className="text-lg font-bold text-text-primary dark:text-text-dark-primary mb-2">Delete your account?</h3>
+        <p className="text-sm text-text-secondary dark:text-text-dark-secondary leading-relaxed mb-4">
+          This will permanently delete your account, bookings, reviews, and rewards. This action cannot be undone.
+        </p>
 
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-              Type <span className="text-red-500">DELETE</span> to confirm
-            </label>
-            <input
-              type="text"
-              value={confirmText}
-              onChange={e => setConfirmText(e.target.value)}
-              placeholder="DELETE"
-              className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-all dark:bg-surface-dark-secondary dark:border-gray-600 dark:text-text-dark-primary dark:placeholder:text-text-dark-muted dark:focus:border-red-400 dark:focus:ring-red-500/30"
-            />
-          </div>
+        <div className="mb-4">
+          <label className="block text-xs font-semibold text-text-secondary dark:text-text-dark-secondary uppercase tracking-wider mb-1.5">
+            Type <span className="text-error">DELETE</span> to confirm
+          </label>
+          <input
+            type="text"
+            value={confirmText}
+            onChange={e => setConfirmText(e.target.value)}
+            placeholder="DELETE"
+            className="input-field"
+          />
+        </div>
 
-          <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
-              Cancel
-            </button>
-            <button
-              onClick={onConfirm}
-              disabled={!canDelete}
-              className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${
-                canDelete
-                  ? "bg-red-600 text-white hover:bg-red-700 shadow-sm"
-                  : "bg-red-100 text-red-300 cursor-not-allowed"
-              }`}
-            >
-              Delete Account
-            </button>
-          </div>
+        <div className="flex gap-3">
+          <Button onClick={onClose} variant="secondary" size="md" className="flex-1">
+            Cancel
+          </Button>
+          <Button
+            onClick={onConfirm}
+            disabled={!canDelete}
+            variant="danger"
+            size="md"
+            className="flex-1"
+          >
+            Delete Account
+          </Button>
+        </div>
         </div>
       </motion.div>
     </motion.div>
@@ -396,8 +392,8 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex items-center gap-2 text-gray-400">
+      <div className="min-h-screen bg-warm-50 dark:bg-surface-dark flex items-center justify-center">
+        <div className="flex items-center gap-2 text-text-muted dark:text-text-dark-muted">
           <Loader2 size={18} className="animate-spin" />
           <span className="text-sm">Loading settings…</span>
         </div>
@@ -406,40 +402,43 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-warm-50 dark:bg-surface-dark">
       <div className="max-w-2xl mx-auto px-4 pb-20">
         {/* ── Header ── */}
         <div className="pt-14 pb-6">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors mb-4"
+            className="flex items-center gap-1.5 text-sm text-text-muted dark:text-text-dark-muted hover:text-text-primary dark:hover:text-text-dark-primary transition-colors mb-4"
           >
             <ArrowLeft size={16} />
             Back
           </button>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Settings</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Manage your account and preferences</p>
+          <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary tracking-tight">Settings</h1>
+          <p className="text-sm text-text-muted dark:text-text-dark-muted mt-0.5">Manage your account and preferences</p>
         </div>
 
         {/* ── Profile Card ── */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4">
+        <Card className="p-5 mb-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gray-900 text-white dark:bg-indigo-600 flex items-center justify-center text-lg font-bold shrink-0">
-              {user?.name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() || "U"}
-            </div>
+            <Avatar
+              src={user?.avatar}
+              name={user?.name}
+              size="lg"
+              ring
+            />
             <div className="flex-1 min-w-0">
-              <p className="text-base font-semibold text-gray-900 truncate">{user?.name || "User"}</p>
-              <p className="text-sm text-gray-400 truncate">{user?.email || "user@example.com"}</p>
+              <p className="text-base font-semibold text-text-primary dark:text-text-dark-primary truncate">{user?.name || "User"}</p>
+              <p className="text-sm text-text-muted dark:text-text-dark-muted truncate">{user?.email || "user@example.com"}</p>
             </div>
             <Link
               to="/app/profile"
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-all dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-xs font-semibold text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-all"
             >
               Edit Profile
               <ChevronRight size={12} />
             </Link>
           </div>
-        </div>
+        </Card>
 
         {/* ── Notifications ── */}
         <Section icon={Bell} title="Notifications" description="Control how you receive updates">
@@ -478,15 +477,15 @@ export default function Settings() {
         </Section>
 
         {/* ── Appearance ── */}
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100">
+        <Card className="overflow-hidden !p-0">
+          <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/40">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
+              <div className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center text-gray-500 dark:text-text-dark-muted">
                 <Sun size={15} />
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-gray-900">Appearance</h2>
-                <p className="text-xs text-gray-400 mt-0.5">Customize your theme</p>
+                <h2 className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">Appearance</h2>
+                <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">Customize your theme</p>
               </div>
             </div>
           </div>
@@ -496,8 +495,8 @@ export default function Settings() {
                 onClick={() => setTheme("light")}
                 className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
                   theme === "light"
-                    ? "border-gray-900 bg-gray-50 text-gray-900 dark:border-indigo-400 dark:bg-indigo-500/10 dark:text-indigo-300"
-                    : "border-gray-100 text-gray-500 hover:border-gray-200 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500"
+                    ? "border-brand-500 bg-brand-50 text-brand-600 dark:border-brand-400 dark:bg-brand-950/20 dark:text-brand-300"
+                    : "border-gray-100 dark:border-gray-600 text-text-muted dark:text-text-dark-muted hover:border-gray-200 dark:hover:border-gray-500"
                 }`}
               >
                 <Sun size={20} />
@@ -507,8 +506,8 @@ export default function Settings() {
                 onClick={() => setTheme("dark")}
                 className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
                   theme === "dark"
-                    ? "border-gray-900 bg-gray-50 text-gray-900 dark:border-indigo-400 dark:bg-indigo-500/10 dark:text-indigo-300"
-                    : "border-gray-100 text-gray-500 hover:border-gray-200 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500"
+                    ? "border-brand-500 bg-brand-50 text-brand-600 dark:border-brand-400 dark:bg-brand-950/20 dark:text-brand-300"
+                    : "border-gray-100 dark:border-gray-600 text-text-muted dark:text-text-dark-muted hover:border-gray-200 dark:hover:border-gray-500"
                 }`}
               >
                 <Moon size={20} />
@@ -518,8 +517,8 @@ export default function Settings() {
                 onClick={() => setTheme("system")}
                 className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all ${
                   theme === "system"
-                    ? "border-gray-900 bg-gray-50 text-gray-900 dark:border-indigo-400 dark:bg-indigo-500/10 dark:text-indigo-300"
-                    : "border-gray-100 text-gray-500 hover:border-gray-200 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500"
+                    ? "border-brand-500 bg-brand-50 text-brand-600 dark:border-brand-400 dark:bg-brand-950/20 dark:text-brand-300"
+                    : "border-gray-100 dark:border-gray-600 text-text-muted dark:text-text-dark-muted hover:border-gray-200 dark:hover:border-gray-500"
                 }`}
               >
                 <Monitor size={20} />
@@ -527,25 +526,25 @@ export default function Settings() {
               </button>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* ── Security ── */}
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100">
+        <Card className="overflow-hidden !p-0">
+          <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700/40">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
+              <div className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center text-gray-500 dark:text-text-dark-muted">
                 <Lock size={15} />
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-gray-900">Security</h2>
-                <p className="text-xs text-gray-400 mt-0.5">Manage your password</p>
+                <h2 className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">Security</h2>
+                <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">Manage your password</p>
               </div>
             </div>
           </div>
           <div className="p-5">
             <PasswordForm />
           </div>
-        </div>
+        </Card>
 
         {/* ── Quick Links ── */}
         <Section icon={HelpCircle} title="Support">
@@ -554,43 +553,44 @@ export default function Settings() {
         </Section>
 
         {/* ── Sign Out ── */}
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <Card className="overflow-hidden !p-0">
           <div className="px-5">
             <button
               onClick={handleLogout}
               className="flex items-center gap-3.5 w-full py-3.5 group"
             >
-              <div className="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-red-50 group-hover:text-red-500 transition-colors">
+              <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center text-gray-500 dark:text-text-dark-muted group-hover:bg-red-50 dark:group-hover:bg-red-950/20 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors">
                 <LogOut size={16} />
               </div>
-              <span className="text-sm font-medium text-gray-700 group-hover:text-red-600 transition-colors">
+              <span className="text-sm font-medium text-text-primary dark:text-text-dark-primary group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
                 Sign out
               </span>
             </button>
           </div>
-        </div>
+        </Card>
 
         {/* ── Danger Zone ── */}
         <div className="mt-2">
           <Section icon={Trash2} title="Danger Zone" description="Irreversible actions" danger>
             <div className="py-3.5">
-              <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+              <p className="text-xs text-text-secondary dark:text-text-dark-secondary mb-3 leading-relaxed">
                 Permanently delete your account and all associated data including bookings, reviews, and rewards.
               </p>
-              <button
+              <Button
                 onClick={() => setShowDeleteModal(true)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-200 text-xs font-semibold text-red-600 hover:bg-red-50 transition-all"
+                variant="danger"
+                size="sm"
               >
                 <Trash2 size={13} />
                 Delete Account
-              </button>
+              </Button>
             </div>
           </Section>
         </div>
 
         {/* ── Footer ── */}
         <div className="text-center mt-8">
-          <p className="text-[11px] text-gray-300">GlowUp v1.0.0</p>
+          <p className="text-[11px] text-text-muted dark:text-text-dark-muted">GlowUp v1.0.0</p>
         </div>
       </div>
 

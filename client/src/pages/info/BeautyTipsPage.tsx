@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { fadeSlideUp, pageTransition } from "../../utils/animations";
 import {
   Sparkles, Search, Clock, Bookmark, BookmarkCheck,
-  Tag, Calendar, Loader2,
+  Tag, Calendar,
 } from "lucide-react";
 import LandingNavbar from "../../components/layout/LandingNavbar";
 import AppFooter from "../../components/layout/AppFooter";
@@ -159,7 +159,7 @@ export default function BeautyTipsPage() {
         initial="hidden"
         animate="visible"
         transition={pageTransition}
-        className="min-h-screen bg-neutral-950"
+        className="min-h-screen bg-white dark:bg-neutral-950"
       >
       <LandingNavbar />
       <main className="pt-28 pb-24">
@@ -169,23 +169,23 @@ export default function BeautyTipsPage() {
               <Sparkles size={12} />
               Beauty Tips
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-3">
+            <h1 className="text-4xl sm:text-5xl font-bold text-text-primary dark:text-text-dark-primary tracking-tight mb-3">
               Beauty Tips & Inspiration
             </h1>
-            <p className="text-lg text-neutral-400 max-w-xl mb-8">
+            <p className="text-lg text-text-secondary dark:text-text-dark-secondary max-w-xl mb-8">
               Expert advice, tutorials, and guides to help you look and feel your best.
             </p>
           </FadeIn>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <div className="relative flex-1 max-w-md">
-              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500" />
+              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-text-dark-muted" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => { setQuery(e.target.value); setShowBookmarked(false); }}
                 placeholder="Search tips..."
-                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-amber-500/30 transition-colors"
+                className="w-full bg-gray-50 dark:bg-white/[0.05] border border-gray-100 dark:border-white/[0.08] rounded-xl py-3 pl-11 pr-4 text-sm text-text-primary dark:text-white placeholder:text-text-muted dark:placeholder:text-neutral-600 focus:outline-none focus:border-amber-500/30 transition-colors"
               />
             </div>
             <button
@@ -193,7 +193,7 @@ export default function BeautyTipsPage() {
               className={`flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-medium transition-all ${
                 showBookmarked
                   ? "bg-pink-500/10 text-pink-400 border border-pink-500/20"
-                  : "bg-white/[0.04] text-neutral-500 border border-white/[0.06] hover:text-neutral-300 hover:bg-white/[0.06]"
+                  : "bg-gray-50 dark:bg-white/[0.04] text-text-secondary dark:text-neutral-500 border border-gray-100 dark:border-white/[0.06] hover:text-text-primary dark:hover:text-neutral-300 hover:bg-gray-100 dark:hover:bg-white/[0.06]"
               }`}
             >
               <BookmarkCheck size={14} />
@@ -211,10 +211,10 @@ export default function BeautyTipsPage() {
                     <button
                       key={cat}
                       onClick={() => setActiveCat(cat)}
-                      className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium transition-all duration-200 ${
                         isActive
                           ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                          : "bg-white/[0.04] text-neutral-500 border border-transparent hover:text-neutral-300 hover:bg-white/[0.06]"
+                          : "bg-gray-50 dark:bg-white/[0.04] text-text-secondary dark:text-neutral-500 border border-transparent hover:text-text-primary dark:hover:text-neutral-300 hover:bg-gray-100 dark:hover:bg-white/[0.06]"
                       }`}
                     >
                       {isAll && <Sparkles size={12} />}
@@ -227,8 +227,20 @@ export default function BeautyTipsPage() {
           )}
 
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 size={24} className="animate-spin text-neutral-500" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="rounded-2xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06] overflow-hidden">
+                  <div className="relative aspect-[16/9] overflow-hidden bg-gray-100 dark:bg-neutral-800">
+                    <div className="w-full h-full skeleton-pulse" />
+                  </div>
+                  <div className="p-5 space-y-3">
+                    <div className="h-3 w-24 skeleton-pulse rounded" />
+                    <div className="h-4 w-full skeleton-pulse rounded" />
+                    <div className="h-4 w-3/4 skeleton-pulse rounded" />
+                    <div className="h-3 w-full skeleton-pulse rounded" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -240,9 +252,9 @@ export default function BeautyTipsPage() {
                   <FadeIn key={tip.id} delay={i * 0.04}>
                     <Link
                       to={`/blog/beauty/${tip.slug}`}
-                      className="group block rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-hidden hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300"
+                      className="group block rounded-2xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06] overflow-hidden card-hover transition-all duration-300"
                     >
-                      <div className="relative aspect-[16/9] overflow-hidden bg-neutral-800">
+                      <div className="relative aspect-[16/9] overflow-hidden bg-gray-100 dark:bg-neutral-800">
                         <img
                           src={tip.image}
                           alt={tip.title}
@@ -275,19 +287,19 @@ export default function BeautyTipsPage() {
                         </button>
                       </div>
                       <div className="p-5">
-                        <div className="flex items-center gap-2 text-[11px] text-neutral-500 mb-2">
+                        <div className="flex items-center gap-2 text-[11px] text-text-secondary dark:text-neutral-500 mb-2">
                           <span className="flex items-center gap-1"><Calendar size={10} />{tip.date || "Recent"}</span>
                           <span className="flex items-center gap-1"><Clock size={10} />{tip.readTime}</span>
                         </div>
-                        <h3 className="text-sm font-semibold text-white mb-2 leading-snug group-hover:text-amber-400 transition-colors line-clamp-2">
+                        <h3 className="text-sm font-semibold text-text-primary dark:text-white mb-2 leading-snug group-hover:text-amber-400 transition-colors line-clamp-2">
                           {tip.title}
                         </h3>
-                        <p className="text-xs text-neutral-500 leading-relaxed line-clamp-2 mb-3">
+                        <p className="text-xs text-text-secondary dark:text-neutral-500 leading-relaxed line-clamp-2 mb-3">
                           {tip.excerpt}
                         </p>
                         <div className="flex flex-wrap gap-1.5">
                           {tip.tags.slice(0, 3).map(tag => (
-                            <span key={tag} className="flex items-center gap-1 text-[10px] text-neutral-600 bg-white/[0.04] px-2 py-0.5 rounded-full">
+                            <span key={tag} className="flex items-center gap-1 text-[10px] text-text-muted dark:text-neutral-600 bg-gray-50 dark:bg-white/[0.04] px-2 py-0.5 rounded-full">
                               <Tag size={8} />
                               {tag}
                             </span>
@@ -303,19 +315,19 @@ export default function BeautyTipsPage() {
 
           {!loading && filtered.length === 0 && (
             <div className="text-center py-20">
-              <div className="w-16 h-16 rounded-full bg-white/[0.03] flex items-center justify-center mx-auto mb-4">
-                <Search size={24} className="text-neutral-600" />
+              <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-white/[0.03] flex items-center justify-center mx-auto mb-4">
+                <Search size={24} className="text-text-muted dark:text-neutral-600" />
               </div>
-              <p className="text-neutral-400 text-sm mb-1">
+              <p className="text-text-secondary dark:text-neutral-400 text-sm mb-1">
                 {showBookmarked ? "No saved tips yet" : "No tips found"}
               </p>
-              <p className="text-neutral-600 text-xs mb-6">
+              <p className="text-text-muted dark:text-neutral-600 text-xs mb-6">
                 {showBookmarked ? "Bookmark tips to save them for later" : "Try a different search term or category"}
               </p>
               {showBookmarked ? (
                 <button
                   onClick={() => setShowBookmarked(false)}
-                  className="px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium hover:bg-amber-500/20 transition-colors"
+                  className="px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium hover:bg-amber-500/20 transition-colors"
                 >
                   Browse all tips
                 </button>

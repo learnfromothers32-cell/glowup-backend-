@@ -54,11 +54,11 @@ function RecentCard({
       className="flex-shrink-0 w-[140px] cursor-pointer group"
     >
       <div className="relative w-[120px] h-[120px] mx-auto">
-        <div className="w-full h-full rounded-2xl overflow-hidden bg-gray-100 ring-2 ring-gray-100 group-hover:ring-gray-200 transition-all duration-200">
+        <div className="w-full h-full rounded-2xl overflow-hidden bg-gray-100 dark:bg-surface-dark-tertiary ring-2 ring-gray-100 dark:ring-gray-700/40 group-hover:ring-gray-200 dark:group-hover:ring-gray-600 transition-all duration-200">
           {/* Initials (shown until image loads, or permanently on error / no image) */}
           {(!imageLoaded || !showImage) && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-              <span className="text-lg font-bold text-gray-400">
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 dark:from-surface-dark-tertiary to-gray-200 dark:to-surface-dark-secondary">
+              <span className="text-lg font-bold text-text-muted dark:text-text-dark-muted">
                 {initials}
               </span>
             </div>
@@ -84,7 +84,7 @@ function RecentCard({
 
         {/* "View" badge on hover */}
         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-200">
-          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-900 text-white text-[10px] font-semibold shadow-lg whitespace-nowrap dark:bg-white dark:text-gray-900">
+          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-brand-500 text-white text-[10px] font-semibold shadow-lg whitespace-nowrap dark:bg-white dark:text-gray-900">
             View
             <ArrowRight size={9} />
           </div>
@@ -93,24 +93,24 @@ function RecentCard({
 
       {/* Details */}
       <div className="text-center mt-3 px-1">
-        <p className="text-xs font-semibold text-gray-900 truncate group-hover:text-gray-700 transition-colors">
+        <p className="text-xs font-semibold text-text-primary dark:text-text-dark-primary truncate group-hover:text-gray-700 dark:group-hover:text-text-dark-secondary transition-colors">
           {displayName}
         </p>
         {stylist.rating != null && stylist.rating > 0 && (
           <div className="flex items-center justify-center gap-1 mt-1">
             <Star size={10} fill="#f59e0b" stroke="#f59e0b" />
-            <span className="text-[11px] font-medium text-gray-600 tabular-nums">
+            <span className="text-[11px] font-medium text-text-secondary dark:text-text-dark-secondary tabular-nums">
               {stylist.rating}
             </span>
           </div>
         )}
         {stylist.category && (
-          <p className="text-[10px] text-gray-400 mt-0.5 truncate">
+          <p className="text-[10px] text-text-muted dark:text-text-dark-muted mt-0.5 truncate">
             {stylist.category}
           </p>
         )}
         {stylist.location && (
-          <p className="flex items-center justify-center gap-0.5 text-[10px] text-gray-400 mt-0.5">
+          <p className="flex items-center justify-center gap-0.5 text-[10px] text-text-muted dark:text-text-dark-muted mt-0.5">
             <MapPin size={8} />
             <span className="truncate max-w-[100px]">
               {getLocationString(stylist.location)}
@@ -127,16 +127,16 @@ function EmptyState() {
   const navigate = useNavigate();
   return (
     <div className="text-center py-8 px-4">
-      <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-3">
-        <Clock size={20} className="text-gray-400" />
+      <div className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center mx-auto mb-3">
+        <Clock size={20} className="text-text-muted dark:text-text-dark-muted" />
       </div>
-      <p className="text-sm font-medium text-gray-500">No recent views yet</p>
-      <p className="text-xs text-gray-400 mt-1 max-w-[200px] mx-auto">
+      <p className="text-sm font-medium text-text-secondary dark:text-text-dark-secondary">No recent views yet</p>
+      <p className="text-xs text-text-muted dark:text-text-dark-muted mt-1 max-w-[200px] mx-auto">
         Stylists you view will appear here for quick access
       </p>
       <button
         onClick={() => navigate("/app/stylists")}
-        className="mt-3 text-xs font-semibold text-gray-700 hover:text-gray-900 transition-colors"
+        className="mt-3 text-xs font-semibold text-gray-700 dark:text-text-dark-secondary hover:text-gray-900 dark:hover:text-text-dark-primary transition-colors"
       >
         Browse stylists →
       </button>
@@ -186,22 +186,22 @@ export default function RecentlyViewed({
   if (stylists.length === 0) return <EmptyState />;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-200/80 dark:border-gray-600 shadow-sm overflow-hidden">
       <div className="flex items-center justify-between px-4 pt-4 pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-            <Clock size={15} className="text-gray-500" />
+          <div className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center">
+            <Clock size={15} className="text-text-secondary dark:text-text-dark-secondary" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 tracking-tight">
+            <h3 className="text-sm font-semibold text-text-primary dark:text-text-dark-primary tracking-tight">
               Recently Viewed
             </h3>
-            <p className="text-[11px] text-gray-400 mt-0.5">
+            <p className="text-[11px] text-text-muted dark:text-text-dark-muted mt-0.5">
               Pick up where you left off
             </p>
           </div>
         </div>
-        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 tabular-nums">
+        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-surface-dark-tertiary text-text-secondary dark:text-text-dark-secondary tabular-nums">
           {stylists.length}
         </span>
       </div>
@@ -215,10 +215,10 @@ export default function RecentlyViewed({
               exit={{ opacity: 0 }}
               className="absolute left-0 top-0 bottom-0 z-10 flex items-center"
             >
-              <div className="absolute left-0 top-0 bottom-0 w-14 bg-gradient-to-r from-white to-transparent pointer-events-none" />
+              <div className="absolute left-0 top-0 bottom-0 w-14 bg-gradient-to-r from-white dark:from-surface-dark-secondary to-transparent pointer-events-none" />
               <button
                 onClick={() => scroll("left")}
-                className="relative ml-2 w-8 h-8 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-gray-500 hover:text-gray-900 hover:shadow-md transition-all opacity-0 group-hover/scroll:opacity-100"
+                className="relative ml-2 w-8 h-8 rounded-full bg-white dark:bg-surface-dark-secondary border border-gray-200 dark:border-gray-600 shadow-sm flex items-center justify-center text-text-secondary dark:text-text-dark-secondary hover:text-text-primary dark:hover:text-text-dark-primary hover:shadow-md transition-all opacity-0 group-hover/scroll:opacity-100"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -234,10 +234,10 @@ export default function RecentlyViewed({
               exit={{ opacity: 0 }}
               className="absolute right-0 top-0 bottom-0 z-10 flex items-center"
             >
-              <div className="absolute right-0 top-0 bottom-0 w-14 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-14 bg-gradient-to-l from-white dark:from-surface-dark-secondary to-transparent pointer-events-none" />
               <button
                 onClick={() => scroll("right")}
-                className="relative mr-2 w-8 h-8 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-gray-500 hover:text-gray-900 hover:shadow-md transition-all opacity-0 group-hover/scroll:opacity-100"
+                className="relative mr-2 w-8 h-8 rounded-full bg-white dark:bg-surface-dark-secondary border border-gray-200 dark:border-gray-600 shadow-sm flex items-center justify-center text-text-secondary dark:text-text-dark-secondary hover:text-text-primary dark:hover:text-text-dark-primary hover:shadow-md transition-all opacity-0 group-hover/scroll:opacity-100"
               >
                 <ChevronRight size={16} />
               </button>

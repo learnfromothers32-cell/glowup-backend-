@@ -10,6 +10,7 @@ import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
 import { Avatar } from "../../components/ui/Avatar";
+import { Skeleton } from "../../components/ui/Skeleton";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import {
   Calendar, DollarSign, Users, Star, Plus, Image, Radio, Settings,
@@ -144,12 +145,65 @@ export default function StylistDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center mx-auto animate-pulse-soft">
-            <Sparkles size={22} className="text-white" />
+      <div className="space-y-6 pb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-64 skeleton-pulse" />
+            <Skeleton className="h-4 w-48 skeleton-pulse" />
           </div>
-          <p className="text-sm text-text-muted">Loading your dashboard...</p>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-9 w-20 rounded-xl skeleton-pulse" />
+            <Skeleton className="h-9 w-24 rounded-xl skeleton-pulse" />
+            <Skeleton className="h-9 w-9 rounded-xl skeleton-pulse" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="card p-4 space-y-3">
+              <Skeleton className="h-10 w-10 rounded-xl skeleton-pulse" />
+              <Skeleton className="h-7 w-3/4 skeleton-pulse" />
+              <Skeleton className="h-4 w-1/2 skeleton-pulse" />
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 overflow-hidden">
+              <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-700/40">
+                <Skeleton className="h-5 w-40 skeleton-pulse" />
+              </div>
+              <div className="p-5 sm:p-6 space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-4 p-3 rounded-2xl border border-gray-100 dark:border-gray-700/40">
+                    <Skeleton className="h-10 w-14 skeleton-pulse" />
+                    <Skeleton className="h-10 w-10 rounded-full skeleton-pulse" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-4 w-32 skeleton-pulse" />
+                      <Skeleton className="h-3 w-24 skeleton-pulse" />
+                    </div>
+                    <Skeleton className="h-6 w-20 rounded-full skeleton-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="space-y-6">
+            <div className="rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 overflow-hidden">
+              <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-700/40">
+                <Skeleton className="h-5 w-28 skeleton-pulse" />
+              </div>
+              <div className="p-4 sm:p-5">
+                <div className="grid grid-cols-2 gap-2">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-gray-100 dark:border-gray-700/40">
+                      <Skeleton className="h-10 w-10 rounded-xl skeleton-pulse" />
+                      <Skeleton className="h-3 w-16 skeleton-pulse" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -212,10 +266,10 @@ export default function StylistDashboard() {
         ].map(({ label, value, sub, icon: Icon, color }, i) => (
           <motion.div key={label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
             <Card hover padding="md" className="overflow-hidden">
-              <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center shadow-sm mb-3`}>
+              <div className={`w-10 h-10 rounded-2xl ${color} flex items-center justify-center shadow-sm mb-3`}>
                 <Icon size={18} className="text-white" />
               </div>
-              <p className="text-xl sm:text-h2 font-bold text-text-primary truncate">{value}</p>
+              <p className="text-xl sm:text-h2 font-bold text-brand-500 truncate">{value}</p>
               <p className="text-body-sm text-text-secondary mt-0.5">{label}</p>
               <p className="text-caption text-text-muted mt-0.5">{sub}</p>
             </Card>
@@ -228,7 +282,7 @@ export default function StylistDashboard() {
         {/* Today's Schedule */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2">
           <Card padding="none">
-            <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-700/50">
+            <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-700/40">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock size={16} className="text-brand-500" />
@@ -257,7 +311,7 @@ export default function StylistDashboard() {
               ) : (
                 <div className="space-y-2">
                   {todayBookings.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime()).map((booking) => (
-                    <div key={booking.id} className="flex items-center gap-4 p-3 rounded-xl border border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-all cursor-pointer" onClick={() => navigate("/stylist/bookings")}>
+                    <div key={booking.id} className="flex items-center gap-4 p-3 rounded-2xl border border-gray-100 dark:border-gray-700/40 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-all cursor-pointer" onClick={() => navigate("/stylist/bookings")}>
                       <div className="text-center min-w-[52px]">
                         <p className="text-body-sm font-bold text-text-primary">{booking.time}</p>
                         {booking.endTime && <p className="text-caption text-text-muted">-{booking.endTime}</p>}
@@ -286,7 +340,7 @@ export default function StylistDashboard() {
         {/* Quick Actions */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
           <Card padding="none">
-            <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-700/50">
+            <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-700/40">
               <h2 className="text-h4 text-text-primary">Quick Actions</h2>
             </div>
             <div className="p-4 sm:p-5">
@@ -299,8 +353,8 @@ export default function StylistDashboard() {
                   { label: "Live", icon: Radio, to: "/stylist/live", color: "bg-error" },
                   { label: "Profile", icon: Activity, to: "/stylist/profile", color: "bg-gray-500" },
                 ].map(({ label, icon: Icon, to, color }) => (
-                  <Link key={label} to={to} className="flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-all group">
-                    <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center shadow-sm group-hover:shadow transition-all`}>
+                  <Link key={label} to={to} className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-gray-100 dark:border-gray-700/40 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-all group">
+                    <div className={`w-10 h-10 rounded-2xl ${color} flex items-center justify-center shadow-sm group-hover:shadow transition-all`}>
                       <Icon size={16} className="text-white" />
                     </div>
                     <span className="text-caption font-semibold text-text-primary">{label}</span>
@@ -310,7 +364,7 @@ export default function StylistDashboard() {
             </div>
 
             {/* Quick Add Service */}
-            <div className="border-t border-gray-100 dark:border-gray-700/50 p-4 sm:p-5 space-y-3">
+            <div className="border-t border-gray-100 dark:border-gray-700/40 p-4 sm:p-5 space-y-3">
               <div className="flex items-center gap-2">
                 <Plus size={14} className="text-success" />
                 <h3 className="text-body-sm font-semibold text-text-primary">Quick Add Service</h3>
@@ -339,7 +393,7 @@ export default function StylistDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2">
           <Card padding="none">
-            <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-700/50">
+            <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-700/40">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <TrendingUp size={16} className="text-success" />
@@ -388,7 +442,7 @@ export default function StylistDashboard() {
         {/* Reviews */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <Card padding="none">
-            <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-700/50">
+            <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-gray-700/40">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Star size={16} className="text-amber-500" />
@@ -412,7 +466,7 @@ export default function StylistDashboard() {
               ) : (
                 <div className="space-y-3 max-h-72 overflow-y-auto">
                   {reviews.slice(0, 5).map((rev: any) => (
-                    <div key={rev._id} className="p-3 rounded-xl border border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-all">
+                    <div key={rev._id} className="p-3 rounded-2xl border border-gray-100 dark:border-gray-700/40 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-all">
                       <div className="flex items-center gap-2 mb-1.5">
                         <Avatar name={rev.clientId?.name} size="sm" />
                         <div className="flex-1 min-w-0">

@@ -24,7 +24,7 @@ export function SessionReplayCard({ session, onWatch }: Props) {
   return (
     <motion.button
       onClick={() => onWatch(session)}
-      className="group relative w-full text-left bg-white dark:bg-[#1a1a2e] rounded-2xl border border-gray-100 dark:border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+      className="group relative w-full text-left bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
     >
@@ -51,19 +51,19 @@ export function SessionReplayCard({ session, onWatch }: Props) {
         <div className="flex items-start gap-2.5">
           <button
             onClick={(e) => { e.stopPropagation(); navigate(`/app/stylist/${session.host.id}`); }}
-            className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center text-[10px] font-semibold text-gray-500 dark:text-gray-300 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+            className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center text-[10px] font-semibold text-text-secondary dark:text-text-dark-primary shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
           >
             {session.host.name.charAt(0).toUpperCase()}
           </button>
           <div className="min-w-0 flex-1">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+            <h4 className="text-sm font-semibold text-text-primary dark:text-text-dark-primary truncate">
               {session.title}
             </h4>
             <button
               onClick={(e) => { e.stopPropagation(); navigate(`/app/stylist/${session.host.id}`); }}
               className="flex items-center gap-1 mt-0.5 cursor-pointer"
             >
-              <span className="text-xs text-gray-500 dark:text-gray-400 truncate hover:underline">
+              <span className="text-xs text-text-secondary dark:text-text-dark-muted truncate hover:underline">
                 {session.host.name}
               </span>
               {session.host.isVerified && (
@@ -73,7 +73,7 @@ export function SessionReplayCard({ session, onWatch }: Props) {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 mt-2 text-[11px] text-gray-400 dark:text-gray-500">
+        <div className="flex items-center gap-3 mt-2 text-[11px] text-text-muted dark:text-text-dark-secondary">
           <div className="flex items-center gap-1">
             <Eye size={12} />
             <span>{viewLabel} views</span>

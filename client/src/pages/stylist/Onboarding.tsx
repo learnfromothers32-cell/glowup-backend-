@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Check, ArrowRight, ArrowLeft, Scissors, Image, Clock, User, Phone, Loader2, X, AlertCircle } from "lucide-react";
+import { Sparkles, Check, ArrowRight, ArrowLeft, Scissors, Image, Clock, User, Phone, Loader2, X } from "lucide-react";
 import { saveOnboarding } from "../../api/stylists";
 import api from "../../api/axios";
 import StylistLocationPicker from "../../components/stylist/StylistLocationPicker";
 import type { LocationValue } from "../../components/stylist/StylistLocationPicker";
+import { Button } from "../../components/ui/Button";
 
 const STEPS = [
   { title: "Profile", subtitle: "Tell us about yourself", icon: User },
@@ -113,7 +114,7 @@ export default function StylistOnboarding() {
           <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary font-display">
             Set Up Your Studio
           </h1>
-          <p className="text-sm text-gray-500 dark:text-text-dark-muted mt-1">Complete these steps to start accepting bookings</p>
+          <p className="text-sm text-text-secondary dark:text-text-dark-secondary mt-1">Complete these steps to start accepting bookings</p>
         </div>
 
         {/* Progress Steps */}
@@ -123,13 +124,13 @@ export default function StylistOnboarding() {
               <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition ${
                 i < step ? "bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400" :
                 i === step ? "bg-gray-900 dark:bg-gray-700 text-white" :
-                "bg-gray-100 dark:bg-surface-dark-tertiary text-gray-400 dark:text-text-dark-muted"
+                "bg-gray-100 dark:bg-surface-dark-tertiary text-text-muted dark:text-text-dark-muted"
               }`}>
                 {i < step ? <Check size={12} /> : <s.icon size={12} />}
                 <span className="hidden sm:inline">{s.title}</span>
               </div>
-              {i < STEPS.length - 1 && (
-                <div className={`w-8 h-0.5 ${i < step ? "bg-green-400" : "bg-gray-200 dark:bg-gray-700"}`} />
+                {i < STEPS.length - 1 && (
+                <div className={`w-8 h-0.5 ${i < step ? "bg-green-400 dark:bg-green-500" : "bg-gray-200 dark:bg-gray-700"}`} />
               )}
             </div>
           ))}
@@ -147,8 +148,8 @@ export default function StylistOnboarding() {
               {/* Step 0: Profile */}
               {step === 0 && (
                   <div className="space-y-4">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-text-dark-primary">Your Profile</h2>
-                    <p className="text-xs text-gray-400 dark:text-text-dark-muted">* Location is required</p>
+                    <h2 className="text-lg font-bold text-text-primary dark:text-text-dark-primary">Your Profile</h2>
+                    <p className="text-xs text-text-muted dark:text-text-dark-muted">* Location is required</p>
                     <StylistLocationPicker
                       value={
                         typeof profile.location === "string"
@@ -158,7 +159,7 @@ export default function StylistOnboarding() {
                       onChange={(loc) => setProfile({ ...profile, location: loc })}
                     />
                   <div className="relative">
-                    <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-text-dark-muted" />
                     <input
                       type="tel"
                       value={profile.phone}
@@ -183,14 +184,14 @@ export default function StylistOnboarding() {
               {step === 1 && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-text-dark-primary">Your Services</h2>
+                    <h2 className="text-lg font-bold text-text-primary dark:text-text-dark-primary">Your Services</h2>
                     <button onClick={addService} className="text-xs font-semibold text-brand-500 hover:underline">
                       + Add another
                     </button>
                   </div>
-                  <p className="text-xs text-gray-400 dark:text-text-dark-muted -mt-2">* Name and price required for at least one service</p>
+                  <p className="text-xs text-text-muted dark:text-text-dark-muted -mt-2">* Name and price required for at least one service</p>
                   {services.map((svc, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 dark:border-gray-700/50">
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-2xl border border-gray-100 dark:border-gray-700/50">
                       <div className="flex-1 space-y-2">
                         <input
                           value={svc.name}
@@ -202,7 +203,7 @@ export default function StylistOnboarding() {
                           <select
                             value={svc.duration}
                             onChange={(e) => updateService(i, "duration", e.target.value)}
-                            className="text-xs border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary"
+                            className="text-xs border border-gray-200 dark:border-gray-600 rounded-xl px-2 py-1 bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary"
                           >
                             <option>15 min</option>
                             <option>30 min</option>
@@ -220,7 +221,7 @@ export default function StylistOnboarding() {
                         </div>
                       </div>
                       {services.length > 1 && (
-                        <button onClick={() => removeService(i)} className="text-red-400 hover:text-red-500 dark:hover:text-red-300 text-xs">
+                        <button onClick={() => removeService(i)} className="text-red-400 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300 text-xs">
                           Remove
                         </button>
                       )}
@@ -232,11 +233,11 @@ export default function StylistOnboarding() {
               {/* Step 2: Portfolio */}
               {step === 2 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-text-dark-primary">Portfolio</h2>
-                  <p className="text-xs text-gray-500 dark:text-text-dark-muted">Upload photos of your work to attract clients</p>
+                  <h2 className="text-lg font-bold text-text-primary dark:text-text-dark-primary">Portfolio</h2>
+                  <p className="text-xs text-text-secondary dark:text-text-dark-secondary">Upload photos of your work to attract clients</p>
                   <div className="grid grid-cols-3 gap-3">
                     {images.map((img, i) => (
-                      <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-surface-dark-tertiary group">
+                      <div key={i} className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 dark:bg-surface-dark-tertiary group">
                         <img src={img.preview} alt="" className="w-full h-full object-cover" />
                         <button
                           onClick={() => removeImage(i)}
@@ -246,9 +247,9 @@ export default function StylistOnboarding() {
                         </button>
                       </div>
                     ))}
-                    <label className="aspect-square rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-500 transition">
-                      <Image size={20} className="text-gray-300 dark:text-gray-600" />
-                      <span className="text-[10px] text-gray-400 dark:text-text-dark-muted mt-1">Upload</span>
+                    <label className="aspect-square rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-500 transition">
+                      <Image size={20} className="text-text-muted dark:text-text-dark-muted" />
+                      <span className="text-[10px] text-text-muted dark:text-text-dark-muted mt-1">Upload</span>
                       <input type="file" accept="image/*" className="hidden" onChange={addImage} multiple />
                     </label>
                   </div>
@@ -258,8 +259,8 @@ export default function StylistOnboarding() {
               {/* Step 3: Availability */}
               {step === 3 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-text-dark-primary">Availability</h2>
-                  <p className="text-xs text-gray-500 dark:text-text-dark-muted">Set your weekly working hours</p>
+                  <h2 className="text-lg font-bold text-text-primary dark:text-text-dark-primary">Availability</h2>
+                  <p className="text-xs text-text-secondary dark:text-text-dark-secondary">Set your weekly working hours</p>
                   {Object.entries(schedule).map(([day, s]) => (
                     <div key={day} className="flex items-center gap-3 py-2 border-b border-gray-50 dark:border-gray-700/30 last:border-0">
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -271,7 +272,7 @@ export default function StylistOnboarding() {
                         />
                         <div className="w-8 h-4 bg-gray-200 dark:bg-gray-600 rounded-full peer peer-checked:bg-success peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all" />
                       </label>
-                      <span className={`text-sm font-medium w-24 ${s.enabled ? "text-gray-900 dark:text-text-dark-primary" : "text-gray-300 dark:text-gray-600"}`}>
+                      <span className={`text-sm font-medium w-24 ${s.enabled ? "text-text-primary dark:text-text-dark-primary" : "text-text-muted dark:text-text-dark-muted"}`}>
                         {day.slice(0, 3)}
                       </span>
                       {s.enabled ? (
@@ -280,18 +281,18 @@ export default function StylistOnboarding() {
                             type="time"
                             value={s.start}
                             onChange={(e) => setSchedule({ ...schedule, [day]: { ...s, start: e.target.value } })}
-                            className="px-2 py-1 border border-gray-200 dark:border-gray-600 rounded-lg text-xs bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary"
+                            className="px-2 py-1 border border-gray-200 dark:border-gray-600 rounded-xl text-xs bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary"
                           />
-                          <span className="text-xs text-gray-400 dark:text-text-dark-muted">to</span>
+                          <span className="text-xs text-text-muted dark:text-text-dark-muted">to</span>
                           <input
                             type="time"
                             value={s.end}
                             onChange={(e) => setSchedule({ ...schedule, [day]: { ...s, end: e.target.value } })}
-                            className="px-2 py-1 border border-gray-200 dark:border-gray-600 rounded-lg text-xs bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary"
+                            className="px-2 py-1 border border-gray-200 dark:border-gray-600 rounded-xl text-xs bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary"
                           />
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-400 dark:text-text-dark-muted italic">Off</span>
+                        <span className="text-xs text-text-muted dark:text-text-dark-muted italic">Off</span>
                       )}
                     </div>
                   ))}
@@ -301,48 +302,36 @@ export default function StylistOnboarding() {
           </AnimatePresence>
 
           {saveError && (
-            <div className="mt-4 p-3 bg-error/10 border border-error/20 text-error rounded-lg text-sm">
+            <div className="mt-4 p-3 bg-error/10 border border-error/20 text-error rounded-xl text-sm">
               {saveError}
             </div>
           )}
 
           {/* Navigation */}
           <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100 dark:border-gray-700/50">
-            <button
+            <Button
+              variant="secondary"
               onClick={() => step === 0 ? navigate("/signup") : setStep(step - 1)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm text-gray-500 dark:text-text-dark-muted hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary transition"
             >
-              <ArrowLeft size={14} />
+              <ArrowLeft size={14} className="mr-1" />
               {step === 0 ? "Back" : "Previous"}
-            </button>
+            </Button>
 
             {step < STEPS.length - 1 ? (
-              <button
+              <Button
                 onClick={() => setStep(step + 1)}
                 disabled={!canNext()}
-                className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 transition"
               >
                 Next
-                <ArrowRight size={14} />
-              </button>
+                <ArrowRight size={14} className="ml-1" />
+              </Button>
             ) : (
-              <button
+              <Button
                 onClick={handleFinish}
-                disabled={saving}
-                className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 transition"
+                loading={saving}
               >
-                {saving ? (
-                  <>
-                    <Loader2 size={14} className="animate-spin" />
-                    {uploadProgress ? "Uploading images..." : "Saving..."}
-                  </>
-                ) : (
-                  <>
-                    <Check size={14} />
-                    Complete Setup
-                  </>
-                )}
-              </button>
+                {uploadProgress ? "Uploading images..." : saving ? "Saving..." : <><Check size={14} className="mr-1" />Complete Setup</>}
+              </Button>
             )}
           </div>
         </div>

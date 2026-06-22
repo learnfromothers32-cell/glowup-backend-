@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Bell, Check, Trash2 } from 'lucide-react';
 import { getNotifications, markAsRead, markAllAsRead, deleteNotification, type NotificationItem } from '../../api/notifications';
+import { Button } from '../../components/ui/Button';
 
 const notifIconMap: Record<string, string> = {
   booking: "📅",
@@ -27,7 +28,7 @@ function formatRelativeTime(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-export default function Notifications() {
+export default function StylistNotifications() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -64,13 +65,12 @@ export default function Notifications() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary" style={{ fontFamily: "'Playfair Display', serif" }}>Notifications</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-text-primary dark:text-text-dark-primary font-display">Notifications</h1>
         {notifications.some(n => !n.read) && (
-          <button onClick={handleMarkAllRead}
-            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-text-secondary dark:text-text-dark-secondary hover:text-text-primary dark:hover:text-text-dark-primary bg-brand-50 text-brand-600 dark:bg-brand-950/20 dark:text-brand-300 hover:bg-gray-200 rounded-xl transition-colors">
+          <Button variant="secondary" size="sm" onClick={handleMarkAllRead} className="shrink-0">
             <Check size={14} />
             Mark all read
-          </button>
+          </Button>
         )}
       </div>
 
@@ -95,7 +95,7 @@ export default function Notifications() {
         <div className="space-y-2">
           {notifications.map(n => (
             <div key={n._id}
-              className={`flex items-start gap-4 p-4 rounded-2xl border transition-colors ${!n.read ? 'bg-blue-50/40 border-blue-100' : 'bg-white dark:bg-surface-dark-secondary border-gray-100 dark:border-gray-700/40'}`}>
+              className={`flex items-start gap-4 p-4 rounded-2xl border transition-colors ${!n.read ? 'bg-blue-50/40 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/50' : 'bg-white dark:bg-surface-dark-secondary border-gray-100 dark:border-gray-700/40'}`}>
               <span className="text-xl mt-0.5">{notifIconMap[n.type] || "🔔"}</span>
               <div className="flex-1 min-w-0">
                 <p className={`text-sm ${!n.read ? 'font-semibold text-text-primary dark:text-text-dark-primary' : 'text-text-secondary dark:text-text-dark-secondary'}`}>{n.message}</p>
@@ -104,12 +104,12 @@ export default function Notifications() {
               <div className="flex items-center gap-2 shrink-0">
                 {!n.read && (
                   <button onClick={() => handleMarkRead(n._id)}
-                    className="p-1.5 rounded-xl text-text-muted dark:text-text-dark-muted hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                    className="p-1.5 rounded-xl text-text-muted dark:text-text-dark-muted hover:text-brand-600 hover:bg-brand-50 dark:hover:text-brand-400 dark:hover:bg-brand-950/20 transition-colors">
                     <Check size={14} />
                   </button>
                 )}
                 <button onClick={() => handleDelete(n._id)}
-                  className="p-1.5 rounded-xl text-text-muted dark:text-text-dark-muted hover:text-red-600 hover:bg-red-50 transition-colors">
+                  className="p-1.5 rounded-xl text-text-muted dark:text-text-dark-muted hover:text-red-600 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-950/20 transition-colors">
                   <Trash2 size={14} />
                 </button>
               </div>
@@ -120,11 +120,13 @@ export default function Notifications() {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 mt-6">
-          <button onClick={() => fetchNotifications(page - 1)} disabled={page <= 1}
-            className="px-3 py-1.5 text-sm rounded-xl border border-gray-200 dark:border-gray-600 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary">Previous</button>
+          <Button variant="secondary" size="sm" onClick={() => fetchNotifications(page - 1)} disabled={page <= 1}>
+            Previous
+          </Button>
           <span className="text-sm text-text-secondary dark:text-text-dark-secondary">Page {page} of {totalPages}</span>
-          <button onClick={() => fetchNotifications(page + 1)} disabled={page >= totalPages}
-            className="px-3 py-1.5 text-sm rounded-xl border border-gray-200 dark:border-gray-600 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary">Next</button>
+          <Button variant="secondary" size="sm" onClick={() => fetchNotifications(page + 1)} disabled={page >= totalPages}>
+            Next
+          </Button>
         </div>
       )}
     </motion.div>

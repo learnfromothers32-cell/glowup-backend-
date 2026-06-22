@@ -11,6 +11,8 @@ import { getMe } from "../../api/auth";
 import { getLocationString } from "@/utils/location";
 import StylistLocationPicker from "../../components/stylist/StylistLocationPicker";
 import type { LocationValue } from "../../components/stylist/StylistLocationPicker";
+import { Button } from "../../components/ui/Button";
+import { Card } from "../../components/ui/Card";
 
 const CATEGORIES = [
   "Braiding", "Haircut", "Coloring", "Styling", "Makeup",
@@ -47,9 +49,9 @@ function validatePhone(phone: string): boolean {
 function LoadingSkeleton() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="h-8 w-32 rounded-lg bg-gray-200 animate-pulse" />
-      <div className="h-4 w-48 rounded-lg bg-gray-100 animate-pulse" />
-      <div className="rounded-2xl overflow-hidden shadow-card">
+      <div className="h-8 w-32 skeleton-pulse" />
+      <div className="h-4 w-48 skeleton-pulse" />
+      <Card elevated padding="none" className="overflow-hidden">
         <div className="p-6 bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-xl bg-white/10 animate-pulse" />
@@ -60,18 +62,18 @@ function LoadingSkeleton() {
             </div>
           </div>
         </div>
-      </div>
-      <div className="rounded-2xl overflow-hidden shadow-card">
+      </Card>
+      <Card elevated padding="none" className="overflow-hidden">
         <div className="p-6 space-y-4">
-          <div className="h-5 w-24 rounded bg-gray-200 animate-pulse" />
-          <div className="h-10 w-full rounded-xl bg-gray-100 animate-pulse" />
+          <div className="h-5 w-24 skeleton-pulse" />
+          <div className="h-10 w-full skeleton-pulse" />
           <div className="grid grid-cols-2 gap-4">
-            <div className="h-10 rounded-xl bg-gray-100 animate-pulse" />
-            <div className="h-10 rounded-xl bg-gray-100 animate-pulse" />
+            <div className="h-10 skeleton-pulse" />
+            <div className="h-10 skeleton-pulse" />
           </div>
-          <div className="h-20 w-full rounded-xl bg-gray-100 animate-pulse" />
+          <div className="h-20 w-full skeleton-pulse" />
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
@@ -398,7 +400,7 @@ export default function Profile() {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingImage}
-                  className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center shadow-md border-2 border-white transition-transform hover:scale-105 active:scale-95 bg-white"
+                  className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center shadow-md border-2 border-white transition-transform hover:scale-105 active:scale-95 bg-white dark:bg-surface-dark-secondary dark:border-gray-600"
                   title="Change profile photo"
                 >
                   {uploadingImage ? (
@@ -440,7 +442,7 @@ export default function Profile() {
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-error">{error}</p>
           </div>
-          <button onClick={() => setError(null)} className="p-0.5 rounded hover:bg-red-100 transition-colors shrink-0">
+          <button onClick={() => setError(null)} className="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors shrink-0">
             <X size={13} className="text-error" />
           </button>
         </motion.div>
@@ -460,339 +462,349 @@ export default function Profile() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="rounded-2xl overflow-hidden bg-white dark:bg-surface-dark-secondary shadow-card"
       >
-        <div className="px-6 py-4 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50">
-          <SectionHeader icon={User} label="Basic Information" />
-          <div className="flex items-center gap-1">
-            {hasChanges && (
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/20 text-amber-400">
-                Unsaved
-              </span>
-            )}
-            <button
-              onClick={fetchProfile}
-              className="p-1.5 rounded-lg transition-all hover:bg-gray-100 text-text-muted dark:text-text-dark-muted"
-              title="Refresh from server"
-            >
-              <RefreshCcw size={13} />
-            </button>
+        <Card elevated padding="none" className="overflow-hidden">
+          <div className="px-6 py-4 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/40">
+            <SectionHeader icon={User} label="Basic Information" />
+            <div className="flex items-center gap-1">
+              {hasChanges && (
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/20 text-amber-400">
+                  Unsaved
+                </span>
+              )}
+              <Button
+                onClick={fetchProfile}
+                variant="ghost-gray"
+                size="sm"
+                icon
+                title="Refresh from server"
+              >
+                <RefreshCcw size={13} />
+              </Button>
+            </div>
           </div>
-        </div>
 
-        <div className="p-6 space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-6 space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
+                  Display Name <span className="text-error">*</span>
+                </label>
+                <div
+                  className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all ${
+                    getFieldError("name")
+                      ? "border-red-300 bg-red-50"
+                      : "border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary"
+                  }`}
+                >
+                  <User size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
+                  <input
+                    value={name}
+                    onChange={(e) => { setName(e.target.value); clearFieldError("name"); }}
+                    maxLength={FIELD_LIMITS.name.max}
+                    className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
+                    placeholder="Your full name"
+                  />
+                </div>
+                {getFieldError("name") && (
+                  <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("name")}</p>
+                )}
+              </div>
+              <div ref={categoryRef} className="relative">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
+                  Category <span className="text-error">*</span>
+                </label>
+                <div
+                  className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all cursor-pointer ${
+                    getFieldError("category")
+                      ? "border-red-300 bg-red-50"
+                      : "border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary"
+                  }`}
+                  onClick={() => { setShowCategoryDropdown(true); setCategorySearch(category); }}
+                >
+                  <Scissors size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
+                  <input
+                    value={category}
+                    onChange={(e) => {
+                      setCategory(e.target.value);
+                      setCategorySearch(e.target.value);
+                      setShowCategoryDropdown(true);
+                      clearFieldError("category");
+                    }}
+                    onFocus={() => { setShowCategoryDropdown(true); setCategorySearch(category); }}
+                    maxLength={FIELD_LIMITS.category.max}
+                    className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
+                    placeholder="e.g. Braiding, Haircut"
+                  />
+                </div>
+                {getFieldError("category") && (
+                  <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("category")}</p>
+                )}
+                {showCategoryDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute z-20 mt-1 left-0 right-0 bg-white dark:bg-surface-dark-secondary rounded-xl shadow-xl border border-gray-200 dark:border-gray-600 overflow-hidden"
+                  >
+                    <div className="max-h-48 overflow-y-auto py-1">
+                      {filteredCategories.length === 0 ? (
+                        <div className="px-4 py-3 text-center">
+                          <p className="text-xs text-text-muted dark:text-text-dark-muted">No matching categories</p>
+                        </div>
+                      ) : (
+                        filteredCategories.map((c) => (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => {
+                              setCategory(c);
+                              setShowCategoryDropdown(false);
+                              clearFieldError("category");
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                              category === c ? "bg-brand-50 text-brand-700 dark:bg-brand-950/20 dark:text-brand-300 font-medium" : "text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary"
+                            }`}
+                          >
+                            {c}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            </div>
+
             <div>
               <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
-                Display Name <span className="text-error">*</span>
+                Bio
               </label>
-              <div
-                className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all ${
-                  getFieldError("name")
+              <textarea
+                value={bio}
+                onChange={(e) => { setBio(e.target.value); clearFieldError("bio"); }}
+                rows={3}
+                maxLength={FIELD_LIMITS.bio.max}
+                className={`w-full mt-1.5 px-3 py-2.5 rounded-xl border text-sm outline-none resize-none transition-all ${
+                  getFieldError("bio")
                     ? "border-red-300 bg-red-50"
-                    : "border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-surface-dark-secondary"
-                }`}
-              >
-                <User size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
-                <input
-                  value={name}
-                  onChange={(e) => { setName(e.target.value); clearFieldError("name"); }}
-                  maxLength={FIELD_LIMITS.name.max}
-                  className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
-                  placeholder="Your full name"
-                />
-              </div>
-              {getFieldError("name") && (
-                <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("name")}</p>
-              )}
-            </div>
-            <div ref={categoryRef} className="relative">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
-                Category <span className="text-error">*</span>
-              </label>
-              <div
-                className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all cursor-pointer ${
-                  getFieldError("category")
-                    ? "border-red-300 bg-red-50"
-                    : "border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-surface-dark-secondary"
-                }`}
-                onClick={() => { setShowCategoryDropdown(true); setCategorySearch(category); }}
-              >
-                <Scissors size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
-                <input
-                  value={category}
-                  onChange={(e) => {
-                    setCategory(e.target.value);
-                    setCategorySearch(e.target.value);
-                    setShowCategoryDropdown(true);
-                    clearFieldError("category");
-                  }}
-                  onFocus={() => { setShowCategoryDropdown(true); setCategorySearch(category); }}
-                  maxLength={FIELD_LIMITS.category.max}
-                  className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
-                  placeholder="e.g. Braiding, Haircut"
-                />
-              </div>
-              {getFieldError("category") && (
-                <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("category")}</p>
-              )}
-              {showCategoryDropdown && (
-                <motion.div
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="absolute z-20 mt-1 left-0 right-0 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden"
-                >
-                  <div className="max-h-48 overflow-y-auto py-1">
-                    {filteredCategories.length === 0 ? (
-                      <div className="px-4 py-3 text-center">
-                        <p className="text-xs text-gray-400">No matching categories</p>
-                      </div>
-                    ) : (
-                      filteredCategories.map((c) => (
-                        <button
-                          key={c}
-                          type="button"
-                          onClick={() => {
-                            setCategory(c);
-                            setShowCategoryDropdown(false);
-                            clearFieldError("category");
-                          }}
-                          className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                            category === c ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:bg-gray-50"
-                          }`}
-                        >
-                          {c}
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
-              Bio
-            </label>
-            <textarea
-              value={bio}
-              onChange={(e) => { setBio(e.target.value); clearFieldError("bio"); }}
-              rows={3}
-              maxLength={FIELD_LIMITS.bio.max}
-              className={`w-full mt-1.5 px-3 py-2.5 rounded-xl border text-sm outline-none resize-none transition-all ${
-                getFieldError("bio")
-                  ? "border-red-300 bg-red-50"
-                  : "border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-surface-dark-secondary"
-              } text-text-primary dark:text-text-dark-primary`}
-              placeholder="Tell clients about yourself..."
-            />
-            <div className="flex items-center justify-between mt-1">
-              {getFieldError("bio") && (
-                <p className="text-[10px] font-medium text-error">{getFieldError("bio")}</p>
-              )}
-              <p className={`text-[10px] ml-auto ${
-                bioRemaining < 0
-                  ? "text-error font-medium"
-                  : bioRemaining < 50
-                    ? "text-amber-400 font-medium"
-                    : "text-text-muted dark:text-text-dark-muted"
-              }`}>
-                {bioRemaining} characters left
-              </p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="rounded-2xl overflow-hidden bg-white dark:bg-surface-dark-secondary shadow-card"
-      >
-        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700/50">
-          <SectionHeader icon={MapPin} label="Location" />
-        </div>
-        <div className="p-6">
-          <div className="mb-4">
-            <p className="text-xs text-text-secondary dark:text-text-dark-secondary">
-              Set your current working location so clients can find you on the map.
-              Update this whenever you relocate.
-            </p>
-          </div>
-          {location.area && (location.lat || location.lng) && (
-            <div className="flex items-center gap-2.5 mb-4 px-3.5 py-2.5 rounded-xl bg-blue-50 border border-brand-900/10">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-800">
-                <Navigation size={14} className="text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium truncate text-text-primary dark:text-text-dark-primary">{location.area}</p>
-                <p className="text-[10px] text-text-muted dark:text-text-dark-muted">
-                  {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+                    : "border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary"
+                } text-text-primary dark:text-text-dark-primary`}
+                placeholder="Tell clients about yourself..."
+              />
+              <div className="flex items-center justify-between mt-1">
+                {getFieldError("bio") && (
+                  <p className="text-[10px] font-medium text-error">{getFieldError("bio")}</p>
+                )}
+                <p className={`text-[10px] ml-auto ${
+                  bioRemaining < 0
+                    ? "text-error font-medium"
+                    : bioRemaining < 50
+                      ? "text-amber-400 font-medium"
+                      : "text-text-muted dark:text-text-dark-muted"
+                }`}>
+                  {bioRemaining} characters left
                 </p>
               </div>
             </div>
-          )}
-          <StylistLocationPicker
-            value={location}
-            onChange={(loc) => { setLocation(loc); clearFieldError("location"); }}
-          />
-          {getFieldError("location") && (
-            <p className="text-[10px] mt-1.5 font-medium text-error">{getFieldError("location")}</p>
-          )}
-        </div>
+          </div>
+        </Card>
       </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="rounded-2xl overflow-hidden bg-white dark:bg-surface-dark-secondary shadow-card"
       >
-        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700/50">
-          <SectionHeader icon={Phone} label="Contact" />
-        </div>
-        <div className="p-6">
-          <div>
-            <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
-              Phone
-            </label>
-            <div
-              className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all ${
-                getFieldError("phone")
-                  ? "border-red-300 bg-red-50"
-                  : "border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-surface-dark-secondary"
-              }`}
-            >
-              <Phone size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
-              <input
-                value={phone}
-                onChange={(e) => { setPhone(e.target.value); clearFieldError("phone"); }}
-                maxLength={FIELD_LIMITS.phone.max}
-                className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
-                placeholder="+233 XX XXX XXXX"
-              />
+        <Card elevated padding="none" className="overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700/40">
+            <SectionHeader icon={MapPin} label="Location" />
+          </div>
+          <div className="p-6">
+            <div className="mb-4">
+              <p className="text-xs text-text-secondary dark:text-text-dark-secondary">
+                Set your current working location so clients can find you on the map.
+                Update this whenever you relocate.
+              </p>
             </div>
-            {getFieldError("phone") && (
-              <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("phone")}</p>
+            {location.area && (location.lat || location.lng) && (
+              <div className="flex items-center gap-2.5 mb-4 px-3.5 py-2.5 rounded-xl bg-brand-50 dark:bg-brand-950/20 border border-brand-900/10 dark:border-brand-900/30">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-800">
+                  <Navigation size={14} className="text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium truncate text-text-primary dark:text-text-dark-primary">{location.area}</p>
+                  <p className="text-[10px] text-text-muted dark:text-text-dark-muted">
+                    {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+                  </p>
+                </div>
+              </div>
+            )}
+            <StylistLocationPicker
+              value={location}
+              onChange={(loc) => { setLocation(loc); clearFieldError("location"); }}
+            />
+            {getFieldError("location") && (
+              <p className="text-[10px] mt-1.5 font-medium text-error">{getFieldError("location")}</p>
             )}
           </div>
-        </div>
+        </Card>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Card elevated padding="none" className="overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700/40">
+            <SectionHeader icon={Phone} label="Contact" />
+          </div>
+          <div className="p-6">
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
+                Phone
+              </label>
+              <div
+                className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all ${
+                  getFieldError("phone")
+                    ? "border-red-300 bg-red-50"
+                    : "border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary"
+                }`}
+              >
+                <Phone size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
+                <input
+                  value={phone}
+                  onChange={(e) => { setPhone(e.target.value); clearFieldError("phone"); }}
+                  maxLength={FIELD_LIMITS.phone.max}
+                  className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
+                  placeholder="+233 XX XXX XXXX"
+                />
+              </div>
+              {getFieldError("phone") && (
+                <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("phone")}</p>
+              )}
+            </div>
+          </div>
+        </Card>
       </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
-        className="rounded-2xl overflow-hidden bg-white dark:bg-surface-dark-secondary shadow-card"
       >
-        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700/50">
-          <SectionHeader icon={AtSign} label="Social Links" />
-        </div>
-        <div className="p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
-                Instagram
-              </label>
-              <div className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all ${
-                getFieldError("instagram")
-                  ? "border-red-300 bg-red-50"
-                  : "border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-surface-dark-secondary"
-              }`}>
-                <AtSign size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
-                <input value={instagram} onChange={(e) => { setInstagram(e.target.value); clearFieldError("instagram"); }}
-                  maxLength={FIELD_LIMITS.instagram.max}
-                  className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
-                  placeholder="your_handle" />
+        <Card elevated padding="none" className="overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700/40">
+            <SectionHeader icon={AtSign} label="Social Links" />
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
+                  Instagram
+                </label>
+                <div className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all ${
+                  getFieldError("instagram")
+                    ? "border-red-300 bg-red-50"
+                    : "border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary"
+                }`}>
+                  <AtSign size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
+                  <input value={instagram} onChange={(e) => { setInstagram(e.target.value); clearFieldError("instagram"); }}
+                    maxLength={FIELD_LIMITS.instagram.max}
+                    className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
+                    placeholder="your_handle" />
+                </div>
+                {getFieldError("instagram") && (
+                  <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("instagram")}</p>
+                )}
               </div>
-              {getFieldError("instagram") && (
-                <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("instagram")}</p>
-              )}
-            </div>
-            <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
-                Twitter / X
-              </label>
-              <div className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all ${
-                getFieldError("twitter")
-                  ? "border-red-300 bg-red-50"
-                  : "border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-surface-dark-secondary"
-              }`}>
-                <AtSign size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
-                <input value={twitter} onChange={(e) => { setTwitter(e.target.value); clearFieldError("twitter"); }}
-                  maxLength={FIELD_LIMITS.twitter.max}
-                  className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
-                  placeholder="your_handle" />
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
+                  Twitter / X
+                </label>
+                <div className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all ${
+                  getFieldError("twitter")
+                    ? "border-red-300 bg-red-50"
+                    : "border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary"
+                }`}>
+                  <AtSign size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
+                  <input value={twitter} onChange={(e) => { setTwitter(e.target.value); clearFieldError("twitter"); }}
+                    maxLength={FIELD_LIMITS.twitter.max}
+                    className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
+                    placeholder="your_handle" />
+                </div>
+                {getFieldError("twitter") && (
+                  <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("twitter")}</p>
+                )}
               </div>
-              {getFieldError("twitter") && (
-                <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("twitter")}</p>
-              )}
-            </div>
-            <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
-                TikTok
-              </label>
-              <div className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all ${
-                getFieldError("tiktok")
-                  ? "border-red-300 bg-red-50"
-                  : "border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-surface-dark-secondary"
-              }`}>
-                <AtSign size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
-                <input value={tiktok} onChange={(e) => { setTiktok(e.target.value); clearFieldError("tiktok"); }}
-                  maxLength={FIELD_LIMITS.tiktok.max}
-                  className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
-                  placeholder="@your_handle" />
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
+                  TikTok
+                </label>
+                <div className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all ${
+                  getFieldError("tiktok")
+                    ? "border-red-300 bg-red-50"
+                    : "border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary"
+                }`}>
+                  <AtSign size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
+                  <input value={tiktok} onChange={(e) => { setTiktok(e.target.value); clearFieldError("tiktok"); }}
+                    maxLength={FIELD_LIMITS.tiktok.max}
+                    className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
+                    placeholder="@your_handle" />
+                </div>
+                {getFieldError("tiktok") && (
+                  <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("tiktok")}</p>
+                )}
               </div>
-              {getFieldError("tiktok") && (
-                <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("tiktok")}</p>
-              )}
-            </div>
-            <div>
-              <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
-                Website
-              </label>
-              <div className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all ${
-                getFieldError("website")
-                  ? "border-red-300 bg-red-50"
-                  : "border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-surface-dark-secondary"
-              }`}>
-                <Globe size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
-                <input value={website} onChange={(e) => { setWebsite(e.target.value); clearFieldError("website"); }}
-                  maxLength={FIELD_LIMITS.website.max}
-                  className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
-                  placeholder="https://" />
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted dark:text-text-dark-muted">
+                  Website
+                </label>
+                <div className={`flex items-center gap-2 mt-1.5 px-3 py-2.5 rounded-xl border transition-all ${
+                  getFieldError("website")
+                    ? "border-red-300 bg-red-50"
+                    : "border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary"
+                }`}>
+                  <Globe size={14} className="text-text-muted dark:text-text-dark-muted shrink-0" />
+                  <input value={website} onChange={(e) => { setWebsite(e.target.value); clearFieldError("website"); }}
+                    maxLength={FIELD_LIMITS.website.max}
+                    className="flex-1 bg-transparent text-sm font-medium outline-none text-text-primary dark:text-text-dark-primary"
+                    placeholder="https://" />
+                </div>
+                {getFieldError("website") && (
+                  <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("website")}</p>
+                )}
               </div>
-              {getFieldError("website") && (
-                <p className="text-[10px] mt-1 font-medium text-error">{getFieldError("website")}</p>
-              )}
             </div>
           </div>
-        </div>
+        </Card>
       </motion.div>
 
       <div className="flex items-center gap-3 pt-1">
         {hasChanges && (
-          <button
+          <Button
             onClick={handleRevert}
             disabled={saving}
-            className="flex-1 py-3 rounded-xl text-sm font-medium transition-all active:scale-[0.99] disabled:opacity-50 bg-gray-50 dark:bg-surface-dark-secondary text-gray-700 dark:text-gray-300 border border-gray-100 dark:border-gray-700/50"
+            variant="secondary"
+            size="md"
+            className="flex-1"
           >
             Revert
-          </button>
+          </Button>
         )}
-        <button
+        <Button
           onClick={handleSave}
           disabled={saving || (!hasChanges && fieldErrors.length === 0)}
-          className={`${hasChanges ? "flex-[2]" : "w-full"} py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2 bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900 text-white shadow-lg`}
+          variant="primary"
+          size="md"
+          className={hasChanges ? "flex-[2]" : "w-full"}
         >
           {saving ? (
             <><Loader2 size={15} className="animate-spin" /> Saving...</>
           ) : (
             <><Save size={15} /> Save Changes</>
           )}
-        </button>
+        </Button>
       </div>
     </div>
   );

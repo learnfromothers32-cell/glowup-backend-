@@ -54,17 +54,17 @@ export default function DateStep({ selectedDate, onSelect, active, completed, di
                 onClick={() => onSelect(date)}
                 className={`flex flex-col items-center py-2.5 px-3 rounded-xl border min-w-[56px] transition-all duration-200 shrink-0 ${
                   isSelected
-                    ? "border-gray-900 bg-gray-900 text-white shadow-md"
-                    : "border-gray-100 bg-white text-gray-600 hover:border-gray-200"
+                    ? "border-brand-500 bg-brand-500 text-white shadow-md"
+                    : "border-gray-100 dark:border-gray-700/40 bg-white dark:bg-surface-dark-secondary text-text-secondary dark:text-text-dark-secondary hover:border-gray-200 dark:hover:border-gray-600"
                 }`}
               >
-                <span className={`text-[10px] font-semibold uppercase ${isSelected ? "text-gray-400" : "text-gray-400"}`}>
+                <span className={`text-[10px] font-semibold uppercase ${isSelected ? "text-white/70" : "text-text-muted dark:text-text-dark-muted"}`}>
                   {isToday ? "Today" : dayName}
                 </span>
-                <span className={`text-lg font-bold ${isSelected ? "text-white" : "text-gray-900"}`}>
+                <span className={`text-lg font-bold ${isSelected ? "text-white" : "text-text-primary dark:text-text-dark-primary"}`}>
                   {dayNum}
                 </span>
-                <span className={`text-[9px] ${isSelected ? "text-gray-500" : "text-gray-400"}`}>
+                <span className={`text-[9px] ${isSelected ? "text-white/70" : "text-text-muted dark:text-text-dark-muted"}`}>
                   {monthName}
                 </span>
               </button>

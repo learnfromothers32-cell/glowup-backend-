@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Loader2, AlertCircle, Package, DollarSign, Clock, Users, Trash2, Edit3, X } from 'lucide-react';
 import { getMyPackages, createPackage, updatePackage, deletePackage, getPackagePurchases } from '../../api/packages';
+import { Button } from '../../components/ui/Button';
+import { Card } from '../../components/ui/Card';
 
 export default function Packages() {
   const [packages, setPackages] = useState<any[]>([]);
@@ -42,81 +44,92 @@ export default function Packages() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary font-display">Packages</h1>
-          <p className="text-[#7A7168] text-sm mt-1">Create prepaid service packages for your clients</p>
+          <p className="text-text-secondary dark:text-text-dark-secondary text-sm mt-1">Create prepaid service packages for your clients</p>
         </div>
-        <button onClick={() => { setShowAdd(true); setEditing(null); setEditForm({ name: '', description: '', price: 0, totalSessions: 1, expiryDays: 90, popular: false, services: [] }); }}
-          className="flex items-center gap-2 px-4 py-2 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#333] transition-colors text-sm">
+        <Button onClick={() => { setShowAdd(true); setEditing(null); setEditForm({ name: '', description: '', price: 0, totalSessions: 1, expiryDays: 90, popular: false, services: [] }); }} variant="primary" size="sm">
           <Plus className="w-4 h-4" /> New Package
-        </button>
+        </Button>
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 text-red-700 rounded-lg text-sm">
-          <AlertCircle className="w-4 h-4" /> {error}
-          <button onClick={() => setError('')} className="ml-auto"><X className="w-4 h-4" /></button>
+        <div className="flex items-center gap-2 px-4 py-3 mb-4 rounded-xl bg-error/10 border border-error/20">
+          <AlertCircle size={14} className="text-error shrink-0" />
+          <p className="text-xs font-medium text-error flex-1">{error}</p>
+          <button onClick={() => setError('')} className="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors shrink-0">
+            <X size={13} className="text-error" />
+          </button>
         </div>
       )}
 
-      <div className="flex gap-1 mb-4 bg-[#FAF8F4] rounded-lg p-1 w-fit">
-        <button onClick={() => setTab('packages')} className={`px-4 py-1.5 text-sm rounded-md transition-colors ${tab === 'packages' ? 'bg-white shadow-sm' : 'text-gray-500'}`}>
+      <div className="flex gap-1 mb-4 bg-gray-50 dark:bg-surface-dark-tertiary rounded-xl p-1 w-fit">
+        <button onClick={() => setTab('packages')} className={`px-4 py-1.5 text-sm rounded-lg transition-colors ${tab === 'packages' ? 'bg-white dark:bg-surface-dark-secondary shadow-sm text-text-primary dark:text-text-dark-primary' : 'text-text-secondary dark:text-text-dark-secondary'}`}>
           <Package className="w-3 h-3 inline mr-1" /> Packages
         </button>
-        <button onClick={() => setTab('purchases')} className={`px-4 py-1.5 text-sm rounded-md transition-colors ${tab === 'purchases' ? 'bg-white shadow-sm' : 'text-gray-500'}`}>
+        <button onClick={() => setTab('purchases')} className={`px-4 py-1.5 text-sm rounded-lg transition-colors ${tab === 'purchases' ? 'bg-white dark:bg-surface-dark-secondary shadow-sm text-text-primary dark:text-text-dark-primary' : 'text-text-secondary dark:text-text-dark-secondary'}`}>
           <Users className="w-3 h-3 inline mr-1" /> Purchases
         </button>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-[#7A7168]" /></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-48 skeleton-pulse" />
+          ))}
+        </div>
       ) : tab === 'packages' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {packages.length === 0 ? (
-            <div className="col-span-full text-center py-16 text-gray-400">
-              <Package className="w-12 h-12 mx-auto mb-3" />
-              <p>No packages created yet</p>
-            </div>
+            <Card elevated padding="none" className="col-span-full overflow-hidden">
+              <div className="text-center py-16">
+                <Package className="w-12 h-12 mx-auto mb-3 text-text-muted dark:text-text-dark-muted" />
+                <p className="text-text-muted dark:text-text-dark-muted text-sm">No packages created yet</p>
+              </div>
+            </Card>
           ) : packages.map(pkg => (
-            <div key={pkg._id} className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-4">
+            <Card key={pkg._id} padding="md" hover className="flex flex-col">
               <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-medium text-[#1A1A1A]">{pkg.name}</h3>
-                  <p className="text-xs text-gray-400 mt-0.5">{pkg.description}</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-text-primary dark:text-text-dark-primary truncate">{pkg.name}</h3>
+                  <p className="text-xs text-text-secondary dark:text-text-dark-secondary mt-0.5 line-clamp-2">{pkg.description}</p>
                 </div>
-                {pkg.popular && <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">Popular</span>}
+                {pkg.popular && <span className="badge-warning shrink-0 ml-2">Popular</span>}
               </div>
               <div className="mt-3 flex items-center gap-4 text-sm">
-                <span className="font-bold text-lg">GH₵{pkg.price}</span>
-                <span className="flex items-center gap-1 text-gray-500"><Clock className="w-3 h-3" /> {pkg.totalSessions} sessions</span>
+                <span className="font-bold text-lg text-text-primary dark:text-text-dark-primary">GH₵{pkg.price}</span>
+                <span className="flex items-center gap-1 text-text-secondary dark:text-text-dark-secondary"><Clock className="w-3 h-3" /> {pkg.totalSessions} sessions</span>
               </div>
-              <p className="text-xs text-gray-400 mt-1">Expires in {pkg.expiryDays} days</p>
-              <div className="mt-3 flex gap-2">
-                <button onClick={() => { setEditing(pkg._id); setEditForm(pkg); setShowAdd(true); }}
-                  className="flex-1 text-xs bg-[#FAF8F4] py-1.5 rounded hover:bg-[#F0ECE6]"><Edit3 className="w-3 h-3 inline mr-1" /> Edit</button>
-                <button onClick={() => { if (confirm('Delete this package?')) deletePackage(pkg._id).then(loadData); }}
-                  className="px-3 text-xs bg-red-50 text-red-600 py-1.5 rounded hover:bg-red-100"><Trash2 className="w-3 h-3" /></button>
+              <p className="text-xs text-text-muted dark:text-text-dark-muted mt-1">Expires in {pkg.expiryDays} days</p>
+              <div className="mt-auto pt-3 flex gap-2">
+                <Button onClick={() => { setEditing(pkg._id); setEditForm(pkg); setShowAdd(true); }} variant="secondary" size="sm" className="flex-1"><Edit3 className="w-3 h-3" /> Edit</Button>
+                <Button onClick={() => { if (confirm('Delete this package?')) deletePackage(pkg._id).then(loadData); }} variant="danger" size="sm"><Trash2 className="w-3 h-3" /></Button>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] overflow-hidden">
+        <Card elevated padding="none" className="overflow-hidden">
           {purchases.length === 0 ? (
-            <div className="text-center py-12 text-gray-400"><Users className="w-8 h-8 mx-auto mb-2" /><p className="text-sm">No package purchases yet</p></div>
+            <div className="text-center py-12">
+              <Users className="w-8 h-8 mx-auto mb-2 text-text-muted dark:text-text-dark-muted" />
+              <p className="text-sm text-text-muted dark:text-text-dark-muted">No package purchases yet</p>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-[#FAF8F4]">
-                  <tr><th className="text-left p-3 text-gray-500 font-medium whitespace-nowrap">Client</th><th className="text-left p-3 text-gray-500 font-medium whitespace-nowrap">Package</th><th className="text-left p-3 text-gray-500 font-medium whitespace-nowrap">Sessions</th><th className="text-left p-3 text-gray-500 font-medium whitespace-nowrap">Paid</th><th className="text-left p-3 text-gray-500 font-medium whitespace-nowrap">Status</th></tr>
+                <thead className="bg-gray-50 dark:bg-surface-dark-tertiary">
+                  <tr><th className="text-left p-3 text-text-secondary dark:text-text-dark-secondary font-medium whitespace-nowrap">Client</th><th className="text-left p-3 text-text-secondary dark:text-text-dark-secondary font-medium whitespace-nowrap">Package</th><th className="text-left p-3 text-text-secondary dark:text-text-dark-secondary font-medium whitespace-nowrap">Sessions</th><th className="text-left p-3 text-text-secondary dark:text-text-dark-secondary font-medium whitespace-nowrap">Paid</th><th className="text-left p-3 text-text-secondary dark:text-text-dark-secondary font-medium whitespace-nowrap">Status</th></tr>
                 </thead>
                 <tbody>
                   {purchases.map((p: any) => (
-                    <tr key={p._id} className="border-t border-[#E8E0D8]">
-                      <td className="p-3 whitespace-nowrap">{p.clientId?.name || 'Unknown'}</td>
-                      <td className="p-3 whitespace-nowrap">{p.packageId?.name || 'Unknown'}</td>
-                      <td className="p-3 whitespace-nowrap">{p.remainingSessions}/{p.totalSessions}</td>
-                      <td className="p-3 whitespace-nowrap">GH₵{p.amountPaid}</td>
+                    <tr key={p._id} className="border-t border-gray-100 dark:border-gray-700/40">
+                      <td className="p-3 whitespace-nowrap text-text-primary dark:text-text-dark-primary">{p.clientId?.name || 'Unknown'}</td>
+                      <td className="p-3 whitespace-nowrap text-text-primary dark:text-text-dark-primary">{p.packageId?.name || 'Unknown'}</td>
+                      <td className="p-3 whitespace-nowrap text-text-primary dark:text-text-dark-primary">{p.remainingSessions}/{p.totalSessions}</td>
+                      <td className="p-3 whitespace-nowrap text-text-primary dark:text-text-dark-primary">GH₵{p.amountPaid}</td>
                       <td className="p-3 whitespace-nowrap">
-                        <span className={`text-xs px-2 py-0.5 rounded ${p.status === 'active' ? 'bg-green-100 text-green-700' : p.status === 'completed' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>{p.status}</span>
+                        <span className={`badge ${
+                          p.status === 'active' ? 'badge-success' : p.status === 'completed' ? 'badge-info' : 'badge-error'
+                        }`}>{p.status}</span>
                       </td>
                     </tr>
                   ))}
@@ -124,55 +137,54 @@ export default function Packages() {
               </table>
             </div>
           )}
-        </div>
+        </Card>
       )}
 
       {showAdd && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => { setShowAdd(false); setEditing(null); }}>
-          <div className="bg-white rounded-2xl w-full max-w-lg m-4 p-6" onClick={e => e.stopPropagation()}>
-            <h2 className="text-lg font-bold text-[#1A1A1A] mb-4">{editing ? 'Edit Package' : 'New Package'}</h2>
+          <Card padding="lg" className="w-full max-w-lg m-4" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-text-primary dark:text-text-dark-primary mb-4">{editing ? 'Edit Package' : 'New Package'}</h2>
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-gray-500">Package Name *</label>
+                <label className="label-secondary">Package Name *</label>
                 <input value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#8B7355]" />
+                  className="input-field-sm mt-1" />
               </div>
               <div>
-                <label className="text-xs text-gray-500">Description</label>
+                <label className="label-secondary">Description</label>
                 <textarea value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm" rows={2} />
+                  className="input-field-sm mt-1" rows={2} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-gray-500">Price (GH₵) *</label>
+                  <label className="label-secondary">Price (GH₵) *</label>
                   <input type="number" value={editForm.price} onChange={e => setEditForm({ ...editForm, price: Number(e.target.value) })}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm" />
+                    className="input-field-sm mt-1" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Total Sessions *</label>
+                  <label className="label-secondary">Total Sessions *</label>
                   <input type="number" value={editForm.totalSessions} onChange={e => setEditForm({ ...editForm, totalSessions: Number(e.target.value) })}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm" />
+                    className="input-field-sm mt-1" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Expiry (days)</label>
+                  <label className="label-secondary">Expiry (days)</label>
                   <input type="number" value={editForm.expiryDays} onChange={e => setEditForm({ ...editForm, expiryDays: Number(e.target.value) })}
-                    className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm" />
+                    className="input-field-sm mt-1" />
                 </div>
               </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={editForm.popular} onChange={e => setEditForm({ ...editForm, popular: e.target.checked })} />
+              <label className="flex items-center gap-2 text-sm text-text-primary dark:text-text-dark-primary">
+                <input type="checkbox" checked={editForm.popular} onChange={e => setEditForm({ ...editForm, popular: e.target.checked })}
+                  className="rounded border-gray-200 dark:border-gray-600 text-brand-500 focus:ring-brand-500" />
                 Mark as popular
               </label>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => { setShowAdd(false); setEditing(null); }}
-                className="flex-1 px-4 py-2 border border-[#E8E0D8] rounded-lg text-sm hover:bg-gray-50">Cancel</button>
-              <button onClick={handleSave} disabled={saving}
-                className="flex-1 px-4 py-2 bg-[#1A1A1A] text-white rounded-lg text-sm hover:bg-[#333] disabled:opacity-50">
+              <Button onClick={() => { setShowAdd(false); setEditing(null); }} variant="secondary" size="md" className="flex-1">Cancel</Button>
+              <Button onClick={handleSave} disabled={saving} variant="primary" size="md" className="flex-1">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : (editing ? 'Save Changes' : 'Create Package')}
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </motion.div>

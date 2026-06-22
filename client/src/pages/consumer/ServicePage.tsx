@@ -35,43 +35,43 @@ export default function ServicePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-gray-50 dark:bg-surface-dark flex items-center justify-center">
+        <div className="skeleton-pulse w-10 h-10 rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-surface-dark">
       <div className="max-w-5xl mx-auto px-4 py-8">
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 mb-6"
+          className="inline-flex items-center gap-2 text-sm text-text-secondary dark:text-text-dark-secondary hover:text-text-primary dark:hover:text-text-dark-primary mb-6"
         >
           <ArrowLeft size={14} /> Back
         </button>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-text-primary dark:text-text-dark-primary mb-2">
           {categoryName} Stylists
         </h1>
-        <p className="text-sm text-gray-500 mb-8">
+        <p className="text-sm text-text-secondary dark:text-text-dark-secondary mb-8">
           {stylists.length} stylist{stylists.length !== 1 && "s"} found
         </p>
 
         {stylists.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-              <Users size={24} className="text-gray-300" />
+            <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center mx-auto mb-4">
+              <Users size={24} className="text-text-muted dark:text-text-dark-muted" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-700">
+            <h3 className="text-lg font-semibold text-text-primary dark:text-text-dark-primary">
               No stylists in this category yet
             </h3>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-text-muted dark:text-text-dark-muted mt-1">
               Try browsing all stylists or another category.
             </p>
             <button
               onClick={() => navigate("/app")}
-              className="mt-4 text-indigo-600 underline text-sm"
+              className="mt-4 text-brand-500 underline text-sm"
             >
               Browse all stylists
             </button>
@@ -87,10 +87,10 @@ export default function ServicePage() {
               >
                 <Link
                   to={`/app/stylist/${stylist.id}`}
-                  className="group block bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 hover:shadow-lg transition-all duration-200"
+                  className="group block card-hover"
                 >
                   {/* Image */}
-                  <div className="relative aspect-[4/3] bg-gray-100">
+                  <div className="relative aspect-[4/3] bg-gray-100 dark:bg-surface-dark-tertiary">
                     {stylist.image ? (
                       <img
                         src={stylist.image}
@@ -98,7 +98,7 @@ export default function ServicePage() {
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xl font-bold text-gray-300">
+                      <div className="w-full h-full flex items-center justify-center text-xl font-bold text-text-muted dark:text-text-dark-muted">
                         {stylist.name
                           .split(" ")
                           .map((w) => w[0])
@@ -123,14 +123,14 @@ export default function ServicePage() {
                   {/* Info */}
                   <div className="p-4">
                     <div className="flex items-center gap-1.5 mb-1">
-                      <p className="text-sm font-semibold text-gray-900 truncate">
+                      <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary truncate">
                         {stylist.name}
                       </p>
                       {stylist.isVerified && (
                         <BadgeCheck size={13} className="text-blue-500" />
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+                    <div className="flex items-center gap-1.5 text-[11px] text-text-muted dark:text-text-dark-muted">
                       <MapPin size={9} />
                       {getLocationString(stylist.location)}
                     </div>
@@ -138,13 +138,13 @@ export default function ServicePage() {
                       {stylist.services?.slice(0, 3).map((svc, idx) => (
                         <span
                           key={idx}
-                          className="px-2 py-0.5 rounded-full bg-gray-50 text-[10px] text-gray-500"
+                          className="px-2 py-0.5 rounded-full bg-gray-50 dark:bg-surface-dark-tertiary text-[10px] text-text-secondary dark:text-text-dark-secondary"
                         >
                           {typeof svc === "string" ? svc : svc.name}
                         </span>
                       ))}
                     </div>
-                    <div className="mt-3 w-full py-2 rounded-lg bg-gray-900 text-white text-xs font-semibold text-center hover:bg-gray-800 transition dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">
+                    <div className="btn-primary btn-sm mt-3 w-full text-center">
                       View Profile
                     </div>
                   </div>

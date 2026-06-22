@@ -18,7 +18,7 @@ export default function OfflineBanner() {
   if (!offline) return null;
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2.5 bg-amber-50 border-b border-amber-100 text-amber-700 text-xs">
+    <div className="flex items-center gap-2 px-4 py-2.5 bg-amber-50 dark:bg-amber-950/30 border-b border-amber-100 dark:border-amber-900/50 text-amber-700 dark:text-amber-400 text-xs">
       <WifiOff size={13} className="shrink-0" />
       You're offline. Booking won't process until reconnected.
     </div>

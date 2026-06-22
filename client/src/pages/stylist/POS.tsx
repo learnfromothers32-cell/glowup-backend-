@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, AlertCircle, ShoppingCart, DollarSign, CreditCard, X, Search, Printer } from 'lucide-react';
-import { getMyPosTransactions, createPosTransaction, voidPosTransaction } from '../../api/pos';
+import { Plus, Loader2, AlertCircle, ShoppingCart, X, Search } from 'lucide-react';
+import { getMyPosTransactions, createPosTransaction } from '../../api/pos';
 import { getMyProducts } from '../../api/products';
+import { Button } from '../../components/ui/Button';
 
 export default function POS() {
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -71,111 +72,120 @@ export default function POS() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary font-display">Point of Sale</h1>
-          <p className="text-[#7A7168] text-sm mt-1">Process in-person sales and walk-in payments</p>
+          <p className="text-text-secondary dark:text-text-dark-secondary text-sm mt-1">Process in-person sales and walk-in payments</p>
         </div>
-        <button onClick={() => setShowNew(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[#1A1A1A] text-white rounded-lg hover:bg-[#333] transition-colors text-sm">
+        <Button onClick={() => setShowNew(true)} size="sm">
           <Plus className="w-4 h-4" /> New Sale
-        </button>
+        </Button>
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-3 mb-4 bg-red-50 text-red-700 rounded-lg text-sm">
-          <AlertCircle className="w-4 h-4" /> {error}
+        <div className="flex items-center gap-2 p-3 mb-4 rounded-2xl bg-error/10 border border-error/20 text-error text-sm">
+          <AlertCircle className="w-4 h-4 shrink-0" /> {error}
           <button onClick={() => setError('')} className="ml-auto"><X className="w-4 h-4" /></button>
         </div>
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-[#7A7168]" /></div>
+        <div className="space-y-4">
+          <div className="h-8 w-48 skeleton-pulse rounded" />
+          <div className="h-4 w-64 skeleton-pulse rounded" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <div className="rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 p-4 skeleton-pulse h-64" />
+            </div>
+            <div>
+              <div className="rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 p-4 skeleton-pulse h-64" />
+            </div>
+          </div>
+        </div>
       ) : showNew ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-4 h-full">
-              <h2 className="font-medium text-[#1A1A1A] mb-3">Products</h2>
+            <div className="rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 p-4">
+              <h2 className="font-medium text-text-primary dark:text-text-dark-primary mb-3">Products</h2>
               <div className="relative mb-3">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted dark:text-text-dark-muted" />
                 <input type="text" placeholder="Search products..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 border border-[#E8E0D8] rounded-lg text-sm" />
+                  className="w-full pl-9 pr-3 py-2 border border-gray-200 dark:border-gray-600 rounded-xl text-sm bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary" />
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {filteredProducts.length === 0 && <p className="col-span-full text-center text-gray-400 py-8 text-sm">No products available</p>}
+                {filteredProducts.length === 0 && <p className="col-span-full text-center text-text-muted dark:text-text-dark-muted py-8 text-sm">No products available</p>}
                 {filteredProducts.map((p: any) => (
                   <button key={p._id} onClick={() => addToCart(p)}
-                    className="p-3 border border-[#E8E0D8] rounded-lg text-left hover:bg-[#FAF8F4] transition-colors">
-                    <p className="text-sm font-medium truncate">{p.name}</p>
-                    <p className="text-xs text-gray-500">GH₵{p.price}</p>
-                    <p className="text-xs text-gray-400">Stock: {p.stock}</p>
+                    className="p-3 border border-gray-200 dark:border-gray-600 rounded-xl text-left hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-colors bg-white dark:bg-surface-dark-secondary">
+                    <p className="text-sm font-medium text-text-primary dark:text-text-dark-primary truncate">{p.name}</p>
+                    <p className="text-xs text-text-secondary dark:text-text-dark-secondary">GH₵{p.price}</p>
+                    <p className="text-xs text-text-muted dark:text-text-dark-muted">Stock: {p.stock}</p>
                   </button>
                 ))}
               </div>
             </div>
           </div>
           <div>
-            <div className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] p-4 sticky top-4">
-              <h2 className="font-medium text-[#1A1A1A] mb-3">Cart</h2>
+            <div className="rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 p-4 sticky top-4">
+              <h2 className="font-medium text-text-primary dark:text-text-dark-primary mb-3">Cart</h2>
               <input type="text" placeholder="Client name *" value={clientName} onChange={e => setClientName(e.target.value)}
-                className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm mb-3" />
+                className="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-sm bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary mb-3" />
               <div className="space-y-2 min-h-[100px]">
-                {cart.length === 0 && <p className="text-sm text-gray-400 text-center py-4">Cart is empty</p>}
+                {cart.length === 0 && <p className="text-sm text-text-muted dark:text-text-dark-muted text-center py-4">Cart is empty</p>}
                 {cart.map(item => (
-                  <div key={item.productId} className="flex items-center justify-between p-2 bg-[#FAF8F4] rounded">
+                  <div key={item.productId} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-surface-dark-tertiary rounded-xl">
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium truncate">{item.name}</p>
+                      <p className="text-xs font-medium text-text-primary dark:text-text-dark-primary truncate">{item.name}</p>
                       <div className="flex items-center gap-1 mt-0.5">
-                        <button onClick={() => updateQuantity(item.productId, item.quantity - 1)} className="text-xs w-5 h-5 bg-white border rounded">-</button>
-                        <span className="text-xs w-5 text-center">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="text-xs w-5 h-5 bg-white border rounded">+</button>
+                        <button onClick={() => updateQuantity(item.productId, item.quantity - 1)} className="text-xs w-5 h-5 bg-white dark:bg-surface-dark-secondary border border-gray-200 dark:border-gray-600 rounded text-text-primary dark:text-text-dark-primary">-</button>
+                        <span className="text-xs w-5 text-center text-text-primary dark:text-text-dark-primary">{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="text-xs w-5 h-5 bg-white dark:bg-surface-dark-secondary border border-gray-200 dark:border-gray-600 rounded text-text-primary dark:text-text-dark-primary">+</button>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-medium">GH₵{(item.quantity * item.unitPrice).toFixed(0)}</p>
-                      <button onClick={() => removeFromCart(item.productId)} className="text-xs text-red-500">&times;</button>
+                      <p className="text-xs font-medium text-text-primary dark:text-text-dark-primary">GH₵{(item.quantity * item.unitPrice).toFixed(0)}</p>
+                      <button onClick={() => removeFromCart(item.productId)} className="text-xs text-error">&times;</button>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="border-t border-[#E8E0D8] mt-3 pt-3">
+              <div className="border-t border-gray-200 dark:border-gray-600 mt-3 pt-3">
                 <div className="flex justify-between text-sm font-bold mb-3">
-                  <span>Total</span>
-                  <span>GH₵{subtotal.toFixed(0)}</span>
+                  <span className="text-text-primary dark:text-text-dark-primary">Total</span>
+                  <span className="text-text-primary dark:text-text-dark-primary">GH₵{subtotal.toFixed(0)}</span>
                 </div>
                 <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}
-                  className="w-full border border-[#E8E0D8] rounded-lg px-3 py-2 text-sm mb-3">
+                  className="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-sm bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary mb-3">
                   <option value="cash">Cash</option>
                   <option value="card">Card</option>
                   <option value="mobile_money">Mobile Money</option>
                 </select>
-                <button onClick={handleCheckout} disabled={saving || cart.length === 0 || !clientName.trim()}
-                  className="w-full bg-[#1A1A1A] text-white py-2.5 rounded-lg text-sm hover:bg-[#333] disabled:opacity-50">
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : `Charge GH₵${subtotal.toFixed(0)}`}
-                </button>
-                <button onClick={() => setShowNew(false)} className="w-full text-xs text-gray-500 py-2 hover:text-gray-700">Cancel</button>
+                <Button onClick={handleCheckout} disabled={saving || cart.length === 0 || !clientName.trim()} loading={saving} className="w-full">
+                  Charge GH₵{subtotal.toFixed(0)}
+                </Button>
+                <Button variant="secondary" onClick={() => setShowNew(false)} className="w-full mt-2">Cancel</Button>
               </div>
             </div>
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-[#E8E0D8] overflow-hidden">
+        <div className="rounded-2xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 overflow-hidden">
           {transactions.length === 0 ? (
-            <div className="text-center py-16 text-gray-400"><ShoppingCart className="w-12 h-12 mx-auto mb-3" /><p>No sales yet</p></div>
+            <div className="text-center py-16 text-text-muted dark:text-text-dark-muted"><ShoppingCart className="w-12 h-12 mx-auto mb-3" /><p>No sales yet</p></div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-[#FAF8F4]">
-                  <tr><th className="text-left p-3 text-gray-500 font-medium whitespace-nowrap">Receipt</th><th className="text-left p-3 text-gray-500 font-medium whitespace-nowrap">Client</th><th className="text-left p-3 text-gray-500 font-medium whitespace-nowrap">Items</th><th className="text-left p-3 text-gray-500 font-medium whitespace-nowrap">Total</th><th className="text-left p-3 text-gray-500 font-medium whitespace-nowrap">Payment</th><th className="text-left p-3 text-gray-500 font-medium whitespace-nowrap">Date</th><th className="text-left p-3 text-gray-500 font-medium whitespace-nowrap">Status</th></tr>
+                <thead className="bg-gray-50 dark:bg-surface-dark-tertiary">
+                  <tr><th className="text-left p-3 text-text-secondary dark:text-text-dark-secondary font-medium whitespace-nowrap">Receipt</th><th className="text-left p-3 text-text-secondary dark:text-text-dark-secondary font-medium whitespace-nowrap">Client</th><th className="text-left p-3 text-text-secondary dark:text-text-dark-secondary font-medium whitespace-nowrap">Items</th><th className="text-left p-3 text-text-secondary dark:text-text-dark-secondary font-medium whitespace-nowrap">Total</th><th className="text-left p-3 text-text-secondary dark:text-text-dark-secondary font-medium whitespace-nowrap">Payment</th><th className="text-left p-3 text-text-secondary dark:text-text-dark-secondary font-medium whitespace-nowrap">Date</th><th className="text-left p-3 text-text-secondary dark:text-text-dark-secondary font-medium whitespace-nowrap">Status</th></tr>
                 </thead>
                 <tbody>
                   {transactions.map((t: any) => (
-                    <tr key={t._id} className="border-t border-[#E8E0D8]">
-                      <td className="p-3 font-mono text-xs whitespace-nowrap">{t.receiptNumber}</td>
-                      <td className="p-3 whitespace-nowrap">{t.clientName}</td>
-                      <td className="p-3 whitespace-nowrap">{t.items?.length || 0}</td>
-                      <td className="p-3 font-medium whitespace-nowrap">GH₵{t.total.toFixed(0)}</td>
-                      <td className="p-3 capitalize whitespace-nowrap">{t.paymentMethod?.replace('_', ' ')}</td>
-                      <td className="p-3 text-xs text-gray-500 whitespace-nowrap">{new Date(t.createdAt).toLocaleDateString()}</td>
+                    <tr key={t._id} className="border-t border-gray-100 dark:border-gray-700/40">
+                      <td className="p-3 text-text-primary dark:text-text-dark-primary font-mono text-xs whitespace-nowrap">{t.receiptNumber}</td>
+                      <td className="p-3 text-text-primary dark:text-text-dark-primary whitespace-nowrap">{t.clientName}</td>
+                      <td className="p-3 text-text-primary dark:text-text-dark-primary whitespace-nowrap">{t.items?.length || 0}</td>
+                      <td className="p-3 font-medium text-text-primary dark:text-text-dark-primary whitespace-nowrap">GH₵{t.total.toFixed(0)}</td>
+                      <td className="p-3 text-text-primary dark:text-text-dark-primary capitalize whitespace-nowrap">{t.paymentMethod?.replace('_', ' ')}</td>
+                      <td className="p-3 text-xs text-text-secondary dark:text-text-dark-secondary whitespace-nowrap">{new Date(t.createdAt).toLocaleDateString()}</td>
                       <td className="p-3 whitespace-nowrap">
-                        <span className={`text-xs px-2 py-0.5 rounded ${t.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{t.status}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded ${t.status === 'completed' ? 'bg-success/10 text-success-dark dark:text-success' : 'bg-error/10 text-error'}`}>{t.status}</span>
                       </td>
                     </tr>
                   ))}

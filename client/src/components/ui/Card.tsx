@@ -4,20 +4,23 @@ import { cn } from '../../utils/cn';
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   hover?: boolean;
   elevated?: boolean;
+  brand?: boolean;
   padding?: 'none' | 'sm' | 'md' | 'lg';
 }
 
 const paddings = { none: '', sm: 'p-4', md: 'p-6', lg: 'p-8' };
 
-export function Card({ className, hover, elevated, padding = 'md', children, ...props }: CardProps) {
+export function Card({ className, hover, elevated, brand, padding = 'md', children, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        'rounded-xl border bg-white transition-all duration-200',
-        elevated
-          ? 'shadow-card border-gray-50 dark:bg-surface-dark-secondary dark:border-0'
-          : 'shadow-soft border-gray-100 dark:bg-surface-dark-secondary dark:border-0 dark:shadow-none',
-        hover && 'hover:shadow-card hover:border-gray-200 dark:hover:border-gray-600/50 dark:hover:bg-surface-dark-tertiary cursor-pointer',
+        'rounded-2xl border bg-white transition-all duration-300',
+        brand
+          ? 'card-brand'
+          : elevated
+            ? 'card-elevated'
+            : 'card',
+        hover && 'card-hover',
         paddings[padding],
         className,
       )}
@@ -30,7 +33,7 @@ export function Card({ className, hover, elevated, padding = 'md', children, ...
 
 export function CardHeader({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('flex items-center justify-between mb-4', className)} {...props}>
+    <div className={cn('flex items-center justify-between gap-4 mb-4', className)} {...props}>
       {children}
     </div>
   );
@@ -44,9 +47,25 @@ export function CardTitle({ className, children, ...props }: HTMLAttributes<HTML
   );
 }
 
+export function CardDescription({ className, children, ...props }: HTMLAttributes<HTMLParagraphElement>) {
+  return (
+    <p className={cn('text-sm text-text-secondary dark:text-text-dark-secondary', className)} {...props}>
+      {children}
+    </p>
+  );
+}
+
 export function CardContent({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={cn('', className)} {...props}>
+      {children}
+    </div>
+  );
+}
+
+export function CardFooter({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div className={cn('flex items-center justify-between gap-4 pt-4 border-t border-gray-100 dark:border-gray-700/40 mt-4', className)} {...props}>
       {children}
     </div>
   );

@@ -144,7 +144,13 @@ export default function TrendingFeed() {
       const newItems: TrendingTransformation[] = result.items;
 
       if (append) {
-        setItems((prev) => [...prev, ...newItems]);
+        setItems((prev) => {
+          const seen = new Map(prev.map((i) => [i.id, i]));
+          for (const n of newItems) {
+            if (!seen.has(n.id)) seen.set(n.id, n);
+          }
+          return Array.from(seen.values());
+        });
       } else {
         setItems((prev) => {
           const prevMap = new Map(prev.map((i) => [i.id, i]));

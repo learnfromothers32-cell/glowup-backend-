@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
-import { Search, Send, MessageSquare, ChevronLeft, Phone } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Search, Send, MessageSquare, ChevronLeft, Phone, ArrowLeft } from 'lucide-react';
 import { logger } from '../../utils/logger';
 import { getMyConversations, getConversationMessages, sendMessage, getSocketConversationUrl } from '../../api/conversations';
 import { getAccessToken } from '../../api/axios';
@@ -39,6 +39,7 @@ export default function ConsumerMessages() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const token = getAccessToken();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => { loadConversations(); }, []);
 
@@ -104,7 +105,12 @@ export default function ConsumerMessages() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-[calc(100vh-10rem)]">
-      <h1 className="text-2xl font-bold mb-4 text-text-primary dark:text-text-dark-primary">Messages</h1>
+      <div className="flex items-center gap-3 mb-4">
+        <button onClick={() => navigate(-1)} className="lg:hidden p-2 -ml-2 rounded-xl text-text-secondary dark:text-text-dark-secondary hover:text-text-primary dark:hover:text-text-dark-primary hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary transition-all">
+          <ArrowLeft size={20} />
+        </button>
+        <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary">Messages</h1>
+      </div>
 
       <div className="flex h-[calc(100%-4rem)] rounded-2xl overflow-hidden bg-white dark:bg-surface-dark-secondary border border-gray-200 dark:border-gray-600 shadow-md">
         {/* Conversation List */}

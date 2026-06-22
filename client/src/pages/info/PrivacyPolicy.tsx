@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { fadeSlideUp, pageTransition } from "../../utils/animations";
 import { Shield, Mail } from "lucide-react";
 import LandingNavbar from "../../components/layout/LandingNavbar";
 import AppFooter from "../../components/layout/AppFooter";
@@ -57,7 +58,13 @@ export default function PrivacyPolicy() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <motion.div
+        variants={fadeSlideUp}
+        initial="hidden"
+        animate="visible"
+        transition={pageTransition}
+        className="min-h-screen bg-neutral-950"
+      >
       <LandingNavbar />
       <main className="pt-28 pb-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -124,6 +131,6 @@ export default function PrivacyPolicy() {
         </div>
       </main>
       <AppFooter variant="landing" />
-    </div>
+    </motion.div>
   );
 }

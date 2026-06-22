@@ -5,6 +5,7 @@ import { useAuth } from "../../context/authUtils";
 import { Button } from "../../components/ui/Button";
 import { Badge } from "../../components/ui/Badge";
 import { Store, TrendingUp, Users, Star, Shield } from "lucide-react";
+import { fadeSlideUp, pageTransition } from "../../utils/animations";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -53,12 +54,18 @@ export default function StylistSignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-surface dark:bg-surface-dark">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={fadeSlideUp}
+      transition={pageTransition}
+      className="flex min-h-screen bg-surface dark:bg-surface-dark"
+    >
       {/* Brand Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 items-center justify-center p-12 overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
         <div className="relative z-10 max-w-lg">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
             <div className="flex items-center gap-2 mb-8">
               <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-sm">
                 <Store size={20} className="text-white" />
@@ -73,7 +80,7 @@ export default function StylistSignupPage() {
               Join Ghana's fastest-growing beauty platform. Get discovered by clients, manage bookings seamlessly, and grow your salon business.
             </p>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-4">
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04, duration: 0.3 }} className="space-y-4">
             {BENEFITS.map(({ icon: Icon, label, sub }) => (
               <div key={label} className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0 backdrop-blur-sm">
@@ -86,7 +93,7 @@ export default function StylistSignupPage() {
               </div>
             ))}
           </motion.div>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="mt-10 pt-8 border-t border-white/10">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.08, duration: 0.3 }} className="mt-10 pt-8 border-t border-white/10">
             <div className="flex items-center gap-4">
               <div className="flex -space-x-2">
                 {[1,2,3].map((i) => (
@@ -104,7 +111,7 @@ export default function StylistSignupPage() {
 
       {/* Form Panel */}
       <div className="flex-1 flex items-center justify-center p-6">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm space-y-6">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="w-full max-w-sm space-y-6">
           <div className="text-center lg:text-left">
             <div className="flex lg:hidden items-center justify-center gap-2 mb-6">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center">
@@ -189,6 +196,6 @@ export default function StylistSignupPage() {
           </p>
         </motion.div>
       </div>
-    </div>
+      </motion.div>
   );
 }

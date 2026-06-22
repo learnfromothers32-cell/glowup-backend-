@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { fadeSlideUp, pageTransition } from "../../utils/animations";
 import { CheckCircle2, XCircle, Loader2, ArrowRight } from "lucide-react";
 import { verifyPayment } from "@/api/payments";
 
@@ -36,8 +37,10 @@ export default function PaymentCallback() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        variants={fadeSlideUp}
+        initial="hidden"
+        animate="visible"
+        transition={pageTransition}
         className="w-full max-w-sm bg-white rounded-3xl shadow-xl shadow-black/5 p-8 text-center"
       >
         {status === "verifying" && (

@@ -1,14 +1,17 @@
 // src/components/layout/stylist/StylistLayout.tsx
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import StylistNavbar from "./StylistNavbar";
 import MobileNav from "./MobileNav";
 import Sidebar from "./Sidebar";
+import { fadeSlideUp, pageTransition, useReducedMotion } from "../../../utils/animations";
 
 export default function StylistLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const isLivePage = location.pathname === "/stylist/live";
+  const reduced = useReducedMotion();
 
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -51,7 +54,15 @@ export default function StylistLayout() {
               : "flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:pb-6"
           }
         >
-          <Outlet />
+          <motion.div
+            key={reduced ? undefined : location.pathname}
+            initial={reduced ? false : "hidden"}
+            animate="visible"
+            variants={fadeSlideUp}
+            transition={pageTransition}
+          >
+            <Outlet />
+          </motion.div>
         </main>
 
         {/* Mobile bottom navigation (hidden on live page - it has its own controls) */}

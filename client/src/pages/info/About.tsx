@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { fadeSlideUp, pageTransition } from "../../utils/animations";
 import { Link } from "react-router-dom";
 import { Sparkles, ArrowRight, Users, Calendar, MapPin, Award, Quote } from "lucide-react";
 import LandingNavbar from "../../components/layout/LandingNavbar";
@@ -44,7 +45,13 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <motion.div
+        variants={fadeSlideUp}
+        initial="hidden"
+        animate="visible"
+        transition={pageTransition}
+        className="min-h-screen bg-neutral-950"
+      >
       <LandingNavbar />
 
       <main className="pt-28 pb-24">
@@ -145,6 +152,6 @@ export default function About() {
       </main>
 
       <AppFooter variant="landing" />
-    </div>
+    </motion.div>
   );
 }

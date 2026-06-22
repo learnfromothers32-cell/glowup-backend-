@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { fadeSlideUp, pageTransition } from "../../utils/animations";
 import {
   Sparkles, Calendar, Clock, User, ArrowLeft,
   Share2, Bookmark, BookmarkCheck, Tag, Loader2,
@@ -177,7 +178,13 @@ export default function BeautyArticle() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950">
+      <motion.div
+          variants={fadeSlideUp}
+          initial="hidden"
+          animate="visible"
+          transition={pageTransition}
+          className="min-h-screen bg-neutral-950"
+        >
         <LandingNavbar />
         <main className="pt-28 pb-24">
           <div className="flex items-center justify-center py-32">
@@ -185,13 +192,19 @@ export default function BeautyArticle() {
           </div>
         </main>
         <AppFooter variant="landing" />
-      </div>
+      </motion.div>
     );
   }
 
   if (!article) {
     return (
-      <div className="min-h-screen bg-neutral-950">
+      <motion.div
+          variants={fadeSlideUp}
+          initial="hidden"
+          animate="visible"
+          transition={pageTransition}
+          className="min-h-screen bg-neutral-950"
+        >
         <LandingNavbar />
         <main className="pt-28 pb-24">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -211,14 +224,20 @@ export default function BeautyArticle() {
           </div>
         </main>
         <AppFooter variant="landing" />
-      </div>
+      </motion.div>
     );
   }
 
   const colors = CATEGORY_COLORS[article.category] || { bg: "bg-gray-100", text: "text-gray-700", dot: "bg-gray-500" };
 
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <motion.div
+        variants={fadeSlideUp}
+        initial="hidden"
+        animate="visible"
+        transition={pageTransition}
+        className="min-h-screen bg-neutral-950"
+      >
       <LandingNavbar />
 
       <main className="pt-24 pb-24">
@@ -380,6 +399,6 @@ export default function BeautyArticle() {
       </main>
 
       <AppFooter variant="landing" />
-    </div>
+    </motion.div>
   );
 }

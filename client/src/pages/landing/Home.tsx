@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import Hero from "../../components/sections/Hero";
 import HowItWorks from "../../components/sections/HowItWorks";
 import LiveSection from "../../components/sections/LiveSection";
@@ -10,6 +11,7 @@ import SocialProofSection from "../../components/sections/SocialProofSection";
 import FinalCTASection from "../../components/sections/FinalCTASection";
 import AppFooter from "../../components/layout/AppFooter";
 import LandingNavbar from "../../components/layout/LandingNavbar";
+import { fadeSlideUp, pageTransition } from "../../utils/animations";
 
 function useScrollReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -92,7 +94,12 @@ export default function Home() {
   return (
     <>
       <LandingNavbar />
-      <div>
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={fadeSlideUp}
+        transition={pageTransition}
+      >
         <Hero />
 
         {SECTIONS.map(({ component, id }, i) => (
@@ -103,7 +110,7 @@ export default function Home() {
           </RevealSection>
         ))}
         <AppFooter variant="landing" />
-      </div>
+      </motion.div>
     </>
   );
 }

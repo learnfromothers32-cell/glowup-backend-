@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { fadeSlideUp, pageTransition } from "../../utils/animations";
 import { Mail, ArrowLeft, Sparkles, CheckCircle } from "lucide-react";
 import api from "../../api/axios";
 
@@ -27,8 +28,10 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FAF8F4] via-white to-[#F4F1EC] dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
+        variants={fadeSlideUp}
+        initial="hidden"
+        animate="visible"
+        transition={pageTransition}
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
@@ -46,6 +49,7 @@ export default function ForgotPasswordPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
               className="text-center py-4"
             >
               <CheckCircle size={48} className="text-green-500 mx-auto mb-4" />

@@ -82,7 +82,7 @@ export default function FAQ() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
             <div className="text-center max-w-xl mx-auto mb-14">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium tracking-wide mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium tracking-wide mb-6">
                 <Sparkles size={12} />
                 FAQ
               </div>
@@ -100,7 +100,7 @@ export default function FAQ() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search questions..."
-                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-amber-500/30 transition-colors"
+                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand-500/30 transition-colors"
               />
             </div>
           </FadeIn>

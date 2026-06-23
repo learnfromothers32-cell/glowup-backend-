@@ -132,7 +132,7 @@ function FaqItem({ question, answer, open, onToggle }: { question: string; answe
                   onClick={(e) => { e.stopPropagation(); setHelpful(helpful === true ? null : true); }}
                   className={`p-1.5 rounded-lg transition-all ${
                     helpful === true
-                      ? "bg-emerald-500/15 text-emerald-400"
+                      ? "bg-brand-500/15 text-brand-400"
                       : "bg-white/[0.03] text-neutral-600 hover:text-white hover:bg-white/[0.06]"
                   }`}
                 >
@@ -142,7 +142,7 @@ function FaqItem({ question, answer, open, onToggle }: { question: string; answe
                   onClick={(e) => { e.stopPropagation(); setHelpful(helpful === false ? null : false); }}
                   className={`p-1.5 rounded-lg transition-all ${
                     helpful === false
-                      ? "bg-red-500/15 text-red-400"
+                      ? "bg-rose-500/15 text-rose-400"
                       : "bg-white/[0.03] text-neutral-600 hover:text-white hover:bg-white/[0.06]"
                   }`}
                 >

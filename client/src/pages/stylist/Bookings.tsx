@@ -157,7 +157,7 @@ export default function StylistBookings() {
           <p className="text-sm text-text-muted dark:text-text-dark-muted">Manage client appointments and requests</p>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-6 sm:gap-3 sm:overflow-visible sm:pb-0">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mb-6">
           <StatCard label="Pending" value={counts.pending} icon={Clock} color={{ bg: "bg-amber-50 dark:bg-amber-950/20", text: "text-amber-700 dark:text-amber-400", icon: "text-amber-500 dark:text-amber-400" }} />
           <StatCard label="In Progress" value={counts.inProgress} icon={Play} color={{ bg: "bg-orange-50 dark:bg-orange-950/20", text: "text-orange-700 dark:text-orange-400", icon: "text-orange-500 dark:text-orange-400" }} />
           <StatCard label="Today" value={counts.today} icon={CalendarCheck} color={{ bg: "bg-green-50 dark:bg-green-950/20", text: "text-green-700 dark:text-green-400", icon: "text-green-500 dark:text-green-400" }} />
@@ -191,15 +191,13 @@ export default function StylistBookings() {
               return (
                 <motion.div key={b._id} onClick={() => setDetail(b)}
                   initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                  className={`group bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 cursor-pointer hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-md transition-all duration-200 ${isCancelled ? "opacity-60" : ""} ${isPending ? "border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-950/10" : ""}`}>
-                  <div className="flex flex-col sm:flex-row sm:items-center p-3 sm:p-4">
-
-                    <div className="flex items-center gap-2 sm:gap-4 w-full">
-                      <div className="hidden sm:flex sm:flex-col sm:items-center sm:w-16 shrink-0 sm:leading-tight">
+                  className={`group bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 cursor-pointer hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-md transition-all duration-200 ${isCancelled ? "opacity-60" : ""} ${isPending ? "border-l-4 border-l-amber-400 dark:border-l-amber-600 border border-gray-100 dark:border-gray-700/40" : ""}`}>
+                  <div className="p-3 sm:p-4">
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="hidden sm:flex flex-col items-center w-14 shrink-0 leading-tight">
                         <p className="text-sm font-bold text-text-primary dark:text-text-dark-primary tabular-nums">{fmtISO(b.startTime).split(" ")[0]}</p>
                         <p className="text-[10px] text-text-muted dark:text-text-dark-muted font-medium">{fmtISO(b.startTime).split(" ")[1]}</p>
                       </div>
-                      <div className="hidden sm:block w-px h-10 shrink-0 self-center bg-gray-200 dark:bg-gray-600" />
 
                       <div className="shrink-0">
                         <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary flex items-center justify-center ring-1 ring-gray-100 dark:ring-gray-700/40">
@@ -207,14 +205,18 @@ export default function StylistBookings() {
                         </div>
                       </div>
 
-                      <span className="sm:hidden text-xs font-medium text-text-secondary dark:text-text-dark-secondary">{fmtISO(b.startTime)}</span>
-
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className={`text-sm font-semibold truncate ${isCancelled ? "text-text-muted dark:text-text-dark-muted line-through" : "text-text-primary dark:text-text-dark-primary"}`}>{clientName}</p>
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <p className={`text-xs sm:text-sm font-semibold truncate max-w-[100px] sm:max-w-none ${isCancelled ? "text-text-muted dark:text-text-dark-muted line-through" : "text-text-primary dark:text-text-dark-primary"}`}>{clientName}</p>
                           <StatusBadge status={b.status} date={dateStr} />
                         </div>
-                        <p className="text-xs text-text-secondary dark:text-text-dark-secondary truncate sm:block">{serviceName}</p>
+                        <p className="text-[11px] sm:text-xs text-text-secondary dark:text-text-dark-secondary truncate">{serviceName}</p>
+                        <div className="flex sm:hidden items-center gap-2 mt-0.5">
+                          <span className="text-[10px] text-text-muted dark:text-text-dark-muted">{fmtISO(b.startTime)}</span>
+                          {b.totalPrice > 0 && (
+                            <span className="text-[10px] font-semibold text-text-secondary dark:text-text-dark-secondary">GH₵{b.totalPrice}</span>
+                          )}
+                        </div>
                       </div>
 
                       {b.totalPrice > 0 && (
@@ -224,9 +226,9 @@ export default function StylistBookings() {
                       )}
                     </div>
 
-                    <div className="hidden sm:flex shrink-0 flex-col items-end gap-2">
+                    <div className="hidden sm:flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/40 justify-end">
                       {isPending && (
-                        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <>
                           <button onClick={(e) => { e.stopPropagation(); handleConfirm(b._id); }} disabled={actionLoading === b._id}
                             className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-green-300 text-[11px] font-semibold text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                             {actionLoading === b._id ? <Loader2 size={12} className="animate-spin" /> : <CheckIcon size={12} />} Confirm
@@ -235,7 +237,7 @@ export default function StylistBookings() {
                             className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-red-300 text-[11px] font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                             {actionLoading === b._id ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />} Cancel
                           </button>
-                        </div>
+                        </>
                       )}
                       {b.status === "confirmed" && (
                         <button onClick={(e) => { e.stopPropagation(); handleStartService(b._id); }} disabled={actionLoading === b._id}
@@ -244,7 +246,7 @@ export default function StylistBookings() {
                         </button>
                       )}
                       {b.status === "in-progress" && (
-                        <div className="flex flex-col items-end gap-1">
+                        <div className="flex items-center gap-2">
                           {elapsed[b._id] && (
                             <span className="flex items-center gap-1 text-[11px] font-mono text-orange-600 dark:text-orange-400 font-semibold">
                               <Timer size={12} /> {elapsed[b._id]}
@@ -258,7 +260,7 @@ export default function StylistBookings() {
                       )}
                     </div>
 
-                    <div className="flex sm:hidden items-center gap-2 mt-2 w-full">
+                    <div className="flex sm:hidden items-center gap-2 mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/40">
                       {isPending && (
                         <>
                           <button onClick={(e) => { e.stopPropagation(); handleConfirm(b._id); }} disabled={actionLoading === b._id}
@@ -278,7 +280,7 @@ export default function StylistBookings() {
                         </button>
                       )}
                       {b.status === "in-progress" && (
-                        <>
+                        <div className="flex items-center gap-2 flex-1">
                           {elapsed[b._id] && (
                             <span className="flex items-center gap-1 text-[11px] font-mono text-orange-600 dark:text-orange-400 font-semibold shrink-0">
                               <Timer size={12} /> {elapsed[b._id]}
@@ -288,10 +290,7 @@ export default function StylistBookings() {
                             className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl border border-green-300 bg-green-50 dark:bg-green-950/20 text-[11px] font-semibold text-green-700 dark:text-green-400 flex-1 disabled:opacity-50 disabled:cursor-not-allowed">
                             {actionLoading === b._id ? <Loader2 size={12} className="animate-spin" /> : <StopCircle size={12} />} Complete
                           </button>
-                        </>
-                      )}
-                      {b.totalPrice > 0 && (
-                          <span className="sm:hidden shrink-0 text-xs font-semibold text-text-secondary dark:text-text-dark-secondary">GH₵{b.totalPrice}</span>
+                        </div>
                       )}
                     </div>
                   </div>

@@ -35,8 +35,8 @@ interface Props {
 }
 
 const CATEGORIES = [
-  "Wellness", "Fitness", "Startup", "Career",
-  "Productivity", "Business", "Financial Literacy", "Community"
+  "Hairstyling", "Makeup", "Skincare", "Nail Art",
+  "Braids & Weaves", "Barbering", "Waxing & Threading", "Beauty Tips"
 ];
 
 export default function LiveCreatorPanel(props: Props) {

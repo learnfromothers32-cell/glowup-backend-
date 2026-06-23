@@ -26,7 +26,7 @@ export default function StylistLive() {
 
   const [streamTitle, setStreamTitle] = useState("");
   const [streamDescription, setStreamDescription] = useState("");
-  const [streamCategory, setStreamCategory] = useState("wellness");
+  const [streamCategory, setStreamCategory] = useState("hairstyling");
 
   const [activeViewers, setActiveViewers] = useState<Set<string>>(new Set());
   const [goLiveError, setGoLiveError] = useState("");

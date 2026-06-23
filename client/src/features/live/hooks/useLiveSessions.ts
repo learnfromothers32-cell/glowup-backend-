@@ -16,7 +16,7 @@ function mapStreamToSession(stream: any): LiveSession {
     },
     title: stream.title,
     description: "",
-    category: (stream.category as LiveCategory) || "community",
+    category: (stream.category as LiveCategory) || "hairstyling",
     viewerCount: stream.viewerCount || 0,
     isLive: stream.isLive !== undefined ? stream.isLive : true,
     startedAt: stream.startedAt,

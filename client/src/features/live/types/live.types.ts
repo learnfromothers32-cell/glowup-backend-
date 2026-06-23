@@ -1,22 +1,22 @@
 export type LiveCategory =
-  | "fitness"
-  | "startup"
-  | "career"
-  | "productivity"
-  | "wellness"
-  | "business"
-  | "financial-literacy"
-  | "community";
+  | "hairstyling"
+  | "makeup"
+  | "skincare"
+  | "nail-art"
+  | "braids-weaves"
+  | "barbering"
+  | "waxing-threading"
+  | "beauty-tips";
 
 export const LIVE_CATEGORIES: { key: LiveCategory; label: string }[] = [
-  { key: "fitness", label: "Fitness" },
-  { key: "startup", label: "Startup" },
-  { key: "career", label: "Career" },
-  { key: "productivity", label: "Productivity" },
-  { key: "wellness", label: "Wellness" },
-  { key: "business", label: "Business" },
-  { key: "financial-literacy", label: "Financial Literacy" },
-  { key: "community", label: "Community" },
+  { key: "hairstyling", label: "Hairstyling" },
+  { key: "makeup", label: "Makeup" },
+  { key: "skincare", label: "Skincare" },
+  { key: "nail-art", label: "Nail Art" },
+  { key: "braids-weaves", label: "Braids & Weaves" },
+  { key: "barbering", label: "Barbering" },
+  { key: "waxing-threading", label: "Waxing & Threading" },
+  { key: "beauty-tips", label: "Beauty Tips" },
 ];
 
 export interface LiveHost {

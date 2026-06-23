@@ -25,13 +25,13 @@ import type { LiveSession } from "../types/live.types";
 
 const CATEGORIES = [
   { key: "all", label: "All" },
-  { key: "fitness", label: "Fitness" },
-  { key: "startup", label: "Startup" },
-  { key: "career", label: "Career" },
-  { key: "productivity", label: "Productivity" },
-  { key: "wellness", label: "Wellness" },
-  { key: "business", label: "Business" },
-  { key: "financial-literacy", label: "Finance" },
+  { key: "hairstyling", label: "Hairstyling" },
+  { key: "makeup", label: "Makeup" },
+  { key: "skincare", label: "Skincare" },
+  { key: "nail-art", label: "Nail Art" },
+  { key: "braids-weaves", label: "Braids & Weaves" },
+  { key: "barbering", label: "Barbering" },
+  { key: "waxing-threading", label: "Waxing & Threading" },
 ] as const;
 
 type Tab = "live" | "upcoming" | "recordings";

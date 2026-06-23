@@ -78,7 +78,7 @@ interface LiveState {
 const defaultStreamSettings: HostStreamSettings = {
   title: "",
   description: "",
-  category: "wellness",
+  category: "hairstyling",
   isMuted: false,
   isVideoOn: true,
   commentsEnabled: true,

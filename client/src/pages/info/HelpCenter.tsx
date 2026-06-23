@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import {
   Sparkles, Search, Book, MessageCircle, Shield, CreditCard, Smartphone,
   ChevronRight, ArrowRight, HelpCircle, ChevronDown, FileText,
-  LifeBuoy, Mail, Bot,
+  LifeBuoy, Mail, Bot, ThumbsUp, ThumbsDown, Plus, Minus,
 } from "lucide-react";
 import ConsumerNavbar from "../../components/layout/consumer/ConsumerNavbar";
 import ConsumerFooter from "../../components/layout/consumer/ConsumerFooter";
@@ -19,6 +19,15 @@ const TOPICS = [
   { icon: Bot, label: "AI & Vibe Match", desc: "How our AI matching and recommendations work", gradient: "from-brand-500 to-pink-400" },
 ];
 
+const FAQ_CATEGORIES = [
+  { label: "All", key: "all" },
+  { label: "Getting Started", key: "getting-started" },
+  { label: "Bookings", key: "bookings" },
+  { label: "Vibe Match", key: "vibe-match" },
+  { label: "Security", key: "security" },
+  { label: "Stylists", key: "stylists" },
+] as const;
+
 const ARTICLES = [
   { title: "How to book your first appointment", reads: "12k", tag: "Guide" },
   { title: "Understanding our refund policy", reads: "8.5k", tag: "Policy" },
@@ -29,11 +38,14 @@ const ARTICLES = [
 ];
 
 const FAQS = [
-  { q: "How do I book my first appointment?", a: "Browse stylists in your area, select a service, pick a time slot that works for you, and confirm your booking. You'll receive a confirmation notification once the stylist accepts." },
-  { q: "Can I cancel or reschedule a booking?", a: "Yes. Go to My Bookings, select the appointment, and choose cancel or reschedule. Cancellations made 24+ hours before are free. Late cancellations may incur a small fee." },
-  { q: "How does Vibe Match work?", a: "Vibe Match uses your style preferences, past bookings, and reviews to recommend stylists you'll love. The more you use GlowUp, the smarter your matches become." },
-  { q: "Is my payment information secure?", a: "Absolutely. We use industry-standard encryption and never store your full card details. All payments are processed through secure, PCI-compliant gateways." },
-  { q: "How do I become a stylist on GlowUp?", a: "Sign up as a stylist, complete your profile with portfolio images and services, and set your availability. Our team reviews and approves your profile within 48 hours." },
+  { q: "How do I book my first appointment?", a: "Browse stylists in your area, select a service, pick a time slot that works for you, and confirm your booking. You'll receive a confirmation notification once the stylist accepts.", category: "getting-started" },
+  { q: "Can I cancel or reschedule a booking?", a: "Yes. Go to My Bookings, select the appointment, and choose cancel or reschedule. Cancellations made 24+ hours before are free. Late cancellations may incur a small fee.", category: "bookings" },
+  { q: "How does Vibe Match work?", a: "Vibe Match uses your style preferences, past bookings, and reviews to recommend stylists you'll love. The more you use GlowUp, the smarter your matches become.", category: "vibe-match" },
+  { q: "Is my payment information secure?", a: "Absolutely. We use industry-standard encryption and never store your full card details. All payments are processed through secure, PCI-compliant gateways.", category: "security" },
+  { q: "How do I become a stylist on GlowUp?", a: "Sign up as a stylist, complete your profile with portfolio images and services, and set your availability. Our team reviews and approves your profile within 48 hours.", category: "stylists" },
+  { q: "What payment methods do you accept?", a: "We accept all major credit and debit cards, mobile money (MTN MoMo, Vodafone Cash, AirtelTigo), and secure bank transfers. All transactions are processed in GHS.", category: "bookings" },
+  { q: "Can I change my appointment time after booking?", a: "Yes, you can reschedule up to 6 hours before your appointment. Go to My Bookings, select the appointment, and choose a new time slot. Same-day changes may depend on stylist availability.", category: "bookings" },
+  { q: "How are stylists verified on the platform?", a: "Every stylist undergoes a verification process including ID checks, portfolio review, and service quality assessment. Verified stylists have a blue checkmark badge on their profile.", category: "stylists" },
 ];
 
 function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -50,17 +62,57 @@ function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 function FaqItem({ question, answer, open, onToggle }: { question: string; answer: string; open: boolean; onToggle: () => void }) {
+  const [helpful, setHelpful] = useState<boolean | null>(null);
   return (
-    <div className="border-b border-white/[0.06] last:border-0">
+    <div
+      className={`group transition-all duration-300 ${
+        open
+          ? "bg-white/[0.03] rounded-xl mx-2 my-1.5 shadow-lg shadow-brand-500/5"
+          : "border-b border-white/[0.04] last:border-0 mx-2"
+      }`}
+    >
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between gap-4 py-5 text-left group"
+        className={`w-full flex items-center justify-between gap-4 text-left transition-all duration-300 ${
+          open ? "py-4 px-4" : "py-4 px-2"
+        }`}
       >
-        <span className="text-sm text-neutral-300 group-hover:text-white transition-colors">{question}</span>
-        <ChevronDown
-          size={16}
-          className={`shrink-0 text-neutral-600 transition-transform duration-300 ${open ? "rotate-180 text-brand-400" : ""}`}
-        />
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300 ${
+              open
+                ? "bg-brand-500/15 scale-110"
+                : "bg-white/[0.03] group-hover:bg-brand-500/8"
+            }`}
+          >
+            <HelpCircle
+              size={13}
+              className={`transition-colors duration-300 ${
+                open ? "text-brand-400" : "text-neutral-600 group-hover:text-brand-400"
+              }`}
+            />
+          </div>
+          <span
+            className={`text-sm leading-snug transition-colors duration-300 ${
+              open ? "text-white font-medium" : "text-neutral-300 group-hover:text-white"
+            }`}
+          >
+            {question}
+          </span>
+        </div>
+        <div
+          className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300 ${
+            open
+              ? "bg-brand-500/15 rotate-180"
+              : "bg-white/[0.03] group-hover:bg-brand-500/8"
+          }`}
+        >
+          {open ? (
+            <Minus size={12} className="text-brand-400" />
+          ) : (
+            <Plus size={12} className="text-neutral-500 group-hover:text-brand-400 transition-colors" />
+          )}
+        </div>
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -68,10 +120,36 @@ function FaqItem({ question, answer, open, onToggle }: { question: string; answe
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
-            <p className="text-sm text-neutral-500 pb-5 leading-relaxed">{answer}</p>
+            <div className="px-4 pb-5">
+              <div className="w-8 h-0.5 rounded-full bg-gradient-to-r from-brand-500/40 to-transparent mb-4" />
+              <p className="text-sm text-neutral-400 leading-relaxed">{answer}</p>
+              <div className="flex items-center gap-3 mt-4 pt-4 border-t border-white/[0.04]">
+                <span className="text-[11px] text-neutral-600">Was this helpful?</span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setHelpful(helpful === true ? null : true); }}
+                  className={`p-1.5 rounded-lg transition-all ${
+                    helpful === true
+                      ? "bg-emerald-500/15 text-emerald-400"
+                      : "bg-white/[0.03] text-neutral-600 hover:text-white hover:bg-white/[0.06]"
+                  }`}
+                >
+                  <ThumbsUp size={12} />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setHelpful(helpful === false ? null : false); }}
+                  className={`p-1.5 rounded-lg transition-all ${
+                    helpful === false
+                      ? "bg-red-500/15 text-red-400"
+                      : "bg-white/[0.03] text-neutral-600 hover:text-white hover:bg-white/[0.06]"
+                  }`}
+                >
+                  <ThumbsDown size={12} />
+                </button>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -82,12 +160,14 @@ function FaqItem({ question, answer, open, onToggle }: { question: string; answe
 export default function HelpCenter() {
   const [query, setQuery] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
   const filteredArticles = ARTICLES.filter(
     a => a.title.toLowerCase().includes(query.toLowerCase()) || a.tag.toLowerCase().includes(query.toLowerCase())
   );
-  const filteredFaqs = FAQS.filter(
-    f => f.q.toLowerCase().includes(query.toLowerCase())
-  );
+  const filteredFaqs = (activeCategory === "all"
+    ? FAQS
+    : FAQS.filter(f => f.category === activeCategory)
+  ).filter(f => f.q.toLowerCase().includes(query.toLowerCase()));
   const hasSearch = query.trim().length > 0;
 
   return (
@@ -182,7 +262,7 @@ export default function HelpCenter() {
                     <h2 className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.12em] mb-4">
                       FAQs ({filteredFaqs.length})
                     </h2>
-                    <div className="rounded-2xl border border-white/[0.06] px-6">
+                    <div className="rounded-2xl bg-gradient-to-b from-white/[0.02] to-transparent border border-white/[0.06] py-2">
                       {filteredFaqs.map((faq, i) => (
                         <FaqItem
                           key={i}
@@ -265,20 +345,45 @@ export default function HelpCenter() {
               {/* FAQ */}
               <FadeIn delay={0.2}>
                 <div className="mb-16">
-                  <div className="flex items-center gap-2 mb-6">
-                    <div className="w-1 h-4 rounded-full bg-brand-500" />
-                    <h2 className="text-sm font-semibold text-white">Frequently asked questions</h2>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-4 rounded-full bg-brand-500" />
+                      <h2 className="text-sm font-semibold text-white">Frequently asked questions</h2>
+                      <span className="text-[11px] text-neutral-600 bg-white/[0.04] px-2 py-0.5 rounded-md ml-1">{FAQS.length}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-4 sm:mx-0 px-4 sm:px-0">
+                      {FAQ_CATEGORIES.map(({ label, key }) => (
+                        <button
+                          key={key}
+                          onClick={() => { setActiveCategory(key); setOpenFaq(null); }}
+                          className={`shrink-0 text-[11px] font-medium px-3 py-1.5 rounded-lg transition-all duration-200 ${
+                            activeCategory === key
+                              ? "bg-brand-500/15 text-brand-400 border border-brand-500/20 shadow-sm shadow-brand-500/10"
+                              : "text-neutral-500 bg-white/[0.03] border border-transparent hover:text-neutral-300 hover:bg-white/[0.06]"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="rounded-2xl border border-white/[0.06] px-6">
-                    {FAQS.map((faq, i) => (
-                      <FaqItem
-                        key={i}
-                        question={faq.q}
-                        answer={faq.a}
-                        open={openFaq === i}
-                        onToggle={() => setOpenFaq(openFaq === i ? null : i)}
-                      />
-                    ))}
+                  <div className="rounded-2xl bg-gradient-to-b from-white/[0.02] to-transparent border border-white/[0.06] py-2">
+                    {filteredFaqs.length > 0 ? (
+                      filteredFaqs.map((faq, i) => (
+                        <FaqItem
+                          key={i}
+                          question={faq.q}
+                          answer={faq.a}
+                          open={openFaq === i}
+                          onToggle={() => setOpenFaq(openFaq === i ? null : i)}
+                        />
+                      ))
+                    ) : (
+                      <div className="text-center py-10">
+                        <HelpCircle size={20} className="text-neutral-600 mx-auto mb-2" />
+                        <p className="text-sm text-neutral-500">No FAQs in this category</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </FadeIn>

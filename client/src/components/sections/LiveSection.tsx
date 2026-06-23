@@ -101,13 +101,13 @@ function getInitials(name: string) {
 }
 
 const AVATAR_PALETTES = [
-  { bg: "#EEF2FF", fg: "#4338CA" },
-  { bg: "#FEF3C7", fg: "#B45309" },
-  { bg: "#E8F6EF", fg: "#1A5C38" },
-  { bg: "#F3EEFE", fg: "#5A2E96" },
-  { bg: "#FEF0F8", fg: "#A02464" },
-  { bg: "#EDF3FC", fg: "#1A4E8A" },
-  { bg: "#FDE8E8", fg: "#9C1F1F" },
+  { bg: "#fef1f4", fg: "#f43f5e" },
+  { bg: "#fffbeb", fg: "#d4a76a" },
+  { bg: "#fff1f2", fg: "#e11d48" },
+  { bg: "#ffe4e8", fg: "#be123c" },
+  { bg: "#fecdd6", fg: "#9f1239" },
+  { bg: "#fda4b3", fg: "#881337" },
+  { bg: "#fb7188", fg: "#4c0519" },
 ];
 
 function getPalette(name: string) {
@@ -180,28 +180,28 @@ function ActivityCard({
 }) {
   const cfg = {
     live: {
-      color: "#DC2626",
-      bg: "#FEF1F1",
-      border: "#E8A8A8",
+      color: "#e11d48",
+      bg: "#fef1f4",
+      border: "#fda4b3",
       icon: Radio,
       label: "LIVE NOW",
-      dotColor: "#DC2626",
+      dotColor: "#e11d48",
     },
     booking: {
-      color: "#1A5C38",
-      bg: "#EAF6EF",
-      border: "#85CCA8",
+      color: "#b8860b",
+      bg: "#fffbeb",
+      border: "#fde68a",
       icon: Scissors,
       label: "BOOKED",
-      dotColor: "#1A5C38",
+      dotColor: "#b8860b",
     },
     join: {
-      color: "#1A4E8A",
-      bg: "#EDF3FC",
-      border: "#96C0E8",
+      color: "#f43f5e",
+      bg: "#fef1f4",
+      border: "#fecdd6",
       icon: Sparkles,
       label: "NEW",
-      dotColor: "#1A4E8A",
+      dotColor: "#f43f5e",
     },
   }[activity.type];
   return (
@@ -248,7 +248,7 @@ function ActivityCard({
             </span>
           )}
           <span
-            className={`text-[11px] font-bold ${activity.type === "live" ? "text-red-500" : "text-gray-400"}`}
+            className={`text-[11px] font-bold ${activity.type === "live" ? "text-brand-500" : "text-gray-400"}`}
           >
             {activity.time}
           </span>
@@ -398,14 +398,14 @@ export default function LiveSection() {
 
   return (
     <section
-      className="py-16 px-4 sm:px-8 overflow-hidden dark:bg-[#09090b]"
+      className="py-16 px-4 sm:px-8 overflow-hidden dark:bg-surface-dark"
       style={{ background: "#F7F4EF" }}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <p className="text-xs font-extrabold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
             Live on GlowUp
           </p>
           <h2 className="text-3xl sm:text-5xl font-black text-gray-900 leading-tight tracking-tight max-w-md mt-2">
@@ -423,33 +423,33 @@ export default function LiveSection() {
             icon={Radio}
             value={`${liveCount}`}
             label="Live now"
-            color="#DC2626"
-            bg="#FEF1F1"
-            border="#E8A8A8"
+            color="#e11d48"
+            bg="#fef1f4"
+            border="#fda4b3"
           />
           <StatCard
             icon={Scissors}
             value={`${bookingCount}`}
             label="Just booked"
-            color="#1A5C38"
-            bg="#EAF6EF"
-            border="#85CCA8"
+            color="#b8860b"
+            bg="#fffbeb"
+            border="#fde68a"
           />
           <StatCard
             icon={Users}
             value="89"
             label="Online stylists"
-            color="#1A4E8A"
-            bg="#EDF3FC"
-            border="#96C0E8"
+            color="#f43f5e"
+            bg="#fef1f4"
+            border="#fecdd6"
           />
           <StatCard
             icon={Eye}
             value="24"
             label="Watching now"
-            color="#A85A0A"
-            bg="#FEF5E4"
-            border="#F2CC80"
+            color="#d4a76a"
+            bg="#fffbeb"
+            border="#fde68a"
           />
         </div>
 
@@ -477,11 +477,11 @@ export default function LiveSection() {
 
           {/* Sidebar – featured live event */}
           <div className="bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100">
-            <div className="h-1 bg-gradient-to-r from-red-500 to-amber-500" />
+            <div className="h-1 bg-gradient-to-r from-brand-500 to-gold-500" />
             <div className="p-5">
               <div className="flex justify-between items-center mb-4">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 border border-red-200 text-red-600 text-[10px] font-extrabold uppercase tracking-wide">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-600 text-[10px] font-extrabold uppercase tracking-wide">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
                   Live now
                 </span>
                 <span className="flex items-center gap-1 text-xs text-gray-400 font-bold">
@@ -504,15 +504,15 @@ export default function LiveSection() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 mb-4 p-2.5 rounded-xl bg-amber-50 border border-amber-200">
+              <div className="flex items-center gap-1.5 mb-4 p-2.5 rounded-xl bg-gold-50 border border-gold-200">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <Star
                     key={s}
                     size={13}
-                    className="text-amber-500 fill-amber-500"
+                    className="text-gold-500 fill-gold-500"
                   />
                 ))}
-                <span className="text-sm font-extrabold text-amber-700 ml-1">
+                <span className="text-sm font-extrabold text-gold-700 ml-1">
                   4.9
                 </span>
                 <span className="text-xs text-gray-400">(128 reviews)</span>

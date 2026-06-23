@@ -26,19 +26,19 @@ const T = {
   inkMid: "var(--section-ink-mid)",
   inkLight: "var(--section-ink-light)",
   inkXLight: "var(--section-ink-xlight)",
-  blue: "#3B5BDB",
-  blueLight: "#E7F0FF",
-  blueMid: "#D0E1FF",
-  green: "#1A5C38",
-  greenBg: "#EAF6EF",
-  greenBorder: "#85CCA8",
-  red: "#DC2626",
-  redBg: "#FEF1F1",
-  amber: "#B45309",
-  amberBg: "#FEF3C7",
-  purple: "#5A2E96",
-  purpleBg: "#F3EEFE",
-  purpleBorder: "#C4A2EC",
+  brand: "#f43f5e",
+  brandLight: "#fef1f4",
+  brandMid: "#fecdd6",
+  gold: "#b8860b",
+  goldLight: "#fffbeb",
+  goldBorder: "#fde68a",
+  red: "#e11d48",
+  redBg: "#fef1f4",
+  amber: "#d4a76a",
+  amberBg: "#fffbeb",
+  purple: "#f43f5e",
+  purpleBg: "#fef1f4",
+  purpleBorder: "#fecdd6",
   shadow: "0 1px 2px rgba(26,23,20,0.04), 0 4px 16px rgba(26,23,20,0.06)",
   shadowLg: "0 20px 60px rgba(26,23,20,0.12)",
 };
@@ -132,21 +132,21 @@ function ClientAppScreen() {
       service: "Volume blow-out",
       rating: "4.9",
       live: true,
-      color: "#DC2626",
+      color: "#e11d48",
     },
     {
       name: "Kofi Cuts",
       service: "Signature fade",
       rating: "4.8",
       live: false,
-      color: "#1A5C38",
+      color: "#b8860b",
     },
     {
       name: "Efia Braids",
       service: "Knotless braids",
       rating: "4.7",
       live: false,
-      color: "#3B5BDB",
+      color: "#f43f5e",
     },
   ];
 
@@ -178,7 +178,7 @@ function ClientAppScreen() {
                 width: 10,
                 height: 4,
                 borderRadius: 1,
-                background: T.green,
+                background: T.gold,
                 margin: 1,
               }}
             />
@@ -391,7 +391,7 @@ function ClientAppScreen() {
               </p>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Star size={9} color="#D97706" fill="#D97706" />
+              <Star size={9} color="#d4a76a" fill="#d4a76a" />
               <span style={{ fontSize: 10, fontWeight: 700, color: T.ink }}>
                 {s.rating}
               </span>
@@ -425,7 +425,7 @@ function ClientAppScreen() {
                 width: 4,
                 height: 4,
                 borderRadius: "50%",
-                background: i === 0 ? T.blue : "transparent",
+                background: i === 0 ? T.brand : "transparent",
                 marginBottom: 2,
               }}
             />
@@ -433,7 +433,7 @@ function ClientAppScreen() {
               style={{
                 fontSize: 9,
                 fontWeight: i === 0 ? 800 : 600,
-                color: i === 0 ? T.blue : T.inkXLight,
+                color: i === 0 ? T.brand : T.inkXLight,
               }}
             >
               {item}
@@ -455,15 +455,15 @@ function DashboardScreen() {
       label: "Bookings",
       value: "12",
       change: "+3",
-      color: T.blue,
-      bg: T.blueLight,
+      color: T.brand,
+      bg: T.brandLight,
     },
     {
       label: "Revenue",
       value: "$485",
       change: "+18%",
-      color: T.green,
-      bg: T.greenBg,
+      color: T.gold,
+      bg: T.goldLight,
     },
     {
       label: "Queue",
@@ -555,8 +555,8 @@ function DashboardScreen() {
             gap: 6,
             padding: "5px 10px",
             borderRadius: 100,
-            background: T.greenBg,
-            border: `1px solid ${T.greenBorder}`,
+            background: T.goldLight,
+            border: `1px solid ${T.goldBorder}`,
           }}
         >
           <span
@@ -564,7 +564,7 @@ function DashboardScreen() {
               width: 5,
               height: 5,
               borderRadius: "50%",
-              background: T.green,
+              background: T.gold,
               animation: "pulse 1.5s ease-in-out infinite",
             }}
           />
@@ -572,7 +572,7 @@ function DashboardScreen() {
             style={{
               fontSize: 10,
               fontWeight: 800,
-              color: T.green,
+              color: T.gold,
               textTransform: "uppercase",
               letterSpacing: "0.04em",
             }}
@@ -655,7 +655,7 @@ function DashboardScreen() {
           >
             Upcoming
           </p>
-          <span style={{ fontSize: 10, color: T.blue, fontWeight: 700 }}>
+          <span style={{ fontSize: 10, color: T.brand, fontWeight: 700 }}>
             View all →
           </span>
         </div>
@@ -670,8 +670,8 @@ function DashboardScreen() {
                 gap: 12,
                 padding: "10px 12px",
                 borderRadius: 12,
-                background: item.status === "next" ? T.blueLight : T.muted,
-                border: `1px solid ${item.status === "next" ? T.blueMid : T.borderLight}`,
+                background: item.status === "next" ? T.brandLight : T.muted,
+                border: `1px solid ${item.status === "next" ? T.brandMid : T.borderLight}`,
               }}
             >
               <div
@@ -679,7 +679,7 @@ function DashboardScreen() {
                   width: 8,
                   height: 8,
                   borderRadius: "50%",
-                  background: item.status === "next" ? T.blue : T.border,
+                  background: item.status === "next" ? T.brand : T.border,
                 }}
               />
               <div style={{ flex: 1 }}>
@@ -715,8 +715,8 @@ function DashboardScreen() {
                     style={{
                       fontSize: 8,
                       fontWeight: 800,
-                      color: T.blue,
-                      background: T.blueMid,
+                      color: T.brand,
+                      background: T.brandMid,
                       padding: "1px 6px",
                       borderRadius: 100,
                     }}
@@ -765,7 +765,7 @@ function DashboardScreen() {
             style={{
               height: "100%",
               width: "72%",
-              background: `linear-gradient(90deg, ${T.blue}, ${T.green})`,
+              background: `linear-gradient(90deg, ${T.brand}, ${T.gold})`,
               borderRadius: 3,
               transition: "width 1s ease",
             }}
@@ -1026,17 +1026,17 @@ export default function ProductPreviewSection() {
                       right: -16,
                       padding: "6px 12px",
                       borderRadius: 12,
-                      background: T.blueLight,
-                      border: `1px solid ${T.blueMid}`,
+                      background: T.brandLight,
+                      border: `1px solid ${T.brandMid}`,
                       boxShadow: T.shadow,
                       display: "flex",
                       alignItems: "center",
                       gap: 5,
                     }}
                   >
-                    <Zap size={11} color={T.blue} />
+                    <Zap size={11} color={T.brand} />
                     <span
-                      style={{ fontSize: 10, fontWeight: 800, color: T.blue }}
+                      style={{ fontSize: 10, fontWeight: 800, color: T.brand }}
                     >
                       1-tap booking
                     </span>
@@ -1049,17 +1049,17 @@ export default function ProductPreviewSection() {
                       left: -16,
                       padding: "6px 12px",
                       borderRadius: 12,
-                      background: T.greenBg,
-                      border: `1px solid ${T.greenBorder}`,
+                      background: T.goldLight,
+                      border: `1px solid ${T.goldBorder}`,
                       boxShadow: T.shadow,
                       display: "flex",
                       alignItems: "center",
                       gap: 5,
                     }}
                   >
-                    <Star size={10} color={T.green} fill={T.green} />
+                    <Star size={10} color={T.gold} fill={T.gold} />
                     <span
-                      style={{ fontSize: 10, fontWeight: 800, color: T.green }}
+                      style={{ fontSize: 10, fontWeight: 800, color: T.gold }}
                     >
                       4.9 avg rating
                     </span>
@@ -1080,36 +1080,36 @@ export default function ProductPreviewSection() {
                   icon={Sparkles}
                   title="AI Vibe Match (Coming Soon)"
                   desc="Upload a photo and our AI will analyze your face shape to recommend the perfect hairstyles. Arriving in phase two."
-                  color="#6366f1"
-                  bg="#EEF2FF"
+                  color="#f43f5e"
+                  bg="#fef1f4"
                 />
                 <FeatureCallout
                   icon={Calendar}
                   title="Instant Booking"
                   desc="See available slots in real time. Book with a single tap — no calls, no DMs."
-                  color="#1A5C38"
-                  bg="#EAF6EF"
+                  color="#b8860b"
+                  bg="#fffbeb"
                 />
                 <FeatureCallout
                   icon={Users}
                   title="Live Sessions"
                   desc="Watch transformations live before you book. See real work from real stylists."
-                  color="#DC2626"
-                  bg="#FEF1F1"
+                  color="#e11d48"
+                  bg="#fef1f4"
                 />
                 <FeatureCallout
                   icon={Heart}
                   title="Social Discovery"
                   desc="Browse a feed of real transformations. Save looks, follow stylists, book instantly."
-                  color="#E11D48"
-                  bg="#FFF1F2"
+                  color="#e11d48"
+                  bg="#ffe4e8"
                 />
                 <FeatureCallout
                   icon={TrendingUp}
                   title="Glow Score Rewards"
                   desc="Earn points on every booking. Level up and unlock exclusive deals for loyal members."
-                  color="#D97706"
-                  bg="#FEF3C7"
+                  color="#d4a76a"
+                  bg="#fffbeb"
                 />
               </div>
             </div>
@@ -1140,22 +1140,22 @@ export default function ProductPreviewSection() {
                   icon={Users}
                   title="Smart Queue"
                   desc="AI manages your walk-in queue remotely. Clients see real-time wait estimates."
-                  color="#3B5BDB"
-                  bg="#E7F0FF"
+                  color="#f43f5e"
+                  bg="#fef1f4"
                 />
                 <FeatureCallout
                   icon={TrendingUp}
                   title="Analytics"
                   desc="Track revenue, ratings, and booking trends. Data-driven growth tools."
-                  color="#1A5C38"
-                  bg="#EAF6EF"
+                  color="#b8860b"
+                  bg="#fffbeb"
                 />
                 <FeatureCallout
                   icon={Sparkles}
                   title="AI Boost"
                   desc="AI suggests pricing, promotes your best work, and fills empty slots automatically."
-                  color="#5A2E96"
-                  bg="#F3EEFE"
+                  color="#e11d48"
+                  bg="#fef1f4"
                 />
               </div>
             </div>

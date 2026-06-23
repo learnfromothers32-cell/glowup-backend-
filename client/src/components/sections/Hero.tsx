@@ -93,7 +93,7 @@ export default function Hero() {
           <motion.div variants={fadeUp} custom={0.25} className="mt-7 flex flex-wrap items-center gap-4 sm:mt-9">
             <div className="flex">
               {["A", "N", "E", "K", "M"].map((letter, i) => (
-                <div key={i} className="-ml-2.5 flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-white dark:border-surface-dark text-[10px] font-semibold text-white sm:h-[34px] sm:w-[34px] sm:text-[11px]" style={{ background: i % 3 === 0 ? "#f43f5e" : i % 3 === 1 ? "#be123c" : "#8B5CF6", zIndex: 5 - i, position: "relative", marginLeft: i === 0 ? 4 : undefined }}>
+                <div key={i} className="-ml-2.5 flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-white dark:border-surface-dark text-[10px] font-semibold text-white sm:h-[34px] sm:w-[34px] sm:text-[11px]" style={{ background: i % 3 === 0 ? "#f43f5e" : i % 3 === 1 ? "#be123c" : "#d4a76a", zIndex: 5 - i, position: "relative", marginLeft: i === 0 ? 4 : undefined }}>
                   {letter}
                 </div>
               ))}
@@ -131,7 +131,7 @@ export default function Hero() {
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex items-center gap-2">
                     <h4 className="text-body font-semibold text-text-primary dark:text-text-dark-primary">Ama K.</h4>
-                    <Award size={15} className="text-amber-600" />
+                    <Award size={15} className="text-gold-500" />
                   </div>
                   <p className="mb-2.5 text-body-sm text-text-secondary">Bridal makeup · Braids · Natural glam</p>
                   <div className="flex flex-wrap gap-1.5">
@@ -170,7 +170,7 @@ export default function Hero() {
             <div className="grid grid-cols-1 border-t border-gray-100 dark:border-gray-700/50 sm:grid-cols-2">
               {[
                 { icon: PlayCircle, color: "text-brand-500", bg: "bg-brand-50 dark:bg-brand-950/20", title: "Live sessions", desc: "Watch real-time tutorials from top stylists.", num: "01" },
-                { icon: Users, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/20", title: "Rewards & loyalty", desc: "Earn points on every booking.", num: "02" },
+                { icon: Users, color: "text-gold-500", bg: "bg-gold-50 dark:bg-gold-900/20", title: "Rewards & loyalty", desc: "Earn points on every booking.", num: "02" },
               ].map(({ icon: Icon, color, bg, title, desc, num }, i) => (
                 <div key={title} className={`p-4 sm:p-5 ${i === 0 ? "border-b sm:border-b-0 sm:border-r" : ""} border-gray-100 dark:border-gray-700/50`}>
                   <div className="mb-3 flex items-center justify-between">

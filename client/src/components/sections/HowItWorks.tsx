@@ -42,8 +42,8 @@ const steps = [
       "Only verified professionals",
     ],
     image: "/ai.jpg",
-    accent: "#8B5CF6", // purple – keeps variety
-    accentBg: "#F3EEFE",
+    accent: "#e11d48", // brand-600
+    accentBg: "#fef1f4",
   },
   {
     id: 3,
@@ -58,8 +58,8 @@ const steps = [
       "1-tap instant booking",
     ],
     image: "/b.jpg",
-    accent: "#0EA5E9", // sky blue
-    accentBg: "#F0F9FF",
+    accent: "#fb7188", // brand-400
+    accentBg: "#ffe4e8",
   },
   {
     id: 4,
@@ -74,8 +74,8 @@ const steps = [
       "Get smarter recommendations",
     ],
     image: "/earn.png",
-    accent: "#F59E0B", // amber
-    accentBg: "#FFFBEB",
+    accent: "#d4a76a", // gold-500
+    accentBg: "#fffbeb",
   },
 ];
 

@@ -27,12 +27,12 @@ const T = {
   white: "#FFFFFF",
   whiteMid: "rgba(255,255,255,0.7)",
   whiteLight: "rgba(255,255,255,0.4)",
-  blue: "#3B5BDB",
-  blueLight: "#E7F0FF",
-  blueMid: "#D0E1FF",
-  green: "#1A5C38",
-  greenBg: "#EAF6EF",
-  amber: "#D97706",
+  brand: "#f43f5e",
+  brandLight: "#fef1f4",
+  brandMid: "#fecdd6",
+  gold: "#d4a76a",
+  goldLight: "#fffbeb",
+  amber: "#d4a76a",
   shadow: "0 1px 2px rgba(26,23,20,0.04), 0 4px 16px rgba(26,23,20,0.06)",
   shadowLg: "0 12px 32px rgba(26,23,20,0.10)",
 };
@@ -132,8 +132,8 @@ function PathCard({
   const textColor = isDark ? T.white : T.ink;
   const textMid = isDark ? T.whiteMid : T.inkMid;
   const dividerColor = isDark ? "rgba(255,255,255,0.08)" : T.border;
-  const checkBg = isDark ? "rgba(255,255,255,0.12)" : T.greenBg;
-  const checkColor = isDark ? T.green : T.green;
+  const checkBg = isDark ? "rgba(255,255,255,0.12)" : T.goldLight;
+  const checkColor = isDark ? T.gold : T.gold;
   return (
     <div
       onMouseEnter={() => setHovered(true)}
@@ -326,16 +326,16 @@ function EmailCapture({ isMobile }: { isMobile: boolean }) {
           justifyContent: "center",
           gap: 8,
           padding: "14px 24px",
-          background: "rgba(26,92,56,0.15)",
-          border: "1px solid rgba(133,204,168,0.3)",
+          background: "rgba(212,167,106,0.15)",
+          border: "1px solid rgba(253,230,138,0.3)",
           borderRadius: 14,
           width: "100%",
           maxWidth: 420,
           margin: "0 auto",
         }}
       >
-        <CheckCircle2 size={16} color="#86EFAC" />
-        <span style={{ fontSize: 14, fontWeight: 700, color: "#86EFAC" }}>
+        <CheckCircle2 size={16} color="#fde68a" />
+        <span style={{ fontSize: 14, fontWeight: 700, color: "#fde68a" }}>
           You're on the list! We'll be in touch.
         </span>
       </div>
@@ -541,8 +541,8 @@ export default function FinalCTASection() {
           >
             <PathCard
               icon={Smartphone}
-              iconColor="#86EFAC"
-              iconBg="rgba(134,239,172,0.12)"
+              iconColor="#fde68a"
+              iconBg="rgba(253,230,138,0.12)"
               label="For Clients"
               title="Book your next look"
               desc="Discover stylists, watch live sessions, and book in seconds."
@@ -560,8 +560,8 @@ export default function FinalCTASection() {
 
             <PathCard
               icon={Scissors}
-              iconColor="#93C5FD"
-              iconBg="rgba(147,197,253,0.12)"
+              iconColor="#fecdd6"
+              iconBg="rgba(254,205,214,0.12)"
               label="For Stylists"
               title="Grow your business"
               desc="Get booked, go live, and manage everything from one dashboard."
@@ -648,7 +648,7 @@ export default function FinalCTASection() {
                 >
                   <CheckCircle2
                     size={12}
-                    color="rgba(134,239,172,0.6)"
+                    color="rgba(253,230,138,0.6)"
                     strokeWidth={2}
                   />
                   <span

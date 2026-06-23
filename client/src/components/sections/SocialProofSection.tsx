@@ -100,17 +100,17 @@ const T = {
   inkMid: "var(--section-ink-mid)",
   inkLight: "var(--section-ink-light)",
   inkXLight: "var(--section-ink-xlight)",
-  blue: "#3B5BDB",
-  blueLight: "#E7F0FF",
-  blueMid: "#D0E1FF",
-  green: "#1A5C38",
-  greenBg: "#EAF6EF",
-  greenBorder: "#85CCA8",
-  amber: "#D97706",
-  amberBg: "#FEF3C7",
-  amberBorder: "#FDE68A",
-  purple: "#5A2E96",
-  purpleBg: "#F3EEFE",
+  brand: "#f43f5e",
+  brandLight: "#fef1f4",
+  brandMid: "#fecdd6",
+  gold: "#d4a76a",
+  goldLight: "#fffbeb",
+  goldBorder: "#fde68a",
+  amber: "#d4a76a",
+  amberBg: "#fffbeb",
+  amberBorder: "#fde68a",
+  purple: "#f43f5e",
+  purpleBg: "#fef1f4",
   shadow: "0 1px 2px rgba(26,23,20,0.04), 0 4px 16px rgba(26,23,20,0.06)",
   shadowHover: "0 2px 4px rgba(26,23,20,0.04), 0 8px 24px rgba(26,23,20,0.08)",
 };
@@ -118,12 +118,12 @@ const T = {
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 
 const PALETTES = [
-  { bg: "#E7F0FF", fg: "#3B5BDB" },
-  { bg: "#FEF3C7", fg: "#B45309" },
-  { bg: "#EAF6EF", fg: "#1A5C38" },
-  { bg: "#F3EEFE", fg: "#5A2E96" },
-  { bg: "#FFF1F2", fg: "#E11D48" },
-  { bg: "#FEF1F1", fg: "#DC2626" },
+  { bg: "#fef1f4", fg: "#f43f5e" },
+  { bg: "#fffbeb", fg: "#d4a76a" },
+  { bg: "#fff1f2", fg: "#e11d48" },
+  { bg: "#ffe4e8", fg: "#be123c" },
+  { bg: "#fecdd6", fg: "#9f1239" },
+  { bg: "#fda4b3", fg: "#881337" },
 ];
 
 function Avatar({ name, size = 40 }: { name: string; size?: number }) {
@@ -156,8 +156,8 @@ function TestimonialCard({
 }) {
   const [hovered, setHovered] = useState(false);
   const isStylist = testimonial.role === "Stylist";
-  const accentColor = isStylist ? T.purple : T.blue;
-  const accentBg = isStylist ? T.purpleBg : T.blueLight;
+  const accentColor = isStylist ? T.purple : T.brand;
+  const accentBg = isStylist ? T.purpleBg : T.brandLight;
 
   return (
     <div
@@ -193,12 +193,12 @@ function TestimonialCard({
         <span style={{
           display: "inline-flex", alignItems: "center", gap: 4,
           padding: "3px 10px", borderRadius: 100,
-          background: isStylist ? accentBg : T.greenBg,
-          border: `1px solid ${isStylist ? accentColor + "30" : T.greenBorder}`,
+          background: isStylist ? accentBg : T.goldLight,
+          border: `1px solid ${isStylist ? accentColor + "30" : T.goldBorder}`,
           fontSize: 10, fontWeight: 800,
           textTransform: "uppercase",
           letterSpacing: "0.06em",
-          color: isStylist ? accentColor : T.green,
+          color: isStylist ? accentColor : T.gold,
         }}>
           {testimonial.role === "Stylist" ? "✂ Stylist" : "★ Client"}
         </span>
@@ -262,7 +262,7 @@ function TestimonialCard({
             {testimonial.role} · {testimonial.location}
           </p>
         </div>
-        <CheckCircle2 size={16} color={T.green} />
+        <CheckCircle2 size={16} color={T.gold} />
       </div>
     </div>
   );
@@ -288,12 +288,12 @@ function StatsGrid() {
         }}>
           <div style={{
             width: 36, height: 36, borderRadius: 10,
-            background: T.blueLight,
-            border: `1px solid ${T.blueMid}`,
+            background: T.brandLight,
+            border: `1px solid ${T.brandMid}`,
             display: "flex", alignItems: "center", justifyContent: "center",
             margin: "0 auto 14px",
           }}>
-            <Icon size={16} color={T.blue} strokeWidth={1.6} />
+            <Icon size={16} color={T.brand} strokeWidth={1.6} />
           </div>
           <p style={{
             margin: 0,

@@ -99,6 +99,7 @@ export default function Home() {
         animate="visible"
         variants={fadeSlideUp}
         transition={pageTransition}
+        className="pt-16"
       >
         <Hero />
 

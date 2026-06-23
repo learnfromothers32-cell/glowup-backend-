@@ -113,15 +113,15 @@ const T = {
   gold: "#C9A870",
   goldLight: "#FEF5E4",
   goldBorder: "#F2CC80",
-  purple: "#8B5CF6",
-  purpleLight: "#F3EEFE",
-  purpleBorder: "#C4A2EC",
-  amber: "#F59E0B",
-  amberLight: "#FFFBEB",
-  amberBorder: "#FDE68A",
-  green: "#1A5C38",
-  greenBg: "#EAF6EF",
-  greenBorder: "#85CCA8",
+  purple: "#f43f5e",
+  purpleLight: "#fef1f4",
+  purpleBorder: "#fecdd6",
+  amber: "#fbbf24",
+  amberLight: "#fffbeb",
+  amberBorder: "#fde68a",
+  green: "#b8860b",
+  greenBg: "#fffbeb",
+  greenBorder: "#fde68a",
   shadow: "0 1px 2px rgba(26,23,20,0.04), 0 4px 16px rgba(26,23,20,0.06)",
   shadowHover: "0 2px 4px rgba(26,23,20,0.04), 0 12px 32px rgba(26,23,20,0.08)",
 };
@@ -450,7 +450,7 @@ function PricingCard({
               >
                 <Check
                   size={11}
-                  color={highlighted ? "#A78BFA" : T.green}
+                  color={highlighted ? "#fda4b3" : T.green}
                   strokeWidth={2.5}
                 />
               </div>

@@ -7,8 +7,8 @@ import {
   ChevronRight, ArrowRight, HelpCircle, ChevronDown, FileText,
   LifeBuoy, Mail, Bot,
 } from "lucide-react";
-import LandingNavbar from "../../components/layout/LandingNavbar";
-import AppFooter from "../../components/layout/AppFooter";
+import ConsumerNavbar from "../../components/layout/consumer/ConsumerNavbar";
+import ConsumerFooter from "../../components/layout/consumer/ConsumerFooter";
 
 const TOPICS = [
   { icon: Book, label: "Getting Started", desc: "Profile setup, first booking, and navigating the app", gradient: "from-brand-500 to-rose-500" },
@@ -320,7 +320,7 @@ export default function HelpCenter() {
           )}
         </div>
       </main>
-      <AppFooter variant="landing" />
+      <ConsumerFooter />
     </motion.div>
   );
 }

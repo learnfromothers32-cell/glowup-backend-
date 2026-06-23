@@ -89,6 +89,7 @@ interface ExtendedStylist extends Omit<Stylist, 'bio'> {
   reviews: Review[];
 }
 interface ServiceItem {
+  _id?: string;
   name: string;
   price: string;
   duration: string;
@@ -742,12 +743,12 @@ function TransformDetail({
 ═══════════════════════════════════════════════════════════ */
 function ServicesTab({
   services,
-  onBook,
+  stylistId,
 }: {
   services: ServiceItem[];
-  onBook: (s: ServiceItem) => void;
   stylistId: string;
 }) {
+  const navigate = useNavigate();
   const cats = [...new Set(services.map((s) => s.category || "General"))];
   const [cat, setCat] = useState(cats[0] || "General");
   if (!services.length)
@@ -790,13 +791,16 @@ function ServicesTab({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
             >
-              <div className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-md bg-white dark:bg-surface-dark-secondary shadow-sm">
+              <div
+                className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-md bg-white dark:bg-surface-dark-secondary shadow-sm cursor-pointer"
+                onClick={() => navigate(`/app/stylist/${stylistId}/service/${svc._id || svc.name.toLowerCase().replace(/\s+/g, "-")}`)}
+              >
                 {svc.popular && (
-                  <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-amber-400 to-brand-500" />
+                  <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-gold-400 to-brand-500" />
                 )}
                 <div className="p-4 flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-amber-50 dark:bg-amber-500/10">
-                    <Scissors size={17} className="text-amber-400" />
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-brand-50 dark:bg-brand-500/10">
+                    <Scissors size={17} className="text-brand-500" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
@@ -804,7 +808,7 @@ function ServicesTab({
                         {svc.name}
                       </span>
                       {svc.popular && (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-amber-50/80 dark:bg-amber-500/10 text-amber-600">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-brand-50/80 dark:bg-brand-500/10 text-brand-600">
                           Popular
                         </span>
                       )}
@@ -824,7 +828,7 @@ function ServicesTab({
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        onBook(svc);
+                        navigate(`/app/stylist/${stylistId}/service/${svc._id || svc.name.toLowerCase().replace(/\s+/g, "-")}`);
                       }}
                       className="bg-brand-500 text-white hover:bg-brand-600"
                     >
@@ -1780,14 +1784,14 @@ export default function StylistDetail() {
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: i * 0.05 }}
                               className="snap-start shrink-0 w-[200px] sm:w-[220px] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 bg-white dark:bg-surface-dark-secondary shadow-sm"
-                              onClick={() => goTo("services")}
+                              onClick={() => navigate(`/app/stylist/${id}/service/${svc._id || svc.name.toLowerCase().replace(/\s+/g, "-")}`)}
                             >
                               {svc.popular && (
-                                <div className="h-0.5 bg-gradient-to-r from-amber-400 to-brand-500" />
+                                <div className="h-0.5 bg-gradient-to-r from-gold-400 to-brand-500" />
                               )}
                               <div className="p-4">
-                                <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3.5 bg-amber-50 dark:bg-amber-500/10">
-                                  <Scissors size={15} className="text-amber-400" />
+                                <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3.5 bg-brand-50 dark:bg-brand-500/10">
+                                  <Scissors size={15} className="text-brand-500" />
                                 </div>
                                 <p className="text-xs font-bold mb-1 truncate text-text-primary dark:text-text-dark-primary">
                                   {svc.name}
@@ -1867,7 +1871,6 @@ export default function StylistDetail() {
                 {activeTab === "services" && (
                   <ServicesTab
                     services={services}
-                    onBook={handleBook}
                     stylistId={id!}
                   />
                 )}

@@ -13,10 +13,10 @@ import ConsumerFooter from "../../components/layout/consumer/ConsumerFooter";
 const TOPICS = [
   { icon: Book, label: "Getting Started", desc: "Profile setup, first booking, and navigating the app", gradient: "from-brand-500 to-rose-500" },
   { icon: MessageCircle, label: "Bookings & Payments", desc: "Pricing, refunds, cancellations, and billing", gradient: "from-brand-400 to-rose-400" },
-  { icon: Shield, label: "Account & Security", desc: "Password, privacy, and two-factor authentication", gradient: "from-rose-500 to-pink-500" },
+  { icon: Shield, label: "Account & Security", desc: "Password, privacy, and two-factor authentication", gradient: "from-rose-500 to-rose-400" },
   { icon: CreditCard, label: "Stylist Services", desc: "Tools and resources for beauty professionals", gradient: "from-brand-600 to-rose-600" },
   { icon: Smartphone, label: "Troubleshooting", desc: "App crashes, login issues, and error fixes", gradient: "from-brand-300 to-rose-300" },
-  { icon: Bot, label: "AI & Vibe Match", desc: "How our AI matching and recommendations work", gradient: "from-brand-500 to-pink-400" },
+  { icon: Bot, label: "AI & Vibe Match", desc: "How our AI matching and recommendations work", gradient: "from-brand-500 to-rose-400" },
 ];
 
 const FAQ_CATEGORIES = [

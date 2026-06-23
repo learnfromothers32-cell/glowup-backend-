@@ -11,7 +11,7 @@ export default function ConsumerLayout() {
   return (
     <div className="min-h-screen bg-warm-50 dark:bg-surface-dark flex flex-col">
       <ConsumerNavbar />
-      <main className="flex-1 pt-16">
+      <main className="flex-1 pt-7 pb-6">
         <motion.div
           key={reduced ? undefined : location.pathname}
           initial={reduced ? false : "hidden"}

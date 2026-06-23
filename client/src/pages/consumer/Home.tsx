@@ -295,7 +295,7 @@ export default function Home() {
   }
 
   return (
-    <div className="space-y-5 pb-6 pt-0">
+    <div className="space-y-5">
       <IntentBar
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}

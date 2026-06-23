@@ -43,7 +43,7 @@ export default function ServicePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-surface-dark">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4">
         <button
           onClick={() => navigate(-1)}
           className="inline-flex items-center gap-2 text-sm text-text-secondary dark:text-text-dark-secondary hover:text-text-primary dark:hover:text-text-dark-primary mb-6"

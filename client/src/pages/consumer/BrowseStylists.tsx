@@ -229,7 +229,7 @@ export default function BrowseStylists() {
   if (loading) {
     return (
       <div className="min-h-screen bg-warm-50 dark:bg-surface-dark">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-5 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-8" />
           <div className="flex gap-2 mb-6">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -247,7 +247,7 @@ export default function BrowseStylists() {
 
   return (
     <div className="min-h-screen bg-warm-50 dark:bg-surface-dark">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <button
           onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1.5 text-xs font-medium text-text-muted dark:text-text-dark-muted hover:text-text-primary dark:hover:text-text-dark-primary transition-colors mb-5"

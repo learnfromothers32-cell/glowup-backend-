@@ -48,13 +48,13 @@ export default function Careers() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero */}
           <FadeIn>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium tracking-wide mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium tracking-wide mb-6">
               <Sparkles size={12} />
               Careers
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4">
               Join us in{" "}
-              <span className="bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-brand-300 via-brand-400 to-brand-500 bg-clip-text text-transparent">
                 transforming beauty
               </span>
             </h1>
@@ -69,8 +69,8 @@ export default function Careers() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-20">
               {VALUES.map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="group p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center mb-4 group-hover:bg-amber-500/20 transition-colors">
-                    <Icon size={16} className="text-amber-400" />
+                  <div className="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center mb-4 group-hover:bg-brand-500/20 transition-colors">
+                    <Icon size={16} className="text-brand-400" />
                   </div>
                   <p className="text-sm font-semibold text-white mb-1.5">{title}</p>
                   <p className="text-xs text-neutral-500 leading-relaxed">{desc}</p>
@@ -81,12 +81,12 @@ export default function Careers() {
 
           {/* Perks */}
           <FadeIn>
-            <div className="p-8 sm:p-10 rounded-2xl bg-gradient-to-br from-amber-500/5 via-neutral-900 to-neutral-950 border border-amber-500/10 mb-20">
+            <div className="p-8 sm:p-10 rounded-2xl bg-gradient-to-br from-brand-500/5 via-neutral-900 to-neutral-950 border border-brand-500/10 mb-20">
               <h2 className="text-xl font-bold text-white mb-6">Why join GlowUp?</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
                 {["Competitive salary & equity", "Flexible remote-first culture", "Health & wellness benefits", "Annual learning budget", "Latest MacBook & gear", "Team retreats in Ghana"].map((perk) => (
                   <div key={perk} className="flex items-center gap-3 text-neutral-300">
-                    <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand-400 shrink-0" />
                     {perk}
                   </div>
                 ))}
@@ -105,14 +105,14 @@ export default function Careers() {
               <FadeIn key={role.title} delay={i * 0.05}>
                 <button className="w-full flex flex-col sm:flex-row sm:items-center justify-between p-5 sm:p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 hover:shadow-lg transition-all duration-300 text-left group">
                   <div className="mb-3 sm:mb-0">
-                    <p className="text-sm font-semibold text-white group-hover:text-amber-400 transition-colors">{role.title}</p>
+                    <p className="text-sm font-semibold text-white group-hover:text-brand-400 transition-colors">{role.title}</p>
                     <div className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-neutral-500">
                       <span className="flex items-center gap-1"><Briefcase size={11} />{role.dept}</span>
                       <span className="flex items-center gap-1"><MapPin size={11} />{role.location}</span>
                       <span className="flex items-center gap-1"><Clock size={11} />{role.type}</span>
                     </div>
                   </div>
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-amber-400 group-hover:gap-2 transition-all">
+                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-400 group-hover:gap-2 transition-all">
                     Apply Now <ArrowRight size={14} />
                   </span>
                 </button>

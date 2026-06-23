@@ -49,7 +49,7 @@ export default function PressKit() {
       <main className="pt-28 pb-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium tracking-wide mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium tracking-wide mb-6">
               <Sparkles size={12} />
               Press Kit
             </div>
@@ -60,7 +60,7 @@ export default function PressKit() {
           {/* Brand Colors */}
           <FadeIn delay={0.1}>
             <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-              <Palette size={14} className="text-amber-400" />
+              <Palette size={14} className="text-brand-400" />
               Brand Colors
             </h2>
             <div className="flex flex-wrap gap-3 mb-14">
@@ -79,7 +79,7 @@ export default function PressKit() {
           {/* Typography Preview */}
           <FadeIn delay={0.15}>
             <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-              <FileText size={14} className="text-amber-400" />
+              <FileText size={14} className="text-brand-400" />
               Typography
             </h2>
             <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] mb-14">
@@ -93,7 +93,7 @@ export default function PressKit() {
           {/* Assets Grid */}
           <FadeIn delay={0.2}>
             <h2 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-              <Download size={14} className="text-amber-400" />
+              <Download size={14} className="text-brand-400" />
               Download Assets
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-12">
@@ -102,8 +102,8 @@ export default function PressKit() {
                   key={name}
                   className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 text-left group"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0 group-hover:bg-amber-500/20 transition-colors">
-                    <Icon size={16} className="text-amber-400" />
+                  <div className="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center shrink-0 group-hover:bg-brand-500/20 transition-colors">
+                    <Icon size={16} className="text-brand-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-white truncate">{name}</p>
@@ -111,7 +111,7 @@ export default function PressKit() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span className="text-[11px] text-neutral-600">{size}</span>
-                    <Download size={14} className="text-neutral-500 group-hover:text-amber-400 transition-colors" />
+                    <Download size={14} className="text-neutral-500 group-hover:text-brand-400 transition-colors" />
                   </div>
                 </button>
               ))}
@@ -120,15 +120,15 @@ export default function PressKit() {
 
           {/* Press Contact */}
           <FadeIn>
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-amber-500/5 via-neutral-900 to-neutral-950 border border-amber-500/10">
+            <div className="p-8 rounded-2xl bg-gradient-to-br from-brand-500/5 via-neutral-900 to-neutral-950 border border-brand-500/10">
               <div className="flex items-start sm:items-center gap-4 flex-col sm:flex-row">
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-                  <Mail size={18} className="text-amber-400" />
+                <div className="w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center shrink-0">
+                  <Mail size={18} className="text-brand-400" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-sm font-semibold text-white mb-1">Press Inquiries</h3>
                   <p className="text-xs text-neutral-500 mb-2">For media requests, interviews, and brand partnerships.</p>
-                  <a href="mailto:asantekelvin229@gmail.com" className="text-sm text-amber-400 hover:text-amber-300 transition-colors">
+                  <a href="mailto:asantekelvin229@gmail.com" className="text-sm text-brand-400 hover:text-brand-300 transition-colors">
                     asantekelvin229@gmail.com
                   </a>
                 </div>

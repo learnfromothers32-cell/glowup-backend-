@@ -48,7 +48,7 @@ export default function ReportProblem() {
       <main className="pt-28 pb-24">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium tracking-wide mb-6 w-fit">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium tracking-wide mb-6 w-fit">
               <Sparkles size={12} />
               Report
             </div>
@@ -58,9 +58,9 @@ export default function ReportProblem() {
 
           {sent ? (
             <FadeIn>
-              <div className="flex flex-col items-center justify-center p-16 rounded-2xl bg-green-500/5 border border-green-500/10 text-center">
-                <div className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mb-5">
-                  <Check size={24} className="text-green-400" />
+              <div className="flex flex-col items-center justify-center p-16 rounded-2xl bg-brand-500/5 border border-brand-500/10 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-brand-500/10 flex items-center justify-center mb-5">
+                  <Check size={24} className="text-brand-400" />
                 </div>
                 <h2 className="text-xl font-bold text-white mb-2">Report submitted</h2>
                 <p className="text-sm text-neutral-400 max-w-sm">Thank you. Our team will review your report and follow up if needed. You can track the status in your email.</p>
@@ -73,12 +73,12 @@ export default function ReportProblem() {
                   <div>
                     <label className="block text-xs font-medium text-neutral-500 mb-1.5">Your name</label>
                     <input type="text" required
-                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-amber-500/30 focus:ring-1 focus:ring-amber-500/10 transition-all" />
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand-500/30 focus:ring-1 focus:ring-brand-500/10 transition-all" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-neutral-500 mb-1.5">Email address</label>
                     <input type="email" required
-                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-amber-500/30 focus:ring-1 focus:ring-amber-500/10 transition-all" />
+                      className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand-500/30 focus:ring-1 focus:ring-brand-500/10 transition-all" />
                   </div>
                 </div>
               </FadeIn>
@@ -94,7 +94,7 @@ export default function ReportProblem() {
                         onClick={() => setSelectedCategory(value)}
                         className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-xs font-medium transition-all ${
                           selectedCategory === value
-                            ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                            ? "bg-brand-500/10 border-brand-500/20 text-brand-400"
                             : "bg-white/[0.03] border-white/[0.06] text-neutral-500 hover:text-neutral-300 hover:bg-white/[0.05]"
                         }`}
                       >
@@ -111,7 +111,7 @@ export default function ReportProblem() {
                 <div>
                   <label className="block text-xs font-medium text-neutral-500 mb-1.5">Brief summary</label>
                   <input type="text" placeholder="e.g. 'App crashes when I try to book'" required
-                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-amber-500/30 focus:ring-1 focus:ring-amber-500/10 transition-all" />
+                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand-500/30 focus:ring-1 focus:ring-brand-500/10 transition-all" />
                 </div>
               </FadeIn>
 
@@ -119,7 +119,7 @@ export default function ReportProblem() {
                 <div>
                   <label className="block text-xs font-medium text-neutral-500 mb-1.5">Detailed description</label>
                   <textarea rows={5} placeholder="Describe what happened, including steps to reproduce if possible. Include screenshots if you can." required
-                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-amber-500/30 focus:ring-1 focus:ring-amber-500/10 transition-all resize-none" />
+                    className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand-500/30 focus:ring-1 focus:ring-brand-500/10 transition-all resize-none" />
                 </div>
               </FadeIn>
 

@@ -58,13 +58,13 @@ export default function About() {
         {/* Hero */}
         <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
           <FadeIn>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium tracking-wide mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium tracking-wide mb-6">
               <Sparkles size={12} />
               About GlowUp
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] tracking-tight mb-6">
               We're on a mission to{" "}
-              <span className="bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-brand-300 via-brand-400 to-brand-500 bg-clip-text text-transparent">
                 transform beauty
               </span>
             </h1>
@@ -83,7 +83,7 @@ export default function About() {
                 <div className="relative group">
                   <div className="absolute -inset-px bg-gradient-to-b from-white/[0.08] to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative p-6 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm">
-                    <Icon size={18} className="text-amber-400/70 mb-3" />
+                    <Icon size={18} className="text-brand-400/70 mb-3" />
                     <p className="text-3xl font-bold text-white mb-1">{value}</p>
                     <p className="text-sm text-neutral-500">{label}</p>
                   </div>
@@ -99,13 +99,13 @@ export default function About() {
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-10">Our Journey</h2>
           </FadeIn>
           <div className="relative">
-            <div className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-amber-500/50 via-amber-500/20 to-transparent" />
+            <div className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-brand-500/50 via-brand-500/20 to-transparent" />
             <div className="space-y-8">
               {timeline.map(({ year, event }, i) => (
                 <FadeIn key={i} delay={i * 0.05}>
                   <div className="relative pl-12">
-                    <div className="absolute left-2.5 top-1.5 w-3 h-3 rounded-full bg-amber-500 border-2 border-neutral-950" />
-                    <span className="text-xs font-bold text-amber-400 tracking-wider">{year}</span>
+                    <div className="absolute left-2.5 top-1.5 w-3 h-3 rounded-full bg-brand-500 border-2 border-neutral-950" />
+                    <span className="text-xs font-bold text-brand-400 tracking-wider">{year}</span>
                     <p className="text-sm text-neutral-300 mt-0.5">{event}</p>
                   </div>
                 </FadeIn>
@@ -124,7 +124,7 @@ export default function About() {
             {TEAM.map(({ name, role, initials }) => (
               <FadeIn key={name}>
                 <div className="group text-center p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center mx-auto mb-3 ring-2 ring-white/[0.06] group-hover:ring-amber-500/30 transition-all duration-300">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center mx-auto mb-3 ring-2 ring-white/[0.06] group-hover:ring-brand-500/30 transition-all duration-300">
                     <span className="text-sm font-bold text-neutral-950">{initials}</span>
                   </div>
                   <p className="text-sm font-semibold text-white">{name}</p>
@@ -138,9 +138,9 @@ export default function About() {
         {/* CTA */}
         <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500/10 via-neutral-900 to-neutral-950 border border-amber-500/10 p-10 sm:p-14 text-center">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl" />
-              <Quote size={32} className="text-amber-500/20 mx-auto mb-4" />
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-500/10 via-neutral-900 to-neutral-950 border border-brand-500/10 p-10 sm:p-14 text-center">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/5 rounded-full blur-3xl" />
+              <Quote size={32} className="text-brand-500/20 mx-auto mb-4" />
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Want to be part of our story?</h2>
               <p className="text-neutral-400 mb-6 max-w-md mx-auto">We're always looking for talented people who believe in making beauty accessible to everyone.</p>
               <Link to="/careers" className="inline-flex items-center gap-2 bg-white text-neutral-900 text-sm font-semibold px-6 py-3 rounded-xl hover:bg-neutral-100 transition-all shadow-lg shadow-white/10">

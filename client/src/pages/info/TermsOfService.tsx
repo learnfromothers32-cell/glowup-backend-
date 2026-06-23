@@ -69,7 +69,7 @@ export default function TermsOfService() {
       <main className="pt-28 pb-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium tracking-wide mb-6 w-fit">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium tracking-wide mb-6 w-fit">
               <Scale size={12} />
               Terms & Conditions
             </div>
@@ -91,7 +91,7 @@ export default function TermsOfService() {
                   }}
                   className={`block text-xs py-1.5 px-3 rounded-lg transition-all ${
                     active === id
-                      ? "text-amber-400 bg-amber-500/10"
+                      ? "text-brand-400 bg-brand-500/10"
                       : "text-neutral-500 hover:text-neutral-300"
                   }`}
                 >

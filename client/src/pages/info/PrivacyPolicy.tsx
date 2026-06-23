@@ -69,7 +69,7 @@ export default function PrivacyPolicy() {
       <main className="pt-28 pb-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium tracking-wide mb-6 w-fit">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium tracking-wide mb-6 w-fit">
               <Shield size={12} />
               Privacy Policy
             </div>
@@ -93,7 +93,7 @@ export default function PrivacyPolicy() {
                     }}
                     className={`block text-xs py-1.5 px-3 rounded-lg transition-all ${
                       active === id
-                        ? "text-amber-400 bg-amber-500/10"
+                        ? "text-brand-400 bg-brand-500/10"
                         : "text-neutral-500 hover:text-neutral-300"
                     }`}
                   >
@@ -115,13 +115,13 @@ export default function PrivacyPolicy() {
               ))}
 
               <FadeIn delay={0.4}>
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-amber-500/5 via-neutral-900 to-neutral-950 border border-amber-500/10">
+                <div className="p-6 rounded-2xl bg-gradient-to-br from-brand-500/5 via-neutral-900 to-neutral-950 border border-brand-500/10">
                   <div className="flex items-center gap-3 mb-3">
-                    <Mail size={16} className="text-amber-400" />
+                    <Mail size={16} className="text-brand-400" />
                     <p className="text-sm font-semibold text-white">Privacy inquiries</p>
                   </div>
                   <p className="text-xs text-neutral-500 mb-2">For questions about this policy or to exercise your data rights:</p>
-                  <a href="mailto:asantekelvin229@gmail.com" className="text-sm text-amber-400 hover:text-amber-300 transition-colors">
+                  <a href="mailto:asantekelvin229@gmail.com" className="text-sm text-brand-400 hover:text-brand-300 transition-colors">
                     asantekelvin229@gmail.com
                   </a>
                 </div>

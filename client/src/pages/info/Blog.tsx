@@ -96,7 +96,7 @@ export default function Blog() {
       <main className="pt-28 pb-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium tracking-wide mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium tracking-wide mb-6">
               <Sparkles size={12} />
               Blog
             </div>
@@ -113,7 +113,7 @@ export default function Blog() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search articles..."
-                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-amber-500/30 transition-colors"
+                className="w-full bg-white/[0.05] border border-white/[0.08] rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-brand-500/30 transition-colors"
               />
             </div>
           </FadeIn>
@@ -127,7 +127,7 @@ export default function Blog() {
                   onClick={() => setActive(c)}
                   className={`px-4 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
                     active === c
-                      ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                      ? "bg-brand-500/10 text-brand-400 border border-brand-500/20"
                       : "bg-white/[0.04] text-neutral-500 border border-transparent hover:text-neutral-300 hover:bg-white/[0.06]"
                   }`}
                 >
@@ -140,10 +140,10 @@ export default function Blog() {
           {/* Featured */}
           {featured && active === "All" && !query && (
             <FadeIn delay={0.2}>
-              <div className="relative group cursor-pointer mb-12 overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500/5 via-neutral-900 to-neutral-950 border border-white/[0.06] p-6 sm:p-8">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/5 rounded-full blur-2xl" />
+              <div className="relative group cursor-pointer mb-12 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-500/5 via-neutral-900 to-neutral-950 border border-white/[0.06] p-6 sm:p-8">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-brand-500/5 rounded-full blur-2xl" />
                 <div className="relative">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-amber-400/70 mb-3 block">Featured</span>
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-brand-400/70 mb-3 block">Featured</span>
                   <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 leading-snug">{featured.title}</h2>
                   <p className="text-neutral-400 text-sm mb-4 max-w-xl leading-relaxed">{featured.excerpt}</p>
                   <div className="flex items-center gap-4 text-xs text-neutral-500 mb-5">
@@ -151,7 +151,7 @@ export default function Blog() {
                     <span className="flex items-center gap-1.5"><Clock size={12} />{featured.readTime}</span>
                     <span className="flex items-center gap-1.5"><User size={12} />{featured.author}</span>
                   </div>
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors">
+                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-400 hover:text-brand-300 transition-colors">
                     Read article <ArrowRight size={14} />
                   </span>
                 </div>
@@ -168,7 +168,7 @@ export default function Blog() {
                     <span className="px-2 py-0.5 rounded bg-white/[0.04] text-neutral-400">{post.category}</span>
                     <span>{post.readTime}</span>
                   </div>
-                  <h3 className="text-sm font-semibold text-white mb-2 leading-snug group-hover:text-amber-400 transition-colors">{post.title}</h3>
+                  <h3 className="text-sm font-semibold text-white mb-2 leading-snug group-hover:text-brand-400 transition-colors">{post.title}</h3>
                   <p className="text-xs text-neutral-500 leading-relaxed mb-4">{post.excerpt}</p>
                   <div className="flex items-center gap-2 text-xs text-neutral-600 mt-auto">
                     <User size={11} />
@@ -187,15 +187,15 @@ export default function Blog() {
           )}
 
           <FadeIn delay={0.3}>
-            <div className="mt-16 p-8 rounded-2xl bg-gradient-to-br from-pink-500/5 via-neutral-900 to-neutral-950 border border-pink-500/10 text-center">
-              <Sparkles size={20} className="mx-auto text-pink-400 mb-3" />
+            <div className="mt-16 p-8 rounded-2xl bg-gradient-to-br from-brand-500/5 via-neutral-900 to-neutral-950 border border-brand-500/10 text-center">
+              <Sparkles size={20} className="mx-auto text-brand-400 mb-3" />
               <h2 className="text-lg font-bold text-white mb-2">Looking for Beauty Tips?</h2>
               <p className="text-sm text-neutral-400 mb-5 max-w-md mx-auto">
                 Practical guides on braids, skincare, nails, lashes, barber — expert advice for your next appointment.
               </p>
               <Link
                 to="/blog/beauty"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-400 text-sm font-medium hover:bg-pink-500/20 transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-400 text-sm font-medium hover:bg-brand-500/20 transition-colors"
               >
                 Explore beauty tips
                 <ArrowRight size={14} />

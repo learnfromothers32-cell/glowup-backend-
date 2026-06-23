@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { fadeSlideUp, pageTransition } from "../../utils/animations";
 import { Link } from "react-router-dom";
 import {
-  Sparkles, Search, Book, MessageCircle, Shield, CreditCard,
+  Sparkles, Search, Book, MessageCircle, Shield, CreditCard, Smartphone,
   ChevronRight, ArrowRight, HelpCircle, ChevronDown, FileText,
   LifeBuoy, Mail, Bot,
 } from "lucide-react";

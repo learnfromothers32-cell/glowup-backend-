@@ -14,6 +14,7 @@ import BeautyTips from "../../features/consumer/components/BeautyTips";
 import { getStylists } from "../../api/stylists";
 import { getMyBookings } from "../../api/bookings";
 import { getQueueStatus } from "../../api/queue";
+import { getLiveFeed } from "../../api/live";
 import type { Stylist } from "@/domain/stylist/stylist.types";
 import { useRecentlyViewed } from "../../hooks/useRecentlyViewed";
 import { useFavorites } from "../../hooks/useFavorites";
@@ -52,6 +53,7 @@ export default function Home() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingStylist, setPendingStylist] = useState<Stylist | null>(null);
   const [nextBooking, setNextBooking] = useState<UpcomingBooking | null>(null);
+  const [liveSessionStylists, setLiveSessionStylists] = useState<Stylist[]>([]);
   const [activeCategory, setActiveCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -67,6 +69,24 @@ export default function Home() {
     try {
       const data = await getStylists();
       setAllStylists(data);
+      try {
+        const liveFeed = await getLiveFeed({ limit: 50 });
+        const mapped = (liveFeed.streams || []).map((s: any) => ({
+          id: s.stylistId,
+          name: s.stylist?.name || "Unknown Host",
+          image: s.stylist?.image || "",
+          viewerCount: s.viewerCount || 0,
+          isLive: true,
+          bio: "",
+          category: "",
+          location: { area: "", lat: 0, lng: 0 },
+          rating: 0,
+          reviewCount: 0,
+          isVerified: false,
+          createdAt: "",
+        })) as Stylist[];
+        setLiveSessionStylists(mapped);
+      } catch {}
       if (isAuthenticated) {
         const bookings = await getMyBookings();
         const upcoming = bookings.find((b: any) => b.status === 'confirmed' || b.status === 'pending');
@@ -103,7 +123,26 @@ export default function Home() {
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      try { const data = await getStylists(); setAllStylists(data); } catch {}
+      try {
+        const data = await getStylists();
+        setAllStylists(data);
+        const liveFeed = await getLiveFeed({ limit: 50 });
+        const mapped = (liveFeed.streams || []).map((s: any) => ({
+          id: s.stylistId,
+          name: s.stylist?.name || "Unknown Host",
+          image: s.stylist?.image || "",
+          viewerCount: s.viewerCount || 0,
+          isLive: true,
+          bio: "",
+          category: "",
+          location: { area: "", lat: 0, lng: 0 },
+          rating: 0,
+          reviewCount: 0,
+          isVerified: false,
+          createdAt: "",
+        })) as Stylist[];
+        setLiveSessionStylists(mapped);
+      } catch {}
     }, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -114,7 +153,27 @@ export default function Home() {
       transports: ["websocket", "polling"],
     });
     const refresh = async () => {
-      try { const data = await getStylists(); setAllStylists(data); setLoading(false); } catch {}
+      try {
+        const data = await getStylists();
+        setAllStylists(data);
+        setLoading(false);
+        const liveFeed = await getLiveFeed({ limit: 50 });
+        const mapped = (liveFeed.streams || []).map((s: any) => ({
+          id: s.stylistId,
+          name: s.stylist?.name || "Unknown Host",
+          image: s.stylist?.image || "",
+          viewerCount: s.viewerCount || 0,
+          isLive: true,
+          bio: "",
+          category: "",
+          location: { area: "", lat: 0, lng: 0 },
+          rating: 0,
+          reviewCount: 0,
+          isVerified: false,
+          createdAt: "",
+        })) as Stylist[];
+        setLiveSessionStylists(mapped);
+      } catch {}
     };
     socket.on("live:stylist-online", refresh);
     socket.on("live:stylist-offline", refresh);
@@ -207,7 +266,12 @@ export default function Home() {
   const handleBookFromRecommendation = (stylist: Stylist) => { addToRecentlyViewed(stylist); handleBook(stylist); };
   const handleFavoriteStylistClick = (stylist: Stylist) => { handleBook(stylist); };
 
-  const liveStylists = useMemo(() => filteredStylists.filter(s => s.isLive), [filteredStylists]);
+  const liveStylists = useMemo(() => {
+    const fromProfile = filteredStylists.filter(s => s.isLive);
+    const seen = new Set(fromProfile.map(s => s.id));
+    const fromSessions = liveSessionStylists.filter(s => !seen.has(s.id));
+    return [...fromProfile, ...fromSessions];
+  }, [filteredStylists, liveSessionStylists]);
 
   const handleSearchSubmit = () => {
     if (searchQuery.trim()) navigate(`/app/search?q=${encodeURIComponent(searchQuery.trim())}`);

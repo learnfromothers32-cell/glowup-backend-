@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Radio,
   Clock,
@@ -7,7 +8,6 @@ import {
   Bell,
   ChevronRight,
   Users,
-  X,
 } from "lucide-react";
 import { useLiveStore } from "../store/liveStore";
 import { useLiveSessions, useTrendingSessions } from "../hooks/useLiveSessions";
@@ -15,7 +15,6 @@ import { LiveSessionCard } from "./LiveSessionCard";
 import { UpcomingSessionCard } from "./UpcomingSessionCard";
 import { SessionReplayCard } from "./SessionReplayCard";
 import { LiveNotifications } from "./LiveNotifications";
-import { LivePlayerScreen } from "./LivePlayerScreen";
 import type { LiveSession } from "../types/live.types";
 
 const CATEGORIES = [
@@ -32,6 +31,7 @@ const CATEGORIES = [
 type Tab = "live" | "upcoming" | "recordings";
 
 export function LiveHomeScreen() {
+  const navigate = useNavigate();
   const [category, setCategory] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<Tab>("live");
   const [showNotifications, setShowNotifications] = useState(false);
@@ -43,9 +43,6 @@ export function LiveHomeScreen() {
     upcomingSessions,
     pastSessions,
     recommendedSessions,
-    openPlayer,
-    closePlayer,
-    isPlayerOpen,
     notifications,
     markAsRead,
     markAllAsRead,
@@ -56,7 +53,7 @@ export function LiveHomeScreen() {
 
   const allSessions = [...liveSessions, ...recommendedSessions];
 
-  const handleJoin = (session: LiveSession) => openPlayer(session);
+  const handleJoin = (session: LiveSession) => navigate(`/app/live/${session.hostId}`);
   const handleWatchReplay = (session: PastSession) => {
     if (session.recordingUrl) {
       window.open(session.recordingUrl, "_blank");
@@ -90,8 +87,8 @@ export function LiveHomeScreen() {
 
   const feedContent = currentSession && (
     <div className="fixed inset-0 z-50 bg-black flex flex-col">
-      <div className="flex-1 relative flex items-center justify-center overflow-hidden">
-        <div className="w-full h-full lg:w-auto lg:h-full lg:aspect-[9/16] relative">
+      <div className="flex-1 relative flex items-center justify-center overflow-hidden" onClick={() => handleJoin(currentSession)}>
+        <div className="w-full h-full lg:w-auto lg:h-full lg:aspect-[9/16] relative cursor-pointer">
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-700 to-gray-600 flex items-center justify-center mx-auto mb-3">
@@ -107,14 +104,8 @@ export function LiveHomeScreen() {
 
           <div className="absolute top-0 left-0 right-0 z-10 px-4" style={{ paddingTop: "calc(12px + env(safe-area-inset-top, 0px))" }}>
             <div className="flex items-center justify-between">
-              <button
-                onClick={() => setShowGrid(true)}
-                className="p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white/10 transition-colors"
-              >
-                <X size={20} className="text-white" />
-              </button>
               <div className="flex items-center gap-2">
-                <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-500/90 dark:bg-green-600/90 backdrop-blur-sm text-[10px] font-bold text-white">
+                <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-500/90 backdrop-blur-sm text-[10px] font-bold text-white">
                   <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> LIVE
                 </span>
                 <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-xs text-white">
@@ -138,17 +129,17 @@ export function LiveHomeScreen() {
 
             <div className="flex items-center gap-3">
               <button
-                onClick={goPrev}
+                onClick={(e) => { e.stopPropagation(); goPrev(); }}
                 disabled={currentIndex === 0}
-                className="flex-1 py-2 rounded-xl text-xs font-bold disabled:opacity-30 transition-all bg-white/10 text-white active:bg-white/20"
+                className="flex-1 py-3 rounded-xl text-xs font-bold disabled:opacity-30 transition-all bg-white/10 text-white active:bg-white/20"
               >
                 ← Prev
               </button>
               <span className="text-xs text-white/40">{currentIndex + 1}/{allSessions.length}</span>
               <button
-                onClick={goNext}
+                onClick={(e) => { e.stopPropagation(); goNext(); }}
                 disabled={currentIndex >= allSessions.length - 1}
-                className="flex-1 py-2 rounded-xl text-xs font-bold disabled:opacity-30 transition-all bg-white/10 text-white active:bg-white/20"
+                className="flex-1 py-3 rounded-xl text-xs font-bold disabled:opacity-30 transition-all bg-white/10 text-white active:bg-white/20"
               >
                 Next →
               </button>
@@ -160,7 +151,7 @@ export function LiveHomeScreen() {
   );
 
   if (inFeed) {
-    return <>{feedContent}{isPlayerOpen && <LivePlayerScreen onClose={closePlayer} />}</>;
+    return feedContent;
   }
 
   return (
@@ -338,8 +329,6 @@ export function LiveHomeScreen() {
           )}
         </div>
       </div>
-
-      {isPlayerOpen && <LivePlayerScreen onClose={closePlayer} />}
     </>
   );
 }

@@ -306,7 +306,7 @@ export default function StylistBookings() {
       <div className="bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 p-2 sm:p-3 mb-5 shadow-sm">
         <div className="flex items-center gap-2">
           {/* Filter pills */}
-          <div className="flex-1 min-w-0 flex items-center gap-1.5 overflow-x-auto overflow-y-hidden" style={{ scrollbarWidth: "none" }}>
+          <div className="flex-1 min-w-0 flex flex-wrap items-center gap-1.5">
             {FILTERS.map(({ key, label, icon: Icon }) => {
               const isActive = activeFilter === key;
               const count = counts[key] ?? 0;
@@ -314,7 +314,7 @@ export default function StylistBookings() {
                 <button
                   key={key}
                   onClick={() => setActiveFilter(key)}
-                  className={`shrink-0 inline-flex items-center gap-1 px-2.5 sm:gap-1.5 sm:px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
+                  className={`inline-flex items-center gap-1 px-2.5 sm:gap-1.5 sm:px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
                     isActive
                       ? "bg-gray-900 text-white shadow-sm dark:bg-white dark:text-gray-900"
                       : "bg-gray-50 dark:bg-surface-dark-tertiary text-text-secondary dark:text-text-dark-secondary border border-gray-100 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-surface-dark"

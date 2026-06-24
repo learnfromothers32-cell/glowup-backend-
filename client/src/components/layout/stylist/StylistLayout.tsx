@@ -16,7 +16,7 @@ export default function StylistLayout() {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="min-h-screen bg-warm-50 dark:bg-surface-dark flex">
+    <div className="min-h-screen bg-warm-50 dark:bg-surface-dark flex overflow-x-hidden">
       {/* ── Desktop Sidebar (always visible on lg screens) ── */}
       {!isLivePage && (
         <div className="hidden lg:block">

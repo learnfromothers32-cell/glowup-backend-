@@ -167,7 +167,7 @@ export default function StylistBookings() {
         </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 max-w-full">
             <FilterPills filters={FILTERS} active={activeFilter} onChange={(f) => setActiveFilter(f as FilterKey)} counts={counts} />
           </div>
           <div className="relative shrink-0">
@@ -191,7 +191,7 @@ export default function StylistBookings() {
               return (
                 <motion.div key={b._id} onClick={() => setDetail(b)}
                   initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                  className={`group bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 cursor-pointer hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-md transition-all duration-200 ${isCancelled ? "opacity-60" : ""} ${isPending ? "border-l-4 border-l-brand-500 dark:border-l-brand-400 border border-gray-100 dark:border-gray-700/40" : ""}`}>
+                   className={`group bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40 cursor-pointer hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-md transition-all duration-200 ${isCancelled ? "opacity-60" : ""} ${isPending ? "border border-gray-100 dark:border-gray-700/40 border-l-4 border-l-brand-500 dark:border-l-brand-400" : ""}`}>
                    <div className="p-2.5 sm:p-3">
                     <div className="flex items-center gap-2 sm:gap-3 w-full">
                       <div className="hidden sm:flex flex-col items-center w-14 shrink-0 leading-tight">

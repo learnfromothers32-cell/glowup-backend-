@@ -133,7 +133,7 @@ export default function Availability() {
                 <div className="flex items-center gap-3">
                   <label className="relative inline-flex items-center cursor-pointer shrink-0">
                     <input type="checkbox" className="sr-only peer" checked={d.enabled} onChange={e => updateDay(day, { enabled: e.target.checked })} />
-                    <div className="w-10 h-5 bg-gray-200 dark:bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-500" />
+                    <div className="w-10 h-5 bg-gray-200 dark:bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-stylist-500" />
                   </label>
                   <span className={`w-20 sm:w-28 text-sm font-medium ${d.enabled ? 'text-text-primary dark:text-text-dark-primary' : 'text-text-muted dark:text-text-dark-muted'}`}>{DAY_LABELS[day]}</span>
                 </div>
@@ -144,7 +144,7 @@ export default function Availability() {
                     <span className="text-text-muted dark:text-text-dark-muted">to</span>
                     <input type="time" value={d.end} onChange={e => updateDay(day, { end: e.target.value })}
                       className="input-field-sm w-[110px]" />
-                    <button onClick={() => addBreak(day)} className="text-xs text-brand-600 dark:text-brand-400 hover:underline">+ Add break</button>
+                    <button onClick={() => addBreak(day)} className="text-xs text-stylist-600 dark:text-stylist-400 hover:underline">+ Add break</button>
                   </div>
                 ) : (
                   <span className="text-sm italic text-text-muted dark:text-text-dark-muted">Unavailable</span>

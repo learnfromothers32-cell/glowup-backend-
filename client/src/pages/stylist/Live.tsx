@@ -261,7 +261,7 @@ export default function StylistLive() {
           <h2 className="text-white font-bold text-lg">Live Studio</h2>
           <button
             onClick={() => setShowSchedule(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-500 text-white hover:bg-brand-600 rounded-xl text-sm font-semibold transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-stylist-500 text-white hover:bg-stylist-600 rounded-xl text-sm font-semibold transition-colors"
           >
             <CalendarPlus size={16} />
             Schedule

@@ -108,6 +108,7 @@
   .badge-error { @apply badge bg-error/10 text-error-dark dark:text-error border border-error/10; }
   .badge-info { @apply badge bg-info/10 text-info-dark dark:text-info border border-info/10; }
   .badge-brand { @apply badge bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300 border border-brand-200/30; }
+  .badge-stylist { @apply badge bg-stylist-100 text-stylist-700 dark:bg-stylist-900/30 dark:text-stylist-300 border border-stylist-200/30; }
   .badge-gray { @apply badge bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700; }
 
   /* ─── Skeleton ─── */

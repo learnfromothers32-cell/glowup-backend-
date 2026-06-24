@@ -111,17 +111,17 @@ export default function StylistCalendar() {
                   onClick={() => setSelectedDate(dateStr)}
                   className={`relative flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-xl transition min-h-[48px] sm:min-h-[60px] ${
                     isSelected
-                      ? "bg-brand-50 dark:bg-brand-950/20 border border-brand-200 dark:border-brand-800"
+                      ? "bg-stylist-50 dark:bg-stylist-950/20 border border-stylist-200 dark:border-stylist-800"
                       : isToday
                       ? "bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-200 dark:border-gray-600"
                       : "hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary"
                   }`}
                 >
-                  <span className={`text-sm font-medium ${isToday ? "text-brand-600 dark:text-brand-400" : "text-text-secondary dark:text-text-dark-secondary"}`}>
+                  <span className={`text-sm font-medium ${isToday ? "text-stylist-600 dark:text-stylist-400" : "text-text-secondary dark:text-text-dark-secondary"}`}>
                     {day}
                   </span>
                   {dayBookings.length > 0 && (
-                    <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-brand-500" />
+                    <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-stylist-500" />
                   )}
                 </button>
               );

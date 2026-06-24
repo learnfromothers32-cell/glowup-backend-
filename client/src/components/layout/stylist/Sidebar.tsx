@@ -8,7 +8,7 @@ import {
 import { useAuth } from "../../../context/authUtils";
 import { cn } from "../../../utils/cn";
 
-type NavItem = { path: string; label: string; icon: any; badge?: string; badgeColor?: string };
+type NavItem = { path: string; label: string; icon: any; badge?: string };
 type NavSection = { title: string; items: NavItem[] };
 
 const navSections: NavSection[] = [
@@ -25,7 +25,7 @@ const navSections: NavSection[] = [
     items: [
       { path: "/stylist/calendar", label: "Calendar", icon: CalendarDays },
       { path: "/stylist/availability", label: "Availability", icon: Clock },
-      { path: "/stylist/bookings", label: "Bookings", icon: BookOpen, badge: "12", badgeColor: "bg-brand-500" },
+      { path: "/stylist/bookings", label: "Bookings", icon: BookOpen, badge: "12" },
       { path: "/stylist/waitlist", label: "Waitlist", icon: Timer },
       { path: "/stylist/queue", label: "Queue", icon: Users },
     ],
@@ -65,7 +65,7 @@ const navSections: NavSection[] = [
   {
     title: "Growth",
     items: [
-      { path: "/stylist/live", label: "Go Live", icon: Radio, badge: "LIVE", badgeColor: "bg-error text-white" },
+      { path: "/stylist/live", label: "Go Live", icon: Radio, badge: "LIVE" },
     ],
   },
   {
@@ -77,10 +77,7 @@ const navSections: NavSection[] = [
   },
 ];
 
-interface SidebarProps {
-  collapsed?: boolean;
-  onClose?: () => void;
-}
+interface SidebarProps { collapsed?: boolean; onClose?: () => void; }
 
 export default function Sidebar({ collapsed, onClose }: SidebarProps) {
   const { user, logout } = useAuth();
@@ -108,7 +105,7 @@ export default function Sidebar({ collapsed, onClose }: SidebarProps) {
         "flex items-center h-16 border-b border-gray-100 dark:border-gray-700/50 shrink-0",
         collapsed ? "justify-center px-0" : "gap-2.5 px-5",
       )}>
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center shadow-sm shrink-0">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-stylist-500 to-stylist-600 flex items-center justify-center shadow-sm shrink-0">
           <Sparkles className="w-4 h-4 text-white" />
         </div>
         {!collapsed && (
@@ -129,7 +126,7 @@ export default function Sidebar({ collapsed, onClose }: SidebarProps) {
               </p>
             )}
             <div className="space-y-0.5">
-              {section.items.map(({ path, label, icon: Icon, badge, badgeColor }) => {
+              {section.items.map(({ path, label, icon: Icon, badge }) => {
                 const active = isActive(path);
                 return (
                   <button
@@ -139,7 +136,7 @@ export default function Sidebar({ collapsed, onClose }: SidebarProps) {
                       "relative flex items-center w-full rounded-xl text-sm font-medium transition-all duration-150",
                       collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5",
                       active
-                        ? "text-brand-600 bg-brand-50 dark:text-brand-400 dark:bg-brand-950/20"
+                        ? "text-stylist-600 bg-stylist-50 dark:text-stylist-400 dark:bg-stylist-950/20"
                         : "text-text-secondary hover:text-text-primary hover:bg-gray-50 dark:hover:text-text-dark-primary dark:hover:bg-surface-dark-tertiary",
                     )}
                     title={collapsed ? label : undefined}
@@ -149,20 +146,14 @@ export default function Sidebar({ collapsed, onClose }: SidebarProps) {
                       <>
                         <span className="flex-1 text-left truncate">{label}</span>
                         {badge && (
-                          <span className={cn(
-                            "text-[10px] px-1.5 py-0.5 rounded-full font-semibold",
-                            badgeColor || "bg-gray-100 text-gray-600",
-                          )}>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold bg-stylist-500 text-white">
                             {badge}
                           </span>
                         )}
                       </>
                     )}
-                    {active && (
-                      <span className={cn(
-                        "absolute top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-brand-500",
-                        collapsed ? "left-0" : "left-0",
-                      )} />
+                    {active && !collapsed && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-stylist-500" />
                     )}
                   </button>
                 );
@@ -179,7 +170,7 @@ export default function Sidebar({ collapsed, onClose }: SidebarProps) {
             {user?.avatar ? (
               <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stylist-500 to-stylist-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
                 {initials}
               </div>
             )}

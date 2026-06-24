@@ -155,7 +155,7 @@ export default function StylistNavbar({ onMenuToggle }: StylistNavbarProps) {
           >
             <MessageSquare size={18} />
             {unreadMessages > 0 && (
-              <span className="absolute top-1 right-1 text-[10px] bg-black dark:bg-brand-500 text-white rounded-full px-1 leading-tight min-w-[16px] text-center">
+              <span className="absolute top-1 right-1 text-[10px] bg-black dark:bg-stylist-500 text-white rounded-full px-1 leading-tight min-w-[16px] text-center">
                 {unreadMessages > 9 ? "9+" : unreadMessages}
               </span>
             )}
@@ -214,7 +214,7 @@ export default function StylistNavbar({ onMenuToggle }: StylistNavbarProps) {
                         <div
                           key={n._id}
                           className={`border-b border-gray-50 dark:border-gray-700/60 last:border-0 ${
-                            !n.read ? "bg-blue-50/40 dark:bg-blue-900/20" : ""
+                            !n.read ? "bg-stylist-50/40 dark:bg-stylist-950/20" : ""
                           }`}
                         >
                           <button
@@ -237,7 +237,7 @@ export default function StylistNavbar({ onMenuToggle }: StylistNavbarProps) {
                               </p>
                             </div>
                             {!n.read && (
-                              <span className="mt-2 w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+                              <span className="mt-2 w-2 h-2 rounded-full bg-stylist-500 shrink-0" />
                             )}
                             <ChevronRight
                               size={14}
@@ -254,7 +254,7 @@ export default function StylistNavbar({ onMenuToggle }: StylistNavbarProps) {
                               <p className="leading-relaxed text-gray-500 dark:text-text-dark-secondary">{n.message}</p>
                               <button
                                 onClick={() => handleNotificationNavigate(n.link)}
-                                className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                                className="inline-flex items-center gap-1 text-xs font-medium text-stylist-600 hover:text-stylist-700 dark:text-stylist-400 dark:hover:text-stylist-300 transition-colors"
                               >
                                 View details
                                 <ChevronRight size={12} />

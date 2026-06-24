@@ -195,7 +195,7 @@ export default function Services() {
               className="rounded-2xl overflow-hidden transition-all bg-white dark:bg-surface-dark-secondary shadow-card"
             >
               {svc.popular && (
-                <div className="h-0.5 bg-gradient-to-r from-amber-400 to-brand-900" />
+                <div className="h-0.5 bg-gradient-to-r from-amber-400 to-stylist-900" />
               )}
               <div className="p-4">
                 <div className="flex items-center gap-4">

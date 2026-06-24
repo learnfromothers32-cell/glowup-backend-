@@ -277,7 +277,7 @@ export default function Articles() {
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-xl text-sm font-medium hover:bg-brand-600 transition-colors shadow-sm"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-stylist-500 text-white rounded-xl text-sm font-medium hover:bg-stylist-600 transition-colors shadow-sm"
         >
           <Plus size={16} />
           New Article
@@ -287,7 +287,7 @@ export default function Articles() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Total', count: articles.length, icon: FileText, color: 'text-brand-600 bg-brand-50' },
+          { label: 'Total', count: articles.length, icon: FileText, color: 'text-stylist-600 bg-stylist-50' },
           { label: 'Published', count: publishCount, icon: CheckCircle2, color: 'text-green-600 bg-green-50' },
           { label: 'Drafts', count: draftCount, icon: Clock, color: 'text-amber-600 bg-amber-50' },
         ].map((s) => (
@@ -314,7 +314,7 @@ export default function Articles() {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Search articles..."
-            className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary placeholder:text-text-muted dark:placeholder:text-text-dark-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+            className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary placeholder:text-text-muted dark:placeholder:text-text-dark-muted focus:outline-none focus:ring-2 focus:ring-stylist-500/20 focus:border-stylist-500"
           />
         </div>
         <div className="flex gap-1.5">
@@ -324,7 +324,7 @@ export default function Articles() {
               onClick={() => { setFilter(f); setPage(1); }}
               className={`px-4 py-2 rounded-xl text-xs font-medium transition-colors ${
                 filter === f
-                  ? 'bg-brand-500 text-white shadow-sm'
+                  ? 'bg-stylist-500 text-white shadow-sm'
                   : 'bg-gray-100 dark:bg-surface-dark-tertiary text-text-secondary dark:text-text-dark-secondary hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
@@ -349,11 +349,11 @@ export default function Articles() {
             {/* Editor Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-surface-dark-tertiary">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-950/20 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-stylist-50 dark:bg-stylist-950/20 flex items-center justify-center">
                   {editorMode === 'create' ? (
-                    <Plus size={16} className="text-brand-600" />
+                    <Plus size={16} className="text-stylist-600" />
                   ) : (
-                    <Edit2 size={16} className="text-brand-600" />
+                    <Edit2 size={16} className="text-stylist-600" />
                   )}
                 </div>
                 <div>
@@ -381,8 +381,8 @@ export default function Articles() {
                   onDrop={handleDrop}
                   className={`relative rounded-xl border-2 border-dashed transition-all ${
                     imagePreview
-                      ? 'border-brand-200 bg-brand-50/30 dark:border-brand-800 dark:bg-brand-950/10'
-                      : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-surface-dark-tertiary hover:border-brand-300 dark:hover:border-brand-600'
+                      ? 'border-stylist-200 bg-stylist-50/30 dark:border-stylist-800 dark:bg-stylist-950/10'
+                      : 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-surface-dark-tertiary hover:border-stylist-300 dark:hover:border-stylist-600'
                   }`}
                 >
                   {imagePreview ? (
@@ -411,11 +411,11 @@ export default function Articles() {
                   ) : (
                     <label className="flex flex-col items-center justify-center py-10 cursor-pointer">
                       {uploadingImage ? (
-                        <Loader2 size={28} className="animate-spin text-brand-500 mb-3" />
+                        <Loader2 size={28} className="animate-spin text-stylist-500 mb-3" />
                       ) : (
                         <>
-                          <div className="w-14 h-14 rounded-full bg-brand-50 dark:bg-brand-950/20 flex items-center justify-center mb-3">
-                            <Upload size={22} className="text-brand-500" />
+                          <div className="w-14 h-14 rounded-full bg-stylist-50 dark:bg-stylist-950/20 flex items-center justify-center mb-3">
+                            <Upload size={22} className="text-stylist-500" />
                           </div>
                           <p className="text-sm font-medium text-text-secondary dark:text-text-dark-secondary mb-1">
                             Drop an image here or click to browse
@@ -445,7 +445,7 @@ export default function Articles() {
                   value={form.title}
                   onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                   placeholder="e.g. 10 Braid Styles for the Summer"
-                  className="w-full px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary placeholder:text-text-muted dark:placeholder:text-text-dark-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary placeholder:text-text-muted dark:placeholder:text-text-dark-muted focus:outline-none focus:ring-2 focus:ring-stylist-500/20 focus:border-stylist-500"
                   maxLength={120}
                 />
               </div>
@@ -458,7 +458,7 @@ export default function Articles() {
                     <select
                       value={form.category}
                       onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-                      className="w-full appearance-none px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                      className="w-full appearance-none px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary focus:outline-none focus:ring-2 focus:ring-stylist-500/20 focus:border-stylist-500"
                     >
                       {CATEGORIES.map((c) => (
                         <option key={c.value} value={c.value}>{c.label}</option>
@@ -474,7 +474,7 @@ export default function Articles() {
                     value={form.tags}
                     onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))}
                     placeholder="braids, summer, hair"
-                    className="w-full px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary placeholder:text-text-muted dark:placeholder:text-text-dark-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                    className="w-full px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary placeholder:text-text-muted dark:placeholder:text-text-dark-muted focus:outline-none focus:ring-2 focus:ring-stylist-500/20 focus:border-stylist-500"
                   />
                 </div>
               </div>
@@ -488,7 +488,7 @@ export default function Articles() {
                   placeholder="A short summary of the article..."
                   rows={2}
                   maxLength={300}
-                  className="w-full px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary placeholder:text-text-muted dark:placeholder:text-text-dark-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 resize-none"
+                  className="w-full px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary placeholder:text-text-muted dark:placeholder:text-text-dark-muted focus:outline-none focus:ring-2 focus:ring-stylist-500/20 focus:border-stylist-500 resize-none"
                 />
                 <p className="text-[10px] text-text-muted dark:text-text-dark-muted mt-1 text-right">{form.excerpt.length}/300</p>
               </div>
@@ -500,7 +500,7 @@ export default function Articles() {
                   <button
                     type="button"
                     onClick={addParagraph}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-brand-600 dark:text-brand-400 hover:text-brand-700 px-2.5 py-1 rounded-xl hover:bg-brand-50 dark:hover:bg-brand-950/20 transition-colors"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-stylist-600 dark:text-stylist-400 hover:text-stylist-700 px-2.5 py-1 rounded-xl hover:bg-stylist-50 dark:hover:bg-stylist-950/20 transition-colors"
                   >
                     <Plus size={12} />
                     Add paragraph
@@ -509,7 +509,7 @@ export default function Articles() {
                 <div className="space-y-2.5">
                   {form.content.map((p, i) => (
                     <div key={i} className="flex gap-2.5 items-start group">
-                      <div className="flex items-center justify-center w-7 h-7 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary text-[10px] font-bold text-text-secondary dark:text-text-dark-secondary shrink-0 mt-2.5 group-hover:bg-brand-50 group-hover:text-brand-600 transition-colors">
+                      <div className="flex items-center justify-center w-7 h-7 rounded-xl bg-gray-100 dark:bg-surface-dark-tertiary text-[10px] font-bold text-text-secondary dark:text-text-dark-secondary shrink-0 mt-2.5 group-hover:bg-stylist-50 group-hover:text-stylist-600 transition-colors">
                         {i + 1}
                       </div>
                       <div className="flex-1 relative">
@@ -518,7 +518,7 @@ export default function Articles() {
                           onChange={(e) => updateParagraph(i, e.target.value)}
                           placeholder={`Write paragraph ${i + 1}...`}
                           rows={2}
-                          className="w-full px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary placeholder:text-text-muted dark:placeholder:text-text-dark-muted focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 resize-none"
+                          className="w-full px-4 py-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary placeholder:text-text-muted dark:placeholder:text-text-dark-muted focus:outline-none focus:ring-2 focus:ring-stylist-500/20 focus:border-stylist-500 resize-none"
                         />
                       </div>
                       <button
@@ -545,7 +545,7 @@ export default function Articles() {
               <button
                 onClick={handleSave}
                 disabled={saving || uploadingImage}
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-brand-500 text-white rounded-xl text-sm font-medium hover:bg-brand-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-stylist-500 text-white rounded-xl text-sm font-medium hover:bg-stylist-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
               >
                 {saving ? (
                   <Loader2 size={15} className="animate-spin" />
@@ -598,7 +598,7 @@ export default function Articles() {
         <div className="text-center py-20 bg-white dark:bg-surface-dark-secondary rounded-2xl border border-gray-100 dark:border-gray-700/40">
           <AlertCircle size={32} className="mx-auto text-text-muted dark:text-text-dark-muted mb-3" />
           <p className="text-sm text-text-secondary dark:text-text-dark-secondary">{error || 'Failed to load articles'}</p>
-          <button onClick={fetchArticles} className="mt-3 text-sm font-medium text-brand-600 hover:text-brand-700">
+          <button onClick={fetchArticles} className="mt-3 text-sm font-medium text-stylist-600 hover:text-stylist-700">
             Try again
           </button>
         </div>
@@ -611,7 +611,7 @@ export default function Articles() {
           <p className="text-sm text-text-secondary dark:text-text-dark-secondary mb-5">Create your first beauty tip article</p>
           <button
             onClick={openCreate}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-500 text-white rounded-xl text-sm font-medium hover:bg-brand-600 transition-colors shadow-sm"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-stylist-500 text-white rounded-xl text-sm font-medium hover:bg-stylist-600 transition-colors shadow-sm"
           >
             <Plus size={16} />
             Create Article
@@ -673,7 +673,7 @@ export default function Articles() {
                     </button>
                     <button
                       onClick={() => openEdit(a)}
-                      className="p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary text-text-muted dark:text-text-dark-muted hover:text-brand-600 transition-colors"
+                      className="p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary text-text-muted dark:text-text-dark-muted hover:text-stylist-600 transition-colors"
                       title="Edit"
                     >
                       <Edit2 size={15} />
@@ -699,7 +699,7 @@ export default function Articles() {
                   onClick={() => setPage(p)}
                   className={`w-9 h-9 rounded-xl text-xs font-medium transition-colors ${
                     page === p
-                      ? 'bg-brand-500 text-white shadow-sm'
+                      ? 'bg-stylist-500 text-white shadow-sm'
                       : 'bg-gray-100 dark:bg-surface-dark-tertiary text-text-secondary dark:text-text-dark-secondary hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}
                 >

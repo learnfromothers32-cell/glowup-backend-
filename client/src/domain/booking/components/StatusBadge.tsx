@@ -63,7 +63,7 @@ export function StatusBadge({ status, date }: { status: string; date?: string })
     );
   if (status === "pending")
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-brand-50 text-brand-600 text-[10px] font-bold">
+      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-stylist-50 text-stylist-600 text-[10px] font-bold">
         <Clock size={8} />
         Pending
       </span>

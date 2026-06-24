@@ -41,13 +41,13 @@ export default function MobileNav({ onOpenMenu }: MobileNavProps) {
             onClick={() => navigate(path)}
             className={`relative flex flex-col items-center gap-0.5 px-1.5 py-1.5 text-[10px] font-semibold transition-all min-h-[48px] rounded-lg ${
               active
-                ? "text-brand-600 dark:text-brand-400"
+                ? "text-stylist-600 dark:text-stylist-400"
                 : "text-gray-400 dark:text-text-dark-muted hover:text-gray-600 dark:hover:text-text-dark-secondary"
             }`}
             aria-label={label}
             aria-current={active ? "page" : undefined}
           >
-            {active && <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-brand-500" />}
+            {active && <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-stylist-500" />}
             <Icon size={18} strokeWidth={active ? 2.5 : 1.5} />
             <span>{label}</span>
           </button>

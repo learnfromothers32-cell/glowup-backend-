@@ -104,7 +104,7 @@ export default function StylistNotifications() {
               <div className="flex items-center gap-2 shrink-0">
                 {!n.read && (
                   <button onClick={() => handleMarkRead(n._id)}
-                    className="p-1.5 rounded-xl text-text-muted dark:text-text-dark-muted hover:text-brand-600 hover:bg-brand-50 dark:hover:text-brand-400 dark:hover:bg-brand-950/20 transition-colors">
+                    className="p-1.5 rounded-xl text-text-muted dark:text-text-dark-muted hover:text-stylist-600 hover:bg-stylist-50 dark:hover:text-stylist-400 dark:hover:bg-stylist-950/20 transition-colors">
                     <Check size={14} />
                   </button>
                 )}

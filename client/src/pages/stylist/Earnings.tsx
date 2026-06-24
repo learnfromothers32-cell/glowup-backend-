@@ -102,7 +102,7 @@ export default function StylistEarnings() {
             <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${color}`}>
               <Icon size={18} />
             </div>
-            <p className="mt-3 text-2xl font-bold text-brand-500">{value}</p>
+            <p className="mt-3 text-2xl font-bold text-stylist-500">{value}</p>
             <p className="text-xs text-text-secondary mt-1">{label}</p>
           </motion.div>
         ))}

@@ -63,7 +63,7 @@ function fmtWait(mins: number): string {
 
 function PulseDot({ color = "brand" }: { color?: "brand" | "amber" | "rose" }) {
   const colors: Record<string, string> = {
-    brand: "bg-brand-500",
+    brand: "bg-stylist-500",
     amber: "bg-amber-500",
     rose: "bg-rose-500",
   };
@@ -103,7 +103,7 @@ function QueueCard({
         <div className="flex items-start gap-3">
           {/* Position */}
           <div className="shrink-0 flex flex-col items-center min-w-[36px]">
-            <span className={`text-lg font-black tabular-nums ${isFirst ? "text-brand-500" : "text-gray-400 dark:text-gray-500"}`}>
+            <span className={`text-lg font-black tabular-nums ${isFirst ? "text-stylist-500" : "text-gray-400 dark:text-gray-500"}`}>
               #{entry.position}
             </span>
             <span className="text-[8px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">Queue</span>
@@ -115,7 +115,7 @@ function QueueCard({
           {/* Avatar */}
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${
             isFirst
-              ? "bg-gradient-to-br from-brand-500 to-rose-600 text-white shadow-md shadow-brand-200 dark:shadow-brand-900/30"
+              ? "bg-gradient-to-br from-stylist-500 to-stylist-600 text-white shadow-md shadow-stylist-200 dark:shadow-stylist-900/30"
               : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
           }`}>
             {entry.userName ? initials(entry.userName) : initials(entry.userId)}
@@ -142,7 +142,7 @@ function QueueCard({
                 onClick={() => onDone(entry.userId)}
                 disabled={actionLoading === `done-${entry.userId}`}
                 aria-label="Mark as done"
-                className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 min-h-[42px] rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 text-white text-xs font-bold hover:from-brand-600 hover:to-brand-700 disabled:opacity-50 shadow-lg shadow-brand-200 dark:shadow-brand-900/30 transition-all min-w-[44px]"
+                className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 min-h-[42px] rounded-xl bg-gradient-to-r from-stylist-500 to-stylist-600 text-white text-xs font-bold hover:from-stylist-600 hover:to-stylist-700 disabled:opacity-50 shadow-lg shadow-stylist-200 dark:shadow-stylist-900/30 transition-all min-w-[44px]"
               >
                 {actionLoading === `done-${entry.userId}` ? (
                   <Loader2 size={12} className="animate-spin" />
@@ -156,7 +156,7 @@ function QueueCard({
               onClick={() => onSkip(entry.userId)}
               disabled={actionLoading === `skip-${entry.userId}`}
               aria-label="Skip customer"
-              className="flex items-center justify-center p-2.5 min-h-[42px] min-w-[42px] rounded-xl border border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 hover:border-brand-200 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/10 disabled:opacity-50 transition-all"
+              className="flex items-center justify-center p-2.5 min-h-[42px] min-w-[42px] rounded-xl border border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 hover:border-stylist-200 hover:text-stylist-500 hover:bg-stylist-50 dark:hover:bg-stylist-900/10 disabled:opacity-50 transition-all"
             >
               {actionLoading === `skip-${entry.userId}` ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -185,14 +185,14 @@ function InServiceCard({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       layout
-      className="bg-gradient-to-br from-white to-brand-50/30 dark:from-surface-dark-secondary dark:to-brand-900/10 rounded-2xl border-2 border-brand-200 dark:border-brand-800/40 overflow-hidden shadow-lg shadow-brand-100 dark:shadow-brand-900/20"
+      className="bg-gradient-to-br from-white to-stylist-50/30 dark:from-surface-dark-secondary dark:to-stylist-900/10 rounded-2xl border-2 border-stylist-200 dark:border-stylist-800/40 overflow-hidden shadow-lg shadow-stylist-100 dark:shadow-stylist-900/20"
     >
       {/* Pulse bar */}
-      <div className="h-1 bg-gradient-to-r from-brand-400 via-brand-500 to-brand-600" />
+      <div className="h-1 bg-gradient-to-r from-stylist-400 via-stylist-500 to-stylist-600" />
 
       <div className="p-5">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 flex items-center gap-1.5">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-stylist-600 dark:text-stylist-400 flex items-center gap-1.5">
             <PulseDot color="brand" />
             In service
           </span>
@@ -202,7 +202,7 @@ function InServiceCard({
         </div>
 
         <div className="flex items-center gap-3 mt-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center text-lg font-bold text-white shadow-lg shadow-brand-200 dark:shadow-brand-900/30 shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-stylist-500 to-stylist-600 flex items-center justify-center text-lg font-bold text-white shadow-lg shadow-stylist-200 dark:shadow-stylist-900/30 shrink-0">
             {entry.userName ? initials(entry.userName) : initials(entry.userId)}
           </div>
           <div className="flex-1 min-w-0">
@@ -217,7 +217,7 @@ function InServiceCard({
           <button
             onClick={() => onDone(entry.userId)}
             disabled={actionLoading === `done-${entry.userId}`}
-            className="flex items-center justify-center gap-2 px-5 py-3 min-h-[44px] rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 text-white text-xs font-bold hover:from-brand-600 hover:to-brand-700 disabled:opacity-50 shadow-lg shadow-brand-200 dark:shadow-brand-900/30 transition-all"
+            className="flex items-center justify-center gap-2 px-5 py-3 min-h-[44px] rounded-xl bg-gradient-to-r from-stylist-500 to-stylist-600 text-white text-xs font-bold hover:from-stylist-600 hover:to-stylist-700 disabled:opacity-50 shadow-lg shadow-stylist-200 dark:shadow-stylist-900/30 transition-all"
           >
             {actionLoading === `done-${entry.userId}` ? (
               <Loader2 size={14} className="animate-spin" />
@@ -323,8 +323,8 @@ export default function QueueManagement() {
     <div className="min-h-screen bg-gray-50 dark:bg-surface-dark-tertiary">
       {/* Background decorations */}
       <div className="relative">
-        <div className="absolute -top-32 -right-32 w-72 h-72 rounded-full bg-gradient-to-bl from-brand-50/30 to-transparent dark:from-brand-900/10 pointer-events-none" />
-        <div className="absolute top-40 -left-20 w-48 h-48 rounded-full bg-gradient-to-tr from-rose-50/20 to-transparent dark:from-rose-900/5 pointer-events-none" />
+        <div className="absolute -top-32 -right-32 w-72 h-72 rounded-full bg-gradient-to-bl from-stylist-50/30 to-transparent dark:from-stylist-900/10 pointer-events-none" />
+        <div className="absolute top-40 -left-20 w-48 h-48 rounded-full bg-gradient-to-tr from-stylist-50/20 to-transparent dark:from-stylist-900/5 pointer-events-none" />
 
         <div className="relative max-w-3xl mx-auto px-4 pb-20">
           {/* Header */}
@@ -333,12 +333,12 @@ export default function QueueManagement() {
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 mb-1">Queue Management</p>
                 <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-gray-100 tracking-tight">
-                  Customer <span className="bg-gradient-to-r from-brand-500 to-rose-500 bg-clip-text text-transparent">Queue</span>
+                  Customer <span className="bg-gradient-to-r from-stylist-500 to-stylist-500 bg-clip-text text-transparent">Queue</span>
                 </h1>
               </div>
               <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
                 <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-surface-dark-secondary border border-gray-100 dark:border-gray-700/40 shadow-sm">
-                  <Users size={15} className="text-brand-500" />
+                  <Users size={15} className="text-stylist-500" />
                   <span className="text-sm font-bold text-gray-900 dark:text-gray-100 tabular-nums">{waiting.length}</span>
                   <span className="text-xs text-gray-400 dark:text-gray-500">waiting</span>
                 </div>
@@ -398,12 +398,12 @@ export default function QueueManagement() {
               {hasInService && (
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="w-6 h-6 rounded-lg bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center">
-                      <UserCheck size={12} className="text-brand-600 dark:text-brand-400" />
+                    <div className="w-6 h-6 rounded-lg bg-stylist-50 dark:bg-stylist-900/30 flex items-center justify-center">
+                      <UserCheck size={12} className="text-stylist-600 dark:text-stylist-400" />
                     </div>
                     <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Now serving</h2>
-                    <div className="flex-1 h-px bg-gradient-to-r from-brand-200 dark:from-brand-800/50 to-transparent" />
-                    <span className="text-[10px] font-bold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 px-2 py-0.5 rounded-full border border-brand-200 dark:border-brand-800/30">
+                    <div className="flex-1 h-px bg-gradient-to-r from-stylist-200 dark:from-stylist-800/50 to-transparent" />
+                    <span className="text-[10px] font-bold text-stylist-600 dark:text-stylist-400 bg-stylist-50 dark:bg-stylist-900/20 px-2 py-0.5 rounded-full border border-stylist-200 dark:border-stylist-800/30">
                       {inService.length}
                     </span>
                   </div>
@@ -423,12 +423,12 @@ export default function QueueManagement() {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-lg bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center">
-                        <Clock size={12} className="text-brand-600 dark:text-brand-400" />
+                      <div className="w-6 h-6 rounded-lg bg-stylist-50 dark:bg-stylist-900/20 flex items-center justify-center">
+                        <Clock size={12} className="text-stylist-600 dark:text-stylist-400" />
                       </div>
                       <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">Waiting list</h2>
                       <div className="flex-1 h-px bg-gradient-to-r from-gray-200 dark:from-gray-700 to-transparent" />
-                      <span className="text-[10px] font-bold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/20 px-2 py-0.5 rounded-full border border-brand-200 dark:border-brand-800/30">
+                      <span className="text-[10px] font-bold text-stylist-600 dark:text-stylist-400 bg-stylist-50 dark:bg-stylist-900/20 px-2 py-0.5 rounded-full border border-stylist-200 dark:border-stylist-800/30">
                         {waiting.length}
                       </span>
                     </div>
@@ -440,7 +440,7 @@ export default function QueueManagement() {
                           value={search}
                           onChange={(e) => setSearch(e.target.value)}
                           placeholder="Search customers…"
-                          className="w-36 sm:w-44 pl-8 pr-3 py-2 rounded-xl bg-white dark:bg-surface-dark-secondary border border-gray-200 dark:border-gray-700/40 text-xs text-gray-900 dark:text-gray-100 placeholder:text-gray-400 outline-none focus:border-brand-300 dark:focus:border-brand-700 focus:ring-2 focus:ring-brand-50 dark:focus:ring-brand-900/20 transition-all"
+                          className="w-36 sm:w-44 pl-8 pr-3 py-2 rounded-xl bg-white dark:bg-surface-dark-secondary border border-gray-200 dark:border-gray-700/40 text-xs text-gray-900 dark:text-gray-100 placeholder:text-gray-400 outline-none focus:border-stylist-300 dark:focus:border-stylist-700 focus:ring-2 focus:ring-stylist-50 dark:focus:ring-stylist-900/20 transition-all"
                         />
                       </div>
                     )}
@@ -480,7 +480,7 @@ export default function QueueManagement() {
                   <button
                     onClick={handleAdvance}
                     disabled={actionLoading === "advance"}
-                    className="w-full flex items-center justify-center gap-2.5 py-4 min-h-[52px] rounded-2xl bg-gradient-to-r from-brand-500 to-rose-500 text-white font-bold text-sm hover:from-brand-600 hover:to-rose-600 disabled:opacity-50 shadow-xl shadow-brand-200 dark:shadow-brand-900/30 transition-all"
+                    className="w-full flex items-center justify-center gap-2.5 py-4 min-h-[52px] rounded-2xl bg-gradient-to-r from-stylist-500 to-stylist-500 text-white font-bold text-sm hover:from-stylist-600 hover:to-stylist-600 disabled:opacity-50 shadow-xl shadow-stylist-200 dark:shadow-stylist-900/30 transition-all"
                   >
                     {actionLoading === "advance" ? (
                       <Loader2 size={16} className="animate-spin" />

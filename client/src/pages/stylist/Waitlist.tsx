@@ -94,7 +94,7 @@ export default function Waitlist() {
               <div className="mt-3 flex gap-2">
                 {entry.status === 'waiting' && (
                   <button onClick={() => handleNotify(entry._id)}
-                    className="flex items-center gap-1 text-xs bg-brand-50 text-brand-600 hover:bg-brand-500 hover:text-white px-3 py-1.5 rounded-xl transition-colors min-h-[32px]">
+                    className="flex items-center gap-1 text-xs bg-stylist-50 text-stylist-600 hover:bg-stylist-500 hover:text-white px-3 py-1.5 rounded-xl transition-colors min-h-[32px]">
                     <Bell className="w-3 h-3 shrink-0" /> Notify Client
                   </button>
                 )}

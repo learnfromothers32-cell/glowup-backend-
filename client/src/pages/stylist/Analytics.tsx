@@ -102,7 +102,7 @@ export default function StylistAnalytics() {
             <div className={`w-9 h-9 rounded-2xl flex items-center justify-center ${color}`}>
               <Icon size={16} />
             </div>
-            <p className="mt-2 text-lg sm:text-xl font-bold text-brand-500 truncate">{value}</p>
+            <p className="mt-2 text-lg sm:text-xl font-bold text-stylist-500 truncate">{value}</p>
             <p className="text-[10px] text-text-secondary mt-0.5">{label}</p>
           </motion.div>
         ))}

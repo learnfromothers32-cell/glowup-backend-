@@ -153,7 +153,7 @@ export default function Clients() {
             <Card key={client._id} hover padding="md" className="relative">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-gold-500 flex items-center justify-center text-white text-sm font-bold shrink-0 shadow-sm">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-stylist-500 to-stylist-500 flex items-center justify-center text-white text-sm font-bold shrink-0 shadow-sm">
                     {client.userId?.name?.charAt(0) || '?'}
                   </div>
                   <div className="min-w-0">
@@ -215,7 +215,7 @@ export default function Clients() {
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-500 to-gold-500 flex items-center justify-center text-white text-lg font-bold shadow-sm">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-stylist-500 to-stylist-500 flex items-center justify-center text-white text-lg font-bold shadow-sm">
                       {detailData.client?.userId?.name?.charAt(0) || '?'}
                     </div>
                     <div>

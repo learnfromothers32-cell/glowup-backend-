@@ -174,7 +174,7 @@ export default function Packages() {
               </div>
               <label className="flex items-center gap-2 text-sm text-text-primary dark:text-text-dark-primary">
                 <input type="checkbox" checked={editForm.popular} onChange={e => setEditForm({ ...editForm, popular: e.target.checked })}
-                  className="rounded border-gray-200 dark:border-gray-600 text-brand-500 focus:ring-brand-500" />
+                  className="rounded border-gray-200 dark:border-gray-600 text-stylist-500 focus:ring-stylist-500" />
                 Mark as popular
               </label>
             </div>

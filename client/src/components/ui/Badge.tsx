@@ -7,6 +7,7 @@ const variants = {
   error: 'badge-error',
   info: 'badge-info',
   brand: 'badge-brand',
+  stylist: 'badge-stylist',
   gray: 'badge-gray',
 };
 

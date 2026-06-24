@@ -87,7 +87,7 @@ export default function Settings() {
                 <span className="text-sm text-text-primary dark:text-text-dark-primary">{item.label}</span>
                 <input type="checkbox" checked={(notifications as any)[item.key]}
                   onChange={e => setNotifications({ ...notifications, [item.key]: e.target.checked })}
-                  className="rounded border-gray-200 dark:border-gray-600 text-brand-500 focus:ring-brand-500 shrink-0" />
+                  className="rounded border-gray-200 dark:border-gray-600 text-stylist-500 focus:ring-stylist-500 shrink-0" />
               </label>
             ))}
           </div>
@@ -105,7 +105,7 @@ export default function Settings() {
                 <span className="text-sm text-text-primary dark:text-text-dark-primary">{item.label}</span>
                 <input type="checkbox" checked={(privacy as any)[item.key]}
                   onChange={e => setPrivacy({ ...privacy, [item.key]: e.target.checked })}
-                  className="rounded border-gray-200 dark:border-gray-600 text-brand-500 focus:ring-brand-500 shrink-0" />
+                  className="rounded border-gray-200 dark:border-gray-600 text-stylist-500 focus:ring-stylist-500 shrink-0" />
               </label>
             ))}
           </div>
@@ -122,7 +122,7 @@ export default function Settings() {
               <button key={option.key} onClick={() => setTheme(option.key as any)}
                 className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-3 rounded-xl border text-xs sm:text-sm transition-colors min-h-[44px] ${
                   theme === option.key
-                    ? 'border-brand-500 bg-brand-500/10 text-brand-600 dark:text-brand-400'
+                    ? 'border-stylist-500 bg-stylist-500/10 text-stylist-600 dark:text-stylist-400'
                     : 'border-gray-200 dark:border-gray-600 text-text-secondary dark:text-text-dark-secondary hover:border-gray-300 dark:hover:border-gray-500'
                 }`}>
                 <option.icon className="w-4 h-4 shrink-0" /> <span>{option.label}</span>

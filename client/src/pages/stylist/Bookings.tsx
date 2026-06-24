@@ -216,7 +216,7 @@ export default function StylistBookings() {
           <div className="relative mb-2 sm:hidden">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted dark:text-text-dark-muted pointer-events-none" />
             <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or service\u2026"
-              className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-200 dark:border-gray-600 text-sm text-text-primary dark:text-text-dark-primary placeholder:text-text-muted outline-none focus:border-brand-300 dark:focus:border-brand-700 transition-all" />
+              className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-200 dark:border-gray-600 text-sm text-text-primary dark:text-text-dark-primary placeholder:text-text-muted outline-none focus:border-stylist-300 dark:focus:border-stylist-700 transition-all" />
           </div>
           {/* Pills + Desktop search */}
           <div className="flex items-center gap-2">
@@ -226,7 +226,7 @@ export default function StylistBookings() {
             <div className="relative shrink-0 hidden sm:block">
               <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted dark:text-text-dark-muted pointer-events-none" />
               <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search\u2026"
-                className="w-44 pl-8 pr-2.5 py-2 rounded-xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-200 dark:border-gray-600 text-xs text-text-primary dark:text-text-dark-primary placeholder:text-text-muted outline-none focus:border-brand-300 dark:focus:border-brand-700 transition-all" />
+                className="w-44 pl-8 pr-2.5 py-2 rounded-xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-200 dark:border-gray-600 text-xs text-text-primary dark:text-text-dark-primary placeholder:text-text-muted outline-none focus:border-stylist-300 dark:focus:border-stylist-700 transition-all" />
             </div>
           </div>
         </div>
@@ -257,7 +257,7 @@ export default function StylistBookings() {
                     return (
                       <motion.div key={b._id} onClick={() => setDetail(b)}
                         initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                        className={`group bg-white dark:bg-surface-dark-secondary rounded-2xl border cursor-pointer hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-md transition-all duration-200 ${isCancelled ? "opacity-60" : "border-gray-100 dark:border-gray-700/40"} ${isPending ? "border-l-4 border-l-brand-500 dark:border-l-brand-400" : ""}`}>
+                        className={`group bg-white dark:bg-surface-dark-secondary rounded-2xl border cursor-pointer hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-md transition-all duration-200 ${isCancelled ? "opacity-60" : "border-gray-100 dark:border-gray-700/40"} ${isPending ? "border-l-4 border-l-stylist-500 dark:border-l-stylist-400" : ""}`}>
                         <div className="p-2.5 sm:p-3">
                           {/* Row 1: time | name + badge */}
                           <div className="flex items-start gap-2.5 sm:gap-3">
@@ -286,7 +286,7 @@ export default function StylistBookings() {
                               {isPending && (
                                 <>
                                   <button onClick={(e) => { e.stopPropagation(); handleConfirm(b._id); }} disabled={actionLoading === b._id}
-                                    className="flex-1 flex items-center justify-center gap-1.5 min-h-[48px] rounded-xl border border-brand-300 bg-brand-50 dark:bg-brand-950/20 text-sm font-semibold text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-950/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                    className="flex-1 flex items-center justify-center gap-1.5 min-h-[48px] rounded-xl border border-stylist-300 bg-stylist-50 dark:bg-stylist-950/20 text-sm font-semibold text-stylist-600 dark:text-stylist-400 hover:bg-stylist-100 dark:hover:bg-stylist-950/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                                     {actionLoading === b._id ? <Loader2 size={16} className="animate-spin" /> : <CheckIcon size={16} />}
                                     Confirm
                                   </button>
@@ -299,7 +299,7 @@ export default function StylistBookings() {
                               )}
                               {b.status === "confirmed" && (
                                 <button onClick={(e) => { e.stopPropagation(); handleStartService(b._id); }} disabled={actionLoading === b._id}
-                                  className="flex-1 flex items-center justify-center gap-1.5 min-h-[48px] rounded-xl border border-brand-300 bg-brand-50 dark:bg-brand-950/20 text-sm font-semibold text-brand-600 dark:text-brand-400 hover:bg-brand-100 dark:hover:bg-brand-950/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                  className="flex-1 flex items-center justify-center gap-1.5 min-h-[48px] rounded-xl border border-stylist-300 bg-stylist-50 dark:bg-stylist-950/20 text-sm font-semibold text-stylist-600 dark:text-stylist-400 hover:bg-stylist-100 dark:hover:bg-stylist-950/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                                   {actionLoading === b._id ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
                                   Start Service
                                 </button>
@@ -307,7 +307,7 @@ export default function StylistBookings() {
                               {b.status === "in-progress" && (
                                 <div className="flex items-center gap-2 flex-1">
                                   {elapsed[b._id] && (
-                                    <span className="flex items-center gap-1 text-xs font-mono text-brand-600 dark:text-brand-400 font-semibold shrink-0">
+                                    <span className="flex items-center gap-1 text-xs font-mono text-stylist-600 dark:text-stylist-400 font-semibold shrink-0">
                                       <Timer size={14} /> {elapsed[b._id]}
                                     </span>
                                   )}

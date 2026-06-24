@@ -107,11 +107,11 @@ export default function ConsultationForms() {
               <p className="text-xs text-text-muted dark:text-text-dark-muted mt-2">{form.questions?.length || 0} questions</p>
               <div className="mt-3 flex gap-2">
                 <button onClick={() => viewFormResponses(form._id)}
-                  className="flex-1 text-xs bg-brand-50 text-brand-600 py-1.5 rounded-xl hover:bg-brand-500 hover:text-white transition-colors flex items-center justify-center gap-1 dark:bg-brand-950/20 dark:text-brand-400 dark:hover:bg-brand-600">
+                  className="flex-1 text-xs bg-stylist-50 text-stylist-600 py-1.5 rounded-xl hover:bg-stylist-500 hover:text-white transition-colors flex items-center justify-center gap-1 dark:bg-stylist-950/20 dark:text-stylist-400 dark:hover:bg-stylist-600">
                   <Eye className="w-3 h-3" /> View Responses
                 </button>
                 <button onClick={() => { setEditing(form._id); setEditForm(form); setShowAdd(true); }}
-                  className="px-3 text-xs bg-brand-50 text-brand-600 py-1.5 rounded-xl hover:bg-brand-500 hover:text-white transition-colors dark:bg-brand-950/20 dark:text-brand-400 dark:hover:bg-brand-600">Edit</button>
+                  className="px-3 text-xs bg-stylist-50 text-stylist-600 py-1.5 rounded-xl hover:bg-stylist-500 hover:text-white transition-colors dark:bg-stylist-950/20 dark:text-stylist-400 dark:hover:bg-stylist-600">Edit</button>
                 <button onClick={() => { if (confirm('Delete this form?')) deleteForm(form._id).then(loadForms); }}
                   className="px-3 text-xs bg-red-50 text-red-600 py-1.5 rounded-xl hover:bg-red-600 hover:text-white transition-colors dark:bg-red-950/20 dark:text-red-400 dark:hover:bg-red-600"><Trash2 className="w-3 h-3" /></button>
               </div>
@@ -138,7 +138,7 @@ export default function ConsultationForms() {
               <div className="border-t border-gray-200 dark:border-gray-600 pt-3">
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-sm font-medium text-text-primary dark:text-text-dark-primary">Questions</label>
-                  <button onClick={addQuestion} className="text-xs text-brand-500 hover:underline">+ Add Question</button>
+                  <button onClick={addQuestion} className="text-xs text-stylist-500 hover:underline">+ Add Question</button>
                 </div>
                 {editForm.questions.map((q: any, idx: number) => (
                   <div key={q.id} className="p-3 mb-2 bg-gray-50 dark:bg-surface-dark-tertiary rounded-xl">

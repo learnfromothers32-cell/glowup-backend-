@@ -179,7 +179,7 @@ export default function Products() {
 
               <div className="mt-3 flex gap-2">
                 <button onClick={() => { setEditing(product._id); setEditForm(product); }}
-                  className="flex-1 text-xs bg-brand-50 text-brand-600 py-1.5 rounded-xl hover:bg-brand-500 hover:text-white transition-colors flex items-center justify-center gap-1 dark:bg-brand-950/20 dark:text-brand-400 dark:hover:bg-brand-600">
+                  className="flex-1 text-xs bg-stylist-50 text-stylist-600 py-1.5 rounded-xl hover:bg-stylist-500 hover:text-white transition-colors flex items-center justify-center gap-1 dark:bg-stylist-950/20 dark:text-stylist-400 dark:hover:bg-stylist-600">
                   <Edit3 className="w-3 h-3" /> Edit
                 </button>
                 <button onClick={() => handleDelete(product._id)}

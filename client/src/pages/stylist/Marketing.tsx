@@ -163,7 +163,7 @@ export default function Marketing() {
                 <div>
                   <label className="text-xs text-text-secondary dark:text-text-dark-secondary">Code *</label>
                   <input value={editForm.code} onChange={e => setEditForm({ ...editForm, code: e.target.value.toUpperCase() })}
-                    className="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-brand-500" placeholder="SUMMER20" />
+                    className="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-stylist-500" placeholder="SUMMER20" />
                 </div>
                 <div>
                   <label className="text-xs text-text-secondary dark:text-text-dark-secondary">Type</label>

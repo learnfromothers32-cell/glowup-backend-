@@ -108,7 +108,7 @@ export default function StylistOnboarding() {
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-brand-700 rounded-xl mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-stylist-700 rounded-xl mb-4">
             <Sparkles className="text-white" size={22} />
           </div>
           <h1 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary font-display">
@@ -165,7 +165,7 @@ export default function StylistOnboarding() {
                       value={profile.phone}
                       onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                       placeholder="Phone number"
-                      className="w-full pl-9 pr-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary"
+                      className="w-full pl-9 pr-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stylist-500/20 bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary"
                     />
                   </div>
                   <div className="relative">
@@ -174,7 +174,7 @@ export default function StylistOnboarding() {
                       onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                       placeholder="Tell clients about yourself (optional)"
                       rows={3}
-                      className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 resize-none bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary"
+                      className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-stylist-500/20 resize-none bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary"
                     />
                   </div>
                 </div>
@@ -185,7 +185,7 @@ export default function StylistOnboarding() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-bold text-text-primary dark:text-text-dark-primary">Your Services</h2>
-                    <button onClick={addService} className="text-xs font-semibold text-brand-500 hover:underline">
+                    <button onClick={addService} className="text-xs font-semibold text-stylist-500 hover:underline">
                       + Add another
                     </button>
                   </div>

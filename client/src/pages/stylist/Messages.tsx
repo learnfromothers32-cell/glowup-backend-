@@ -99,7 +99,7 @@ export default function Messages() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted dark:text-text-dark-muted" />
               <input type="text" placeholder="Search conversations..." value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all border border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary text-text-primary dark:text-text-dark-primary caret-brand-500"
+                className="w-full pl-9 pr-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all border border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary text-text-primary dark:text-text-dark-primary caret-stylist-500"
               />
             </div>
           </div>
@@ -114,9 +114,9 @@ export default function Messages() {
             ) : (
               filteredConversations.map(conv => (
                 <button key={conv._id} onClick={() => openChat(conv._id)}
-                  className={`w-full text-left p-3 transition-colors border-b border-gray-100 dark:border-gray-700/40 ${activeChat === conv._id ? 'bg-brand-50 dark:bg-brand-950/20' : 'bg-transparent'}`}>
+                  className={`w-full text-left p-3 transition-colors border-b border-gray-100 dark:border-gray-700/40 ${activeChat === conv._id ? 'bg-stylist-50 dark:bg-stylist-950/20' : 'bg-transparent'}`}>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0 bg-gradient-to-br from-brand-700 to-brand-900">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0 bg-gradient-to-br from-stylist-700 to-stylist-900">
                       {conv.clientId?.name?.charAt(0) || '?'}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -133,7 +133,7 @@ export default function Messages() {
                       </p>
                     </div>
                     {conv.unreadStylist > 0 && (
-                      <span className="w-5 h-5 text-white text-xs rounded-full flex items-center justify-center shrink-0 font-bold bg-gradient-to-br from-brand-700 to-brand-900">
+                      <span className="w-5 h-5 text-white text-xs rounded-full flex items-center justify-center shrink-0 font-bold bg-gradient-to-br from-stylist-700 to-stylist-900">
                         {conv.unreadStylist}
                       </span>
                     )}
@@ -163,7 +163,7 @@ export default function Messages() {
                 <button onClick={() => setActiveChat(null)} className="lg:hidden p-1 rounded-xl hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary transition-colors text-text-secondary dark:text-text-dark-secondary">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0 bg-gradient-to-br from-brand-700 to-brand-900">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0 bg-gradient-to-br from-stylist-700 to-stylist-900">
                   {activeConv?.clientId?.name?.charAt(0) || '?'}
                 </div>
                 <div className="flex-1">
@@ -183,7 +183,7 @@ export default function Messages() {
                     <motion.div key={msg._id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                       className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                       <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${isMe
-                        ? 'rounded-br-md bg-gradient-to-br from-brand-600 to-brand-800 text-white shadow-md'
+                        ? 'rounded-br-md bg-gradient-to-br from-stylist-600 to-stylist-800 text-white shadow-md'
                         : 'rounded-bl-md bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary shadow-sm'
                       }`}>
                         <p className="text-sm leading-relaxed">{msg.content}</p>
@@ -202,10 +202,10 @@ export default function Messages() {
                 <div className="flex items-center gap-2">
                   <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
                     placeholder="Type a message..." rows={1}
-                    className="flex-1 rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 transition-all border border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary text-text-primary dark:text-text-dark-primary caret-brand-500"
+                    className="flex-1 rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 transition-all border border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary text-text-primary dark:text-text-dark-primary caret-stylist-500"
                   />
                   <button onClick={handleSend} disabled={!input.trim() || sending}
-                    className="p-2.5 rounded-xl text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-br from-brand-700 to-brand-900 shadow-md">
+                    className="p-2.5 rounded-xl text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-br from-stylist-700 to-stylist-900 shadow-md">
                     {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   </button>
                 </div>

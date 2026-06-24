@@ -52,7 +52,7 @@ function LoadingSkeleton() {
       <div className="h-8 w-32 skeleton-pulse" />
       <div className="h-4 w-48 skeleton-pulse" />
       <Card elevated padding="none" className="overflow-hidden">
-        <div className="p-6 bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900">
+        <div className="p-6 bg-gradient-to-br from-stylist-700 via-stylist-800 to-stylist-900">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-xl bg-white/10 animate-pulse" />
             <div className="space-y-2 flex-1">
@@ -367,7 +367,7 @@ export default function Profile() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl overflow-hidden shadow-card bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900 text-white"
+          className="rounded-2xl overflow-hidden shadow-card bg-gradient-to-br from-stylist-700 via-stylist-800 to-stylist-900 text-white"
         >
           <div className="p-6 relative">
             <div className="absolute top-0 right-0 w-32 h-32 opacity-5">
@@ -562,7 +562,7 @@ export default function Profile() {
                               clearFieldError("category");
                             }}
                             className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                              category === c ? "bg-brand-50 text-brand-700 dark:bg-brand-950/20 dark:text-brand-300 font-medium" : "text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary"
+                              category === c ? "bg-stylist-50 text-stylist-700 dark:bg-stylist-950/20 dark:text-stylist-300 font-medium" : "text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary"
                             }`}
                           >
                             {c}
@@ -627,8 +627,8 @@ export default function Profile() {
               </p>
             </div>
             {location.area && (location.lat || location.lng) && (
-              <div className="flex items-center gap-2.5 mb-4 px-3.5 py-2.5 rounded-xl bg-brand-50 dark:bg-brand-950/20 border border-brand-900/10 dark:border-brand-900/30">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-800">
+              <div className="flex items-center gap-2.5 mb-4 px-3.5 py-2.5 rounded-xl bg-stylist-50 dark:bg-stylist-950/20 border border-stylist-900/10 dark:border-stylist-900/30">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-stylist-800">
                   <Navigation size={14} className="text-white" />
                 </div>
                 <div className="flex-1 min-w-0">

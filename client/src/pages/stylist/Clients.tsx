@@ -323,7 +323,7 @@ export default function Clients() {
                   </div>
                 </div>
 
-                <div className="px-5 sm:px-7 pb-6 sm:pb-8">
+                <div className="px-5 sm:px-7 pb-24 sm:pb-28">
                   {/* ─── Quick Stats ─── */}
                   <div className="grid grid-cols-3 gap-3 -mt-4 sm:-mt-5 relative z-10">
                     <div className="bg-white dark:bg-surface-dark-secondary rounded-xl sm:rounded-2xl p-3 sm:p-4 text-center shadow-card border border-gray-100 dark:border-gray-700/40">

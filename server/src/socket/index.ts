@@ -434,21 +434,32 @@ export const initSocket = (server: HttpServer): Server => {
       }
     });
 
+    const likeCooldowns = new Map<string, number>();
+    const LIKE_COOLDOWN_MS = 1_500;
+
     socket.on('live:like', async (data: { stylistId: string }) => {
       const room = `live:${data.stylistId}`;
-      const rateKey = `like:${userId || socket.id}`;
-      if (!checkRateLimit(rateKey)) return;
+      const likerId = userId || socket.id;
+      const now = Date.now();
+      const lastLike = likeCooldowns.get(likerId);
+      if (lastLike && now - lastLike < LIKE_COOLDOWN_MS) {
+        return;
+      }
+      likeCooldowns.set(likerId, now);
       try {
         const { LiveSession } = await import('../models/LiveSession');
         const session = await LiveSession.findOne({ stylistId: data.stylistId, isLive: true });
         if (session) {
           session.reactionCounts.like = (session.reactionCounts.like || 0) + 1;
           await session.save();
+          liveNsp.to(room).emit('live:like-update', {
+            totalLikes: session.reactionCounts.like,
+            userId: likerId,
+          });
         }
       } catch (err) {
         logger.error('[live:like] error:', { error: (err as Error).message });
       }
-      liveNsp.to(room).emit('live:like-update', { userId: userId || socket.id });
     });
 
     socket.on('live:reaction', async (data: { stylistId: string; reaction: string }) => {

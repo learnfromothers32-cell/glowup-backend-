@@ -42,6 +42,8 @@ export default function LiveRoom() {
   }>>([]);
   const [totalLikes, setTotalLikes] = useState(0);
   const [remoteReactions, setRemoteReactions] = useState<FloatingReaction[]>([]);
+  const [likeCooldown, setLikeCooldown] = useState(false);
+  const likeCooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showTour, setShowTour] = useState(() => {
     return localStorage.getItem("opencode-live-tour-completed") !== "true";
   });
@@ -96,7 +98,9 @@ export default function LiveRoom() {
     });
 
     on("live:like-update", (data: { totalLikes: number }) => {
-      setTotalLikes(data.totalLikes ?? ((prev: number) => prev + 1));
+      if (typeof data.totalLikes === "number") {
+        setTotalLikes(data.totalLikes);
+      }
     });
 
     on("live:gift-received", (data: {
@@ -268,9 +272,14 @@ export default function LiveRoom() {
   const handleReaction = useCallback((type: string) => {
     if (!stylistId) return;
     emit('live:reaction', { stylistId, reaction: type });
-    sendLike();
-    setTotalLikes((prev) => prev + 1);
-  }, [stylistId, emit, sendLike]);
+    if (!likeCooldown) {
+      sendLike();
+      setTotalLikes((prev) => prev + 1);
+      setLikeCooldown(true);
+      if (likeCooldownRef.current) clearTimeout(likeCooldownRef.current);
+      likeCooldownRef.current = setTimeout(() => setLikeCooldown(false), 1500);
+    }
+  }, [stylistId, emit, sendLike, likeCooldown]);
 
   const handleBookClick = () => {
     if (!stylist) return;
@@ -343,6 +352,7 @@ export default function LiveRoom() {
         isMuted={isMuted}
         onToggleMute={() => setIsMuted((p) => !p)}
         onReaction={handleReaction}
+        likeCooldown={likeCooldown}
         onClose={handleClose}
         onBook={handleBookClick}
         onHostClick={() => navigate(`/app/stylist/${stylistId}`)}

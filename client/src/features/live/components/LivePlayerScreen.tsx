@@ -35,6 +35,7 @@ interface Props {
   onToggleMute?: () => void;
   onReaction?: (type: string) => void;
   totalLikes?: number;
+  likeCooldown?: boolean;
   onClose?: () => void;
   socket?: {
     on: (event: string, handler: (...args: any[]) => void) => void;
@@ -70,7 +71,7 @@ export function LivePlayerScreen({
   viewerCount = 0, streamTitle = "", onSendGift, onShare, onReport,
   onBook, onHostClick, giftBalance = 100, giftAnimations = [], onGiftAnimComplete,
   remoteReactions = [], isMuted = true, onToggleMute, onReaction,
-  totalLikes = 0, onClose, socket,
+  totalLikes = 0, likeCooldown = false, onClose, socket,
 }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const chatListRef = useRef<HTMLDivElement>(null);
@@ -364,13 +365,28 @@ export function LivePlayerScreen({
             )}
 
             <button
-              onClick={(e) => { e.stopPropagation(); spawnReaction("heart"); onReaction?.("heart"); }}
-              className="flex flex-col items-center gap-0.5 active:scale-90 transition-transform relative"
+              onClick={(e) => { e.stopPropagation(); if (!likeCooldown) { spawnReaction("heart"); onReaction?.("heart"); } }}
+              className={`flex flex-col items-center gap-0.5 transition-transform relative ${likeCooldown ? "scale-90" : "active:scale-90"}`}
             >
-              <div className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center shadow-lg border border-white/[0.06]">
-                <Heart size={19} className="text-white" fill="white" fillOpacity={0.3} />
-              </div>
-              <span className="text-[9px] text-white/60 drop-shadow-lg">Like</span>
+              <motion.div
+                className="w-11 h-11 rounded-full backdrop-blur-sm flex items-center justify-center shadow-lg border"
+                style={{
+                  background: likeCooldown ? "rgba(254,44,85,0.25)" : "rgba(0,0,0,0.45)",
+                  borderColor: likeCooldown ? "rgba(254,44,85,0.4)" : "rgba(255,255,255,0.06)",
+                }}
+                animate={likeCooldown ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+                transition={{ duration: 0.4 }}
+              >
+                <Heart
+                  size={19}
+                  className={likeCooldown ? "text-red-400" : "text-white"}
+                  fill={likeCooldown ? "#f43f5e" : "white"}
+                  fillOpacity={likeCooldown ? 1 : 0.3}
+                />
+              </motion.div>
+              <span className={`text-[9px] drop-shadow-lg ${likeCooldown ? "text-red-400/70" : "text-white/60"}`}>
+                {likeCooldown ? "Liked" : "Like"}
+              </span>
               <AnimatePresence>
                 {likesCount > 0 && (
                   <motion.span

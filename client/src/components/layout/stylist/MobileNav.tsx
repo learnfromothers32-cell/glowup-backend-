@@ -39,7 +39,7 @@ export default function MobileNav({ onOpenMenu }: MobileNavProps) {
           <button
             key={path}
             onClick={() => navigate(path)}
-            className={`relative flex flex-col items-center gap-0.5 px-2 py-1.5 text-[10px] font-semibold transition-all min-h-[48px] min-w-[52px] rounded-lg ${
+            className={`relative flex flex-col items-center gap-0.5 px-1.5 py-1.5 text-[10px] font-semibold transition-all min-h-[48px] rounded-lg ${
               active
                 ? "text-brand-600 dark:text-brand-400"
                 : "text-gray-400 dark:text-text-dark-muted hover:text-gray-600 dark:hover:text-text-dark-secondary"
@@ -56,7 +56,7 @@ export default function MobileNav({ onOpenMenu }: MobileNavProps) {
 
       <button
         onClick={onOpenMenu}
-        className="flex flex-col items-center gap-0.5 px-2 py-1.5 text-[10px] font-semibold min-h-[48px] min-w-[52px] text-gray-400 dark:text-text-dark-muted hover:text-gray-600 dark:hover:text-text-dark-secondary rounded-lg"
+        className="flex flex-col items-center gap-0.5 px-1.5 py-1.5 text-[10px] font-semibold min-h-[48px] rounded-lg text-gray-400 dark:text-text-dark-muted hover:text-gray-600 dark:hover:text-text-dark-secondary"
         aria-label="More menu"
       >
         <Menu size={18} />

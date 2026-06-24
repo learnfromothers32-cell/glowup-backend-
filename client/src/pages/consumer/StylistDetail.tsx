@@ -138,7 +138,7 @@ function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
         <Star
           key={n}
           size={size}
-          className={n <= Math.round(rating) ? "text-amber-400" : "text-gray-200 dark:text-gray-600"}
+          className={n <= Math.round(rating) ? "text-gold-400" : "text-gray-200 dark:text-gray-600"}
           fill={n <= Math.round(rating) ? "currentColor" : "none"}
         />
       ))}
@@ -152,7 +152,7 @@ function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
 type BadgeVariant = "navy" | "gold" | "green" | "muted";
 const pillVariants: Record<BadgeVariant, string> = {
   navy: "bg-brand-50 dark:bg-brand-500/10 text-brand-600",
-  gold: "bg-amber-50 dark:bg-amber-500/10 text-amber-600",
+  gold: "bg-gold-50 dark:bg-gold-500/10 text-gold-600",
   green: "bg-green-50 dark:bg-green-500/10 text-green-600",
   muted: "bg-gray-100/50 dark:bg-gray-800/30 text-text-secondary dark:text-text-dark-secondary",
 };
@@ -266,7 +266,7 @@ function Lightbox({
               onClick={() => setIndex(i)}
               className="h-0.5 rounded-full transition-all duration-300"
               className={`h-0.5 rounded-full transition-all duration-300 ${
-                i === index ? "w-5 bg-amber-400" : "w-[5px] bg-white/20"
+                i === index ? "w-5 bg-brand-500" : "w-[5px] bg-white/20"
               }`}
             />
           ))}
@@ -383,12 +383,12 @@ function SectionHeader({
       initial={{ opacity: 0, y: 12 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.4 }}
-      className="flex items-end justify-between mb-5"
+      className="flex items-end justify-between gap-2 flex-wrap mb-5"
     >
       <div className="flex items-center gap-2">
         {Icon && (
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-amber-50 dark:bg-amber-500/10">
-            <Icon size={15} className="text-amber-400" />
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-brand-50 dark:bg-brand-500/10">
+            <Icon size={15} className="text-brand-500" />
           </div>
         )}
         <div>
@@ -528,7 +528,7 @@ function PortfolioTab({
             {subTab === key && (
               <motion.div
                 layoutId="portfolioSub"
-                className="absolute bottom-0 inset-x-0 h-0.5 rounded-full bg-amber-400"
+                className="absolute bottom-0 inset-x-0 h-0.5 rounded-full bg-brand-500"
                 transition={{ type: "spring", stiffness: 420, damping: 36 }}
               />
             )}
@@ -538,7 +538,7 @@ function PortfolioTab({
 
       {/* Content grid (TikTok 3-column) */}
       {subTab === 'posts' ? (
-        <div className="grid grid-cols-3 gap-1">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
           {images.map((item, i) => {
             const imgIndex = images.filter(x => x.type === 'image').length > 0
               ? images.slice(0, i).filter(x => x.type === 'image').length
@@ -575,7 +575,7 @@ function PortfolioTab({
           })}
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-1">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
           {beforeAfter.map((item, i) => (
             <motion.button
               key={i}
@@ -621,7 +621,7 @@ function PortfolioTab({
         <div className="mt-6 text-center">
           <button
             onClick={() => navigate('/app/trending')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all hover:scale-105 active:scale-95 bg-amber-400 text-white"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all hover:scale-105 active:scale-95 bg-brand-500 text-white"
           >
             <TrendingUp size={14} />
             View trending transformations
@@ -888,7 +888,7 @@ function ReviewsTab({ stylist }: { stylist: ExtendedStylist }) {
                         delay: 0.2,
                         ease: "easeOut",
                       }}
-                      className="h-full rounded-full bg-amber-400"
+                      className="h-full rounded-full bg-brand-500"
                     />
                   </div>
                   <span className="text-[11px] w-3.5 tabular-nums text-right text-text-muted dark:text-text-dark-muted">
@@ -964,7 +964,7 @@ function ReviewsTab({ stylist }: { stylist: ExtendedStylist }) {
                     </p>
                     <div className="flex items-center gap-4 mt-3.5 pt-3.5 border-t border-gray-100 dark:border-gray-700/40">
                       {[
-                        { icon: ThumbsUp, label: "Helpful", hoverClass: "hover:text-amber-400" },
+                        { icon: ThumbsUp, label: "Helpful", hoverClass: "hover:text-brand-500" },
                         { icon: MessageSquare, label: "Reply", hoverClass: "hover:text-brand-600" },
                       ].map(({ icon: Icon, label, hoverClass }) => (
                         <button
@@ -1065,7 +1065,7 @@ function BookingCard({
               {stylist.name}
             </p>
             {stylist.isVerified && (
-              <BadgeCheck size={14} className="shrink-0 text-amber-400" />
+              <BadgeCheck size={14} className="shrink-0 text-brand-500" />
             )}
             <FollowButton
               stylistId={stylist.id}
@@ -1077,8 +1077,8 @@ function BookingCard({
             <MapPin size={10} /> {getLocationString(stylist.location)}
           </p>
         </div>
-        <div className="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-500/10">
-          <Star size={12} fill="currentColor" className="text-amber-400" />
+          <div className="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-brand-50 dark:bg-brand-500/10">
+            <Star size={12} fill="currentColor" className="text-brand-500" />
           <span className="text-xs font-bold tabular-nums text-text-primary dark:text-text-dark-primary">
             {stylist.rating.toFixed(1)}
           </span>
@@ -1088,7 +1088,7 @@ function BookingCard({
         </div>
       </div>
       <div className="px-5 py-5">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-2 flex-wrap">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest mb-1 text-text-muted dark:text-text-dark-muted">
               Starting from
@@ -1127,7 +1127,7 @@ function BookingCard({
             { icon: Scissors, value: `${services.length}`, label: "Services" },
           ].map(({ icon: SIcon, value, label }) => (
             <div key={label} className="flex flex-col items-center py-3.5 gap-0.5">
-              <SIcon size={13} className="text-amber-400" />
+              <SIcon size={13} className="text-brand-500" />
               <p className="text-base font-bold tabular-nums leading-tight text-text-primary dark:text-text-dark-primary">
                 {value}
               </p>
@@ -1156,7 +1156,7 @@ function BookingCard({
           </button>
           <button
             onClick={onCall}
-            className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 bg-gray-50/80 dark:bg-surface-dark-tertiary text-text-secondary dark:text-text-dark-secondary hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-500/10 dark:hover:text-amber-400"
+            className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 bg-gray-50/80 dark:bg-surface-dark-tertiary text-text-secondary dark:text-text-dark-secondary hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-500/10 dark:hover:text-brand-400"
           >
             <Phone size={13} /> Call
           </button>
@@ -1167,7 +1167,7 @@ function BookingCard({
           className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
             waitlistJoined
               ? "bg-green-50 dark:bg-green-500/10 text-green-600"
-              : "bg-amber-50 dark:bg-amber-500/10 text-amber-600"
+              : "bg-brand-50 dark:bg-brand-500/10 text-brand-600"
           }`}
         >
           {joiningWaitlist ? (
@@ -1251,7 +1251,7 @@ function ConnectCard({ stylist }: { stylist?: any }) {
   return (
     <div className="rounded-2xl overflow-hidden shadow-md bg-white dark:bg-surface-dark-secondary">
       <div className="px-4 py-3.5 flex items-center gap-2 border-b border-gray-100 dark:border-gray-700/40">
-        <div className="w-0.5 h-4 rounded-full bg-amber-400" />
+        <div className="w-0.5 h-4 rounded-full bg-brand-500" />
         <h3 className="text-xs font-bold text-text-primary dark:text-text-dark-primary">
           Find on Social
         </h3>
@@ -1548,7 +1548,7 @@ export default function StylistDetail() {
             <div>
               <div className="flex items-center justify-center gap-2 mb-1">
                 <h1 className="text-3xl font-bold text-white font-serif">{stylist.name}</h1>
-                {stylist.isVerified && <BadgeCheck size={22} className="text-amber-400" />}
+                {stylist.isVerified && <BadgeCheck size={22} className="text-gold-400" />}
               </div>
               <p className="text-sm text-white/65">{getLocationString(stylist.location)}</p>
             </div>
@@ -1635,7 +1635,7 @@ export default function StylistDetail() {
               <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight drop-shadow-xl font-serif">
                 {stylist.name}
               </h1>
-              {stylist.isVerified && <BadgeCheck size={24} className="shrink-0 text-amber-400" />}
+              {stylist.isVerified && <BadgeCheck size={24} className="shrink-0 text-gold-400" />}
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-white/11 backdrop-blur-md text-white/88">
@@ -1655,7 +1655,7 @@ export default function StylistDetail() {
                 <Heart size={10} /> {formatCount(stylist.totalLikes ?? 0)} likes
               </span>
               {stylist.isVerified && (
-                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-amber-400/20 backdrop-blur-md text-amber-400">
+                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium bg-brand-500/20 backdrop-blur-md text-brand-500">
                   <Shield size={10} /> Verified Professional
                 </span>
               )}
@@ -1680,7 +1680,7 @@ export default function StylistDetail() {
                   onClick={() => goTo(key)}
                   className={`relative flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
                     active
-                      ? "text-brand-600 bg-amber-50 dark:bg-amber-500/10"
+                      ? "text-brand-600 bg-brand-50 dark:bg-brand-500/10"
                       : "text-text-muted dark:text-text-dark-muted bg-transparent"
                   }`}
                 >
@@ -1690,7 +1690,7 @@ export default function StylistDetail() {
                     <span
                       className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
                         active
-                          ? "bg-amber-400 text-white"
+                          ? "bg-brand-500 text-white"
                           : "bg-gray-100/50 dark:bg-surface-dark-tertiary text-text-muted dark:text-text-dark-muted"
                       }`}
                     >
@@ -1700,7 +1700,7 @@ export default function StylistDetail() {
                   {active && (
                     <motion.div
                       layoutId="tabInd"
-                      className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-amber-400"
+                      className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-brand-500"
                       transition={{ type: "spring", stiffness: 420, damping: 36 }}
                     />
                   )}
@@ -1753,7 +1753,7 @@ export default function StylistDetail() {
                     {stylist.bio && (
                       <div className="rounded-2xl overflow-hidden shadow-card bg-white dark:bg-surface-dark-secondary">
                         <div className="px-5 sm:px-6 py-4 flex items-center gap-2.5 border-b border-gray-100 dark:border-gray-700/40">
-                          <div className="w-0.5 h-5 rounded-full bg-amber-400" />
+                          <div className="w-0.5 h-5 rounded-full bg-brand-500" />
                           <h2 className="text-sm font-bold text-text-primary dark:text-text-dark-primary">
                             About
                           </h2>
@@ -1946,12 +1946,12 @@ export default function StylistDetail() {
                               </ul>
                             )}
                             {t.discountPercent > 0 && (
-                              <p className="text-xs font-semibold mt-2 text-amber-600">{t.discountPercent}% discount on services</p>
+                              <p className="text-xs font-semibold mt-2 text-brand-600">{t.discountPercent}% discount on services</p>
                             )}
                             <button
                               onClick={() => handleSubscribe(t._id)}
                               disabled={subscribingTier === t._id}
-                              className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all bg-amber-500 text-white hover:bg-amber-600"
+                              className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all bg-brand-500 text-white hover:bg-brand-600"
                             >
                               {subscribingTier === t._id ? <Loader2 size={13} className="animate-spin" /> : null}
                               {subscribingTier === t._id ? 'Subscribing...' : 'Subscribe'}
@@ -2098,7 +2098,7 @@ export default function StylistDetail() {
             exit={{ opacity: 0, y: 20, x: "-50%" }}
             className="fixed bottom-28 lg:bottom-8 left-1/2 z-[400] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl pointer-events-none bg-brand-500 text-white"
           >
-            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-amber-400">
+            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 bg-brand-500">
               <Check size={12} color="#fff" />
             </div>
             <p className="text-xs font-bold">Link copied to clipboard</p>

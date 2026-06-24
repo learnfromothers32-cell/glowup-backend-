@@ -314,15 +314,14 @@ export default function StylistBookings() {
                 <button
                   key={key}
                   onClick={() => setActiveFilter(key)}
-                  className={`inline-flex items-center gap-1 px-2.5 sm:gap-1.5 sm:px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
+                  className={`inline-flex items-center gap-1 px-2 sm:gap-1.5 sm:px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
                     isActive
                       ? "bg-gray-900 text-white shadow-sm dark:bg-white dark:text-gray-900"
                       : "bg-gray-50 dark:bg-surface-dark-tertiary text-text-secondary dark:text-text-dark-secondary border border-gray-100 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-surface-dark"
                   }`}
                 >
                   <Icon size={13} />
-                  <span className="hidden sm:inline">{label}</span>
-                  <span className="sm:hidden">{label.slice(0, 4)}</span>
+                  <span>{label}</span>
                   {count > 0 && (
                     <span className={`text-[10px] font-bold min-w-[18px] h-[18px] px-1.5 rounded-full inline-flex items-center justify-center ${
                       isActive ? "bg-white/20 text-white" : "bg-gray-200 dark:bg-gray-600 text-text-secondary dark:text-text-dark-secondary"

@@ -792,19 +792,68 @@ export default function Portfolio() {
           </Button>
         </div>
 
+      <AnimatePresence>
         {showTransformForm && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
+            onClick={() => {
+              if (!transformUploading) {
+                setShowTransformForm(false);
+                setTransformPreview(null);
+                setTransformFileName("");
+                setTransformCaption("");
+                setTransformService("");
+                setTransformFileError(null);
+                revokePreview(transformUrlRef.current);
+                transformUrlRef.current = null;
+                if (transformInputRef.current) transformInputRef.current.value = "";
+              }
+            }}
           >
-            <Card elevated padding="none" className="overflow-hidden mb-6">
+            <motion.div
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 40, opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl bg-white dark:bg-surface-dark-secondary shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 z-10 flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700/40 bg-white dark:bg-surface-dark-secondary rounded-t-2xl sm:rounded-t-2xl">
+                <h3 className="text-sm font-bold text-text-primary dark:text-text-dark-primary">
+                  Add Transformation
+                </h3>
+                <button
+                  onClick={() => {
+                    if (!transformUploading) {
+                      setShowTransformForm(false);
+                      setTransformPreview(null);
+                      setTransformFileName("");
+                      setTransformCaption("");
+                      setTransformService("");
+                      setTransformFileError(null);
+                      revokePreview(transformUrlRef.current);
+                      transformUrlRef.current = null;
+                      if (transformInputRef.current) transformInputRef.current.value = "";
+                    }
+                  }}
+                  disabled={transformUploading}
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary transition-colors disabled:opacity-40"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
               <div className="p-5">
                 <div className="mb-4">
                   <p className="text-xs font-medium mb-1.5 text-text-secondary dark:text-text-dark-secondary">
                     Transformation Photo *
                   </p>
                   <label className="block cursor-pointer">
-                    <div className="rounded-xl border-2 border-dashed flex items-center justify-center hover:border-indigo-300 dark:hover:border-indigo-500 transition-all border-gray-100 dark:border-gray-700/40 bg-white dark:bg-surface-dark-secondary overflow-hidden min-h-40 min-[480px]:min-h-48">
+                    <div className="rounded-xl border-2 border-dashed flex items-center justify-center hover:border-indigo-300 dark:hover:border-indigo-500 transition-all border-gray-100 dark:border-gray-700/40 bg-gray-50 dark:bg-surface-dark-tertiary overflow-hidden min-h-[180px]">
                       <input
                         ref={transformInputRef}
                         type="file"
@@ -813,11 +862,11 @@ export default function Portfolio() {
                         onChange={handleTransformFile}
                       />
                       {transformPreview ? (
-                        <div className="relative w-full h-full flex flex-col items-center justify-center p-2">
+                        <div className="relative w-full flex flex-col items-center justify-center p-3">
                           {transformFileName?.match(/\.(mp4|webm|mov|avi|mkv)$/i) ? (
                             <video
                               src={transformPreview}
-                              className="w-full object-contain rounded-lg max-h-32 min-[480px]:max-h-40"
+                              className="w-full object-contain rounded-lg max-h-48"
                               muted
                               playsInline
                               preload="metadata"
@@ -826,16 +875,16 @@ export default function Portfolio() {
                             <img
                               src={transformPreview}
                               alt="Preview"
-                              className="w-full object-contain rounded-lg max-h-32 min-[480px]:max-h-40"
+                              className="w-full object-contain rounded-lg max-h-48"
                             />
                           )}
-                          <p className="text-xs font-medium truncate text-text-primary dark:text-text-dark-primary max-w-full mt-1 shrink-0">
+                          <p className="text-xs font-medium truncate text-text-primary dark:text-text-dark-primary max-w-full mt-2 shrink-0">
                             {transformFileName}
                           </p>
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center gap-2 py-4">
-                          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-surface-dark-tertiary">
+                        <div className="flex flex-col items-center gap-2 py-8">
+                          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-white dark:bg-surface-dark-secondary">
                             <ImageIcon size={22} className="text-text-muted dark:text-text-dark-muted" />
                           </div>
                           <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary">
@@ -876,7 +925,7 @@ export default function Portfolio() {
                   onClick={async () => {
                     const file = transformInputRef.current?.files?.[0];
                     if (!file) {
-                      setError("Please select a photo");
+                      setTransformFileError("Please select a photo");
                       return;
                     }
                     if (file.size > MAX_FILE_SIZE) {
@@ -884,7 +933,6 @@ export default function Portfolio() {
                       return;
                     }
                     setTransformUploading(true);
-                    setError(null);
                     setTransformFileError(null);
                     try {
                       const formData = new FormData();
@@ -905,14 +953,15 @@ export default function Portfolio() {
                       setShowTransformForm(false);
                       showSuccess("Transformation added!");
                     } catch (err: unknown) {
-                      setError(getErrorMessage(err, "Upload failed"));
+                      setTransformFileError(getErrorMessage(err, "Upload failed"));
                     } finally {
                       setTransformUploading(false);
                     }
                   }}
-                  disabled={transformUploading}
+                  disabled={transformUploading || !transformPreview}
                   variant="primary"
                   size="md"
+                  className="w-full"
                 >
                   {transformUploading ? (
                     <><Loader2 size={14} className="animate-spin" /> Uploading...</>
@@ -921,9 +970,10 @@ export default function Portfolio() {
                   )}
                 </Button>
               </div>
-            </Card>
+            </motion.div>
           </motion.div>
         )}
+      </AnimatePresence>
 
         {beforeAfterItems.length === 0 && !showTransformForm ? (
           <Card elevated padding="none" className="overflow-hidden">

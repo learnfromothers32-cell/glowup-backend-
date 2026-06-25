@@ -232,15 +232,19 @@ function PortfolioCarousel({ items, onView }: {
   const scrollTo = (direction: "left" | "right") => {
     const el = scrollRef.current;
     if (!el) return;
-    const cardWidth = el.children[0] ? (el.children[0] as HTMLElement).offsetWidth + 16 : 280;
-    el.scrollBy({ left: direction === "left" ? -cardWidth : cardWidth, behavior: "smooth" });
+    const firstCard = el.children[0] as HTMLElement | undefined;
+    const cardWidth = firstCard ? firstCard.offsetWidth + 16 : 280;
+    const targetScroll = direction === "left"
+      ? Math.max(0, el.scrollLeft - cardWidth)
+      : Math.min(el.scrollWidth - el.clientWidth, el.scrollLeft + cardWidth);
+    el.scrollTo({ left: targetScroll, behavior: "smooth" });
   };
 
   if (total === 0) return null;
 
   return (
     <div className="relative group/carousel">
-      <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory" style={{ scrollbarWidth: "none" }}>
+      <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
         {items.map((item, i) => (
           <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
             onClick={() => onView(i)}
@@ -277,10 +281,10 @@ function PortfolioCarousel({ items, onView }: {
         ))}
       </div>
       {canScrollLeft && (
-        <button onClick={() => scrollTo("left")} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-9 h-9 rounded-full items-center justify-center bg-white dark:bg-surface-dark-tertiary shadow-md text-text-secondary dark:text-text-dark-secondary transition-all duration-200 hidden sm:flex hover:bg-warm-50 dark:hover:bg-surface-dark-hover z-10" aria-label="Previous"><ChevronLeft size={16} /></button>
+        <button onClick={() => scrollTo("left")} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-9 h-9 rounded-full flex items-center justify-center bg-white dark:bg-surface-dark-tertiary shadow-md text-text-secondary dark:text-text-dark-secondary transition-all duration-200 hover:bg-warm-50 dark:hover:bg-surface-dark-hover z-10" aria-label="Previous"><ChevronLeft size={16} /></button>
       )}
       {canScrollRight && (
-        <button onClick={() => scrollTo("right")} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-9 h-9 rounded-full items-center justify-center bg-white dark:bg-surface-dark-tertiary shadow-md text-text-secondary dark:text-text-dark-secondary transition-all duration-200 hidden sm:flex hover:bg-warm-50 dark:hover:bg-surface-dark-hover z-10" aria-label="Next"><ChevronRight size={16} /></button>
+        <button onClick={() => scrollTo("right")} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-9 h-9 rounded-full flex items-center justify-center bg-white dark:bg-surface-dark-tertiary shadow-md text-text-secondary dark:text-text-dark-secondary transition-all duration-200 hover:bg-warm-50 dark:hover:bg-surface-dark-hover z-10" aria-label="Next"><ChevronRight size={16} /></button>
       )}
       {total > 1 && (
         <div className="flex items-center justify-center gap-1.5 mt-4">

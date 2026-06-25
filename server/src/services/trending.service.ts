@@ -239,6 +239,14 @@ export const getTrendingTransformations = async (
     t.bookmarks = counts.bookmarks;
   }
 
+  for (const t of transformations) {
+    const views = t.views || 1;
+    const engagementRate = (t.likes + t.commentCount) / views;
+    t.score = t.score * (1 + engagementRate * 10);
+  }
+
+  transformations.sort((a, b) => b.score - a.score);
+
   if (client && !usedCache) {
     try {
       await client.setEx(CACHE_KEY, CACHE_TTL, JSON.stringify(transformations));

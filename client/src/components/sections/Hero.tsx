@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { ArrowUpRight, Star, PlayCircle, ShieldCheck, Users, Scissors, CheckCircle2, Clock, Award, TrendingUp, Sparkles } from "lucide-react";
+import { ArrowUpRight, Star, PlayCircle, ShieldCheck, Users, Scissors, CheckCircle2, Clock, Award, TrendingUp, Sparkles, Download } from "lucide-react";
+import { usePwaInstall } from "../../hooks/usePwaInstall";
+import { PwaInstallModal } from "../PwaInstallModal";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -33,8 +35,21 @@ function AnimatedCounter({ target, duration = 2000, suffix = "" }: { target: num
 export default function Hero() {
   const navigate = useNavigate();
   const [activeSlot, setActiveSlot] = useState(0);
+  const [showInstallModal, setShowInstallModal] = useState(false);
+  const { isInstallable, isInstalled, isIOS, isAndroid, promptInstall } = usePwaInstall();
   const timeSlots = ["2:30 PM", "4:00 PM", "6:15 PM"];
   useEffect(() => { const id = setInterval(() => setActiveSlot((p) => (p + 1) % timeSlots.length), 2800); return () => clearInterval(id); }, []);
+
+  const handleInstall = async () => {
+    if (isIOS || (!isAndroid && !isInstallable)) {
+      setShowInstallModal(true);
+      return;
+    }
+    const accepted = await promptInstall();
+    if (!accepted) {
+      setShowInstallModal(true);
+    }
+  };
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-gradient-to-b from-surface-secondary to-white dark:from-surface-dark dark:to-surface-dark-secondary">
@@ -73,6 +88,26 @@ export default function Hero() {
               I'm a stylist
             </button>
           </motion.div>
+
+          {/* PWA Install buttons */}
+          {!isInstalled && (
+            <motion.div variants={fadeUp} custom={0.18} className="mt-4 flex flex-wrap gap-2">
+              <button
+                onClick={handleInstall}
+                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark-secondary px-4 py-2.5 text-sm font-semibold text-text-primary dark:text-text-dark-primary shadow-sm hover:shadow-md transition-all"
+              >
+                <Download size={15} className="text-brand-500" />
+                {isIOS ? "Install via Safari" : "Install App"}
+              </button>
+            </motion.div>
+          )}
+
+          <PwaInstallModal
+            open={showInstallModal}
+            onClose={() => setShowInstallModal(false)}
+            isIOS={isIOS}
+            isAndroid={isAndroid}
+          />
 
           {/* Stats */}
           <motion.div variants={fadeUp} custom={0.2} className="mt-12 grid grid-cols-1 gap-6 border-t border-gray-200 dark:border-gray-700 pt-7 sm:mt-16 sm:grid-cols-3 sm:gap-0 sm:pt-9">

@@ -1,8 +1,23 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Download } from "lucide-react";
+import { usePwaInstall } from "../../hooks/usePwaInstall";
 
 export default function FinalCTASection() {
   const navigate = useNavigate();
+  const { isIOS, isAndroid, promptInstall, isInstalled } = usePwaInstall();
+
+  const handleInstall = async () => {
+    if (isIOS) {
+      const modal = document.getElementById("pwa-install-modal");
+      if (modal) modal.classList.remove("hidden");
+      return;
+    }
+    const result = await promptInstall();
+    if (!result) {
+      const modal = document.getElementById("pwa-install-modal");
+      if (modal) modal.classList.remove("hidden");
+    }
+  };
 
   return (
     <section className="py-20 sm:py-28 bg-gradient-to-br from-brand-500 via-brand-600 to-brand-700 relative overflow-hidden">
@@ -43,6 +58,19 @@ export default function FinalCTASection() {
             Join as Stylist
           </button>
         </div>
+
+        {!isInstalled && (
+          <div className="mt-6">
+            <p className="text-sm text-white/60 mb-3">Or download the app for easier access</p>
+            <button
+              onClick={handleInstall}
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 px-8 text-sm font-bold text-white hover:bg-white/25 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            >
+              <Download size={20} />
+              Download App
+            </button>
+          </div>
+        )}
 
         <p className="mt-6 text-xs text-white/50">
           No credit card required · Free forever on Starter · Cancel anytime

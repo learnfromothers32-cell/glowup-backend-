@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Star, Play, Shield, Sparkles } from "lucide-react";
+import { ArrowRight, Star, Play, Shield, Sparkles, Download } from "lucide-react";
 import { usePwaInstall } from "../../hooks/usePwaInstall";
 import PwaInstallModal from "../PwaInstallModal";
 import { useState } from "react";
@@ -57,10 +57,17 @@ export default function Hero() {
                 <ArrowRight size={16} />
               </button>
               <button
-                onClick={() => navigate("/stylist/signup")}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark-secondary px-7 text-sm font-semibold text-text-primary dark:text-text-dark-primary hover:bg-gray-50 dark:hover:bg-surface-dark-hover hover:scale-[1.02] active:scale-[0.98] transition-all"
+                onClick={() => navigate("/login")}
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gray-100 dark:bg-gray-800 px-7 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
-                Join as Stylist
+                Sign In
+              </button>
+              <button
+                onClick={handleInstall}
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand-500 px-7 text-sm font-bold text-white shadow-[0_2px_12px_rgba(244,63,94,0.35)] hover:shadow-[0_4px_20px_rgba(244,63,94,0.45)] hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                <Download size={18} />
+                Download App
               </button>
             </div>
 

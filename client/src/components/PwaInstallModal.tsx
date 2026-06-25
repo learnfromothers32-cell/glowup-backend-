@@ -1,33 +1,35 @@
 import { X, Download, Share, Plus, CheckCircle } from "lucide-react";
 import { usePwaInstall } from "../hooks/usePwaInstall";
 
-export default function PwaInstallModal() {
-  const { isIOS, isAndroid, promptInstall, isInstalled } = usePwaInstall();
+interface PwaInstallModalProps {
+  open: boolean;
+  onClose: () => void;
+  isIOS?: boolean;
+  isAndroid?: boolean;
+}
 
-  if (isInstalled) return null;
+export default function PwaInstallModal({ open, onClose, isIOS, isAndroid }: PwaInstallModalProps) {
+  const { promptInstall, isInstalled } = usePwaInstall();
 
-  const closeModal = () => {
-    const modal = document.getElementById("pwa-install-modal");
-    if (modal) modal.classList.add("hidden");
-  };
+  if (isInstalled || !open) return null;
 
   const handleInstall = async () => {
     if (isAndroid) {
       const result = await promptInstall();
-      if (result) closeModal();
+      if (result) onClose();
     }
   };
 
   return (
-    <div id="pwa-install-modal" className="hidden fixed inset-0 z-[200] flex items-center justify-center p-5">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-5">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       {/* Modal */}
       <div className="relative w-full max-w-sm rounded-3xl bg-white dark:bg-surface-dark-secondary shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-brand-500 to-brand-600 px-6 py-5 text-white relative">
           <button
-            onClick={closeModal}
+            onClick={onClose}
             className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
           >
             <X size={16} className="text-white" />

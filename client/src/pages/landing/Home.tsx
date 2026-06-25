@@ -5,10 +5,21 @@ import AppFooter from "../../components/layout/AppFooter";
 import Hero from "../../components/sections/Hero";
 import FeaturesSection from "../../components/sections/FeaturesSection";
 import HowItWorks from "../../components/sections/HowItWorks";
-import TestimonialsSection from "../../components/sections/TestimonialsSection";
 import StatsSection from "../../components/sections/StatsSection";
 import ServicesSection from "../../components/sections/ServicesSection";
 import FinalCTASection from "../../components/sections/FinalCTASection";
+import QueueFeature from "../../components/sections/QueueFeature";
+import BookingFeature from "../../components/sections/BookingFeature";
+import PortfolioFeature from "../../components/sections/PortfolioFeature";
+import StylistFeature from "../../components/sections/StylistFeature";
+import LiveFeature from "../../components/sections/LiveFeature";
+import TrendingFeature from "../../components/sections/TrendingFeature";
+import PricingFeature from "../../components/sections/PricingFeature";
+import ReviewsFeature from "../../components/sections/ReviewsFeature";
+import ClientManagementFeature from "../../components/sections/ClientManagementFeature";
+import AIRecommendationsFeature from "../../components/sections/AIRecommendationsFeature";
+import PaymentsFeature from "../../components/sections/PaymentsFeature";
+import NotificationsFeature from "../../components/sections/NotificationsFeature";
 
 export default function Home() {
   const location = useLocation();
@@ -53,9 +64,20 @@ export default function Home() {
         <Hero />
         <FeaturesSection />
         <HowItWorks />
+        <QueueFeature />
+        <BookingFeature />
+        <PortfolioFeature />
+        <StylistFeature />
+        <LiveFeature />
+        <TrendingFeature />
         <StatsSection />
-        <TestimonialsSection />
+        <PricingFeature />
+        <ReviewsFeature />
         <ServicesSection />
+        <ClientManagementFeature />
+        <AIRecommendationsFeature />
+        <PaymentsFeature />
+        <NotificationsFeature />
         <FinalCTASection />
       </main>
       <AppFooter variant="landing" />

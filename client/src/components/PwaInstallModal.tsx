@@ -1,4 +1,4 @@
-import { X, Download, Share, Plus, CheckCircle, Smartphone, Globe } from "lucide-react";
+import { X, Download, Share, Plus, CheckCircle, Smartphone, Globe, Menu } from "lucide-react";
 import { usePwaInstall } from "../hooks/usePwaInstall";
 
 interface PwaInstallModalProps {
@@ -7,7 +7,7 @@ interface PwaInstallModalProps {
 }
 
 export default function PwaInstallModal({ open, onClose }: PwaInstallModalProps) {
-  const { promptInstall, isIOS, isAndroid, isInstalled } = usePwaInstall();
+  const { promptInstall, isIOS, isAndroid, isInstalled, canPromptNative } = usePwaInstall();
 
   if (!open) return null;
 
@@ -72,44 +72,63 @@ export default function PwaInstallModal({ open, onClose }: PwaInstallModalProps)
               </p>
             </div>
           ) : isAndroid ? (
+            canPromptNative ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 rounded-xl bg-brand-50 dark:bg-brand-950/30 px-4 py-3">
+                  <Smartphone size={18} className="text-brand-500 shrink-0" />
+                  <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                    One tap to add GlowUp to your home screen.
+                  </p>
+                </div>
+                <button
+                  onClick={handleInstall}
+                  className="w-full flex items-center justify-center gap-1.5 h-11 rounded-xl bg-brand-500 text-sm font-bold text-white shadow-sm hover:bg-brand-600 hover:shadow-glow-sm active:scale-[0.98] transition-all duration-200"
+                >
+                  <Download size={16} />
+                  Install Now
+                </button>
+                <div className="flex items-center gap-2 text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">
+                  <CheckCircle size={12} className="text-success shrink-0" />
+                  <span>Free · No account needed · Takes 5 seconds</span>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-medium">
+                  Install in 2 easy steps:
+                </p>
+                {[
+                  { icon: Menu, step: "1", title: "Tap the menu", desc: "the three dots ⋮ in Chrome's top-right" },
+                  { icon: Plus, step: "2", title: 'Tap "Add to Home Screen"', desc: "" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 px-3.5 py-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 dark:bg-brand-950/30">
+                      <item.icon size={16} className="text-brand-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">{item.title}</p>
+                      {item.desc && <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">{item.desc}</p>}
+                    </div>
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-500 text-[10px] font-bold text-white">{item.step}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          ) : (
             <div className="space-y-4">
               <div className="flex items-center gap-3 rounded-xl bg-brand-50 dark:bg-brand-950/30 px-4 py-3">
                 <Globe size={18} className="text-brand-500 shrink-0" />
                 <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
-                  Tap the button below to install GlowUp instantly.
+                  Open this page on your phone to install.
                 </p>
               </div>
-              <button
-                onClick={handleInstall}
-                className="w-full flex items-center justify-center gap-1.5 h-11 rounded-xl bg-brand-500 text-sm font-bold text-white shadow-sm hover:bg-brand-600 hover:shadow-glow-sm active:scale-[0.98] transition-all duration-200"
-              >
-                <Download size={16} />
-                Install Now
-              </button>
-              <div className="flex items-center gap-2 text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">
-                <CheckCircle size={12} className="text-success shrink-0" />
-                <span>Free · No account needed · Takes 5 seconds</span>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 rounded-xl bg-brand-50 dark:bg-brand-950/30 px-4 py-3">
-                <Smartphone size={18} className="text-brand-500 shrink-0" />
-                <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
-                  Open this page on your phone to install the app.
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 px-3 py-3 text-center">
-                  <Smartphone size={16} className="text-gray-400 mx-auto mb-1" />
-                  <p className="text-[10px] font-semibold text-gray-600 dark:text-gray-300">Open on your phone</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">then tap <strong>Download App</strong></p>
-                </div>
-                <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 px-3 py-3 text-center">
-                  <Globe size={16} className="text-gray-400 mx-auto mb-1" />
-                  <p className="text-[10px] font-semibold text-gray-600 dark:text-gray-300">Using another browser?</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">Check your browser menu for "Install"</p>
-                </div>
+              <div className="rounded-xl bg-gray-50 dark:bg-gray-800/50 px-4 py-4">
+                <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">How to install:</p>
+                <ol className="space-y-1.5 text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 list-decimal list-inside">
+                  <li>Open <strong className="text-gray-700 dark:text-gray-300">glowup.app</strong> on your phone</li>
+                  <li>Tap the browser menu <strong className="text-gray-700 dark:text-gray-300">⋮</strong> (<span className="inline-flex items-center gap-1"><Menu size={11} /></span>)</li>
+                  <li>Select <strong className="text-gray-700 dark:text-gray-300">"Add to Home Screen"</strong></li>
+                </ol>
               </div>
             </div>
           )}

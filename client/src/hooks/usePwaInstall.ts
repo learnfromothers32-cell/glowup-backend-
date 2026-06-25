@@ -36,8 +36,8 @@ export function usePwaInstall() {
     // Detect Android
     const isAndroid = /Android/.test(navigator.userAgent);
 
-    // On iOS, beforeinstallprompt never fires — show manual instructions
-    if (isIOS || (!isAndroid && !isStandalone)) {
+    // Mark as installable even without beforeinstallprompt (iOS, Android fallback, desktop)
+    if (isIOS || isAndroid || !isStandalone) {
       setIsInstallable(true);
     }
 

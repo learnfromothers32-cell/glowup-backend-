@@ -101,28 +101,17 @@ export default defineConfig({
             },
           },
           {
-            urlPattern: /\/api\/auth\//i,
+            urlPattern: /\/api\/auth\/(refresh|me)/i,
             handler: 'NetworkOnly',
-            options: {
-              cacheName: 'auth-no-cache',
-            },
           },
           {
             urlPattern: /\/api\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
-              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 },
+              networkTimeoutSeconds: 10,
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 12 },
               cacheableResponse: { statuses: [200] },
-            },
-          },
-          {
-            urlPattern: /\/uploads\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'uploads-cache',
-              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              cacheableResponse: { statuses: [0, 200] },
             },
           },
         ],

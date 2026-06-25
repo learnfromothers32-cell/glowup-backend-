@@ -50,7 +50,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       }
     }
-    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh')) {
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('/auth/refresh') && accessToken) {
       if (isRefreshing) {
         return new Promise((resolve) => {
           pendingRequests.push((token: string) => {

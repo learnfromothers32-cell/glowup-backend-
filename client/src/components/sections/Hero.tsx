@@ -39,25 +39,25 @@ export default function Hero({ onOpenInstall }: HeroProps) {
               Discover verified stylists, watch live beauty sessions, get AI-powered matches, and earn rewards — the premium platform for modern beauty.
             </p>
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+            <div className="mt-8 flex flex-col sm:flex-row gap-2.5">
               <button
                 onClick={() => navigate("/signup")}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-7 text-sm font-semibold text-white shadow-[0_2px_12px_rgba(244,63,94,0.3)] hover:shadow-[0_4px_20px_rgba(244,63,94,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-brand-500 to-brand-600 px-5 text-sm font-semibold text-white shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
               >
                 Get Started Free
-                <ArrowRight size={16} />
+                <ArrowRight size={14} />
               </button>
               <button
                 onClick={() => navigate("/login")}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark-secondary px-7 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-all duration-200"
+                className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark-secondary px-5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-all duration-200"
               >
                 Sign In
               </button>
               <button
                 onClick={onOpenInstall}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-gray-900 dark:bg-white px-7 text-sm font-semibold text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-gray-900 dark:bg-white px-5 text-sm font-semibold text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
               >
-                <Download size={16} />
+                <Download size={14} />
                 Download App
               </button>
             </div>

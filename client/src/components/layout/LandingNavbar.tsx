@@ -168,17 +168,17 @@ export default function LandingNavbar() {
               ))}
             </div>
             {/* Bottom buttons with stagger */}
-            <div className="px-5 pb-8 space-y-3">
+            <div className="px-5 pb-8 space-y-2.5">
               <button
                 onClick={() => { setOpen(false); navigate("/login"); }}
-                className="w-full h-12 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 animate-slide-up"
+                className="w-full h-10 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 animate-slide-up"
                 style={{ animationDelay: "300ms", animationFillMode: "both" }}
               >
                 Sign In
               </button>
               <button
                 onClick={() => { setOpen(false); navigate("/signup"); }}
-                className="w-full h-12 rounded-xl bg-brand-500 text-sm font-semibold text-white shadow-sm hover:bg-brand-600 hover:shadow-glow transition-all duration-200 animate-slide-up"
+                className="w-full h-10 rounded-lg bg-brand-500 text-sm font-semibold text-white shadow-sm hover:bg-brand-600 transition-all duration-200 animate-slide-up"
                 style={{ animationDelay: "350ms", animationFillMode: "both" }}
               >
                 Get Started

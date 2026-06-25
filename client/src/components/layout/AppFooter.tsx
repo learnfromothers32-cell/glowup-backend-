@@ -189,14 +189,14 @@ export default function AppFooter({ variant = "landing", onOpenInstall }: AppFoo
             {!isInstalled && (
               <button
                 onClick={handleInstall}
-                className="mt-6 w-full flex items-center justify-center gap-2 h-11 rounded-xl bg-brand-500 text-sm font-semibold text-white shadow-sm hover:bg-brand-600 hover:shadow-glow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                className="mt-6 w-full flex items-center justify-center gap-1.5 h-9 rounded-lg bg-brand-500 text-xs font-semibold text-white shadow-sm hover:bg-brand-600 transition-all duration-200"
               >
-                <Download size={16} />
+                <Download size={14} />
                 Download App
               </button>
             )}
             {isInstalled && (
-              <div className="mt-6 w-full flex items-center justify-center gap-2 h-11 rounded-xl bg-success/10 border border-success/20 text-sm font-semibold text-success">
+              <div className="mt-6 w-full flex items-center justify-center gap-1.5 h-9 rounded-lg bg-success/10 border border-success/20 text-xs font-semibold text-success">
                 <span>✓</span> App Installed
               </div>
             )}

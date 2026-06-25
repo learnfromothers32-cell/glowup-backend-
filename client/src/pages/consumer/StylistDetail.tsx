@@ -205,92 +205,120 @@ function PortfolioCarousel({ items, onView }: {
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
   const total = items.length;
 
-  const checkScroll = useCallback(() => {
+  const getCardWidth = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el || !el.children[0]) return 280;
+    return (el.children[0] as HTMLElement).offsetWidth + 16;
+  }, []);
+
+  const updateIndex = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const maxScroll = el.scrollWidth - el.clientWidth;
-    setCanScrollLeft(el.scrollLeft > 10);
-    setCanScrollRight(el.scrollLeft < maxScroll - 10);
-    const cardWidth = el.children[0] ? (el.children[0] as HTMLElement).offsetWidth + 16 : 280;
-    const idx = Math.round(el.scrollLeft / cardWidth);
-    setCurrentIndex(Math.min(idx, total - 1));
-  }, [total]);
+    const cw = getCardWidth();
+    setCurrentIndex(Math.min(Math.round(el.scrollLeft / cw), total - 1));
+  }, [getCardWidth, total]);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    checkScroll();
-    el.addEventListener("scroll", checkScroll, { passive: true });
-    window.addEventListener("resize", checkScroll);
-    return () => { el.removeEventListener("scroll", checkScroll); window.removeEventListener("resize", checkScroll); };
-  }, [checkScroll]);
+    updateIndex();
+    el.addEventListener("scroll", updateIndex, { passive: true });
+    window.addEventListener("resize", updateIndex);
+    return () => { el.removeEventListener("scroll", updateIndex); window.removeEventListener("resize", updateIndex); };
+  }, [updateIndex]);
 
-  const scrollTo = (direction: "left" | "right") => {
+  const scrollCarousel = (dir: "left" | "right") => {
     const el = scrollRef.current;
     if (!el) return;
-    const firstCard = el.children[0] as HTMLElement | undefined;
-    const cardWidth = firstCard ? firstCard.offsetWidth + 16 : 280;
-    const targetScroll = direction === "left"
-      ? Math.max(0, el.scrollLeft - cardWidth)
-      : Math.min(el.scrollWidth - el.clientWidth, el.scrollLeft + cardWidth);
-    el.scrollTo({ left: targetScroll, behavior: "smooth" });
+    const cw = getCardWidth();
+    const max = el.scrollWidth - el.clientWidth;
+    const target = dir === "left"
+      ? Math.max(0, el.scrollLeft - cw)
+      : Math.min(max, el.scrollLeft + cw);
+    el.scrollLeft = target;
   };
+
+  const goToIndex = (idx: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollLeft = idx * getCardWidth();
+  };
+
+  const canGoLeft = currentIndex > 0;
+  const canGoRight = currentIndex < total - 1;
 
   if (total === 0) return null;
 
   return (
-    <div className="relative group/carousel">
-      <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory" style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
-        {items.map((item, i) => (
-          <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-            onClick={() => onView(i)}
-            className="snap-start shrink-0 w-[260px] sm:w-[280px] rounded-2xl overflow-hidden cursor-pointer bg-white dark:bg-surface-dark-secondary shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-300 hover:scale-[1.02]">
-            <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-surface-dark-tertiary">
-              {item.type === "video" ? (
-                <>
-                  <video src={imgSrc(item)} className="absolute inset-0 w-full h-full object-cover" muted playsInline preload="metadata" />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity duration-300">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="8,5 19,12 8,19" /></svg>
+    <div className="relative">
+      <div style={{ paddingLeft: 20, paddingRight: 20 }}>
+        <div ref={scrollRef} onScroll={updateIndex}
+          className="flex gap-4 overflow-x-auto pb-2"
+          style={{ scrollbarWidth: "none", scrollBehavior: "auto", WebkitOverflowScrolling: "touch" }}
+        >
+          {items.map((item, i) => (
+            <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              onClick={() => onView(i)}
+              className="shrink-0 w-[260px] sm:w-[280px] rounded-2xl overflow-hidden cursor-pointer bg-white dark:bg-surface-dark-secondary shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-300 hover:scale-[1.02]"
+              style={{ scrollSnapAlign: "start" }}
+            >
+              <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-surface-dark-tertiary">
+                {item.type === "video" ? (
+                  <>
+                    <video src={imgSrc(item)} className="absolute inset-0 w-full h-full object-cover" muted playsInline preload="metadata" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="8,5 19,12 8,19" /></svg>
+                      </div>
                     </div>
-                  </div>
-                  <div className="absolute top-2 left-2">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold text-white bg-black/50 backdrop-blur-sm">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21" /></svg> Video
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <img src={imgSrc(item)} alt={item.caption || ""} loading="lazy" className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover/carousel:scale-105" />
-              )}
-            </div>
-            <div className="p-3.5">
-              <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary truncate">{item.service || item.caption || `Work #${i + 1}`}</p>
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-xs text-text-muted dark:text-text-dark-muted">{item.caption || `Transformation ${i + 1}`}</span>
-                {item.likes !== undefined && item.likes > 0 && (
-                  <span className="inline-flex items-center gap-1 text-xs text-rose-500"><Heart size={12} fill="currentColor" /> {item.likes}</span>
+                    <div className="absolute top-2 left-2">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold text-white bg-black/50 backdrop-blur-sm">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21" /></svg> Video
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <img src={imgSrc(item)} alt={item.caption || ""} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
                 )}
               </div>
-            </div>
-          </motion.button>
-        ))}
+              <div className="p-3.5">
+                <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary truncate">{item.service || item.caption || `Work #${i + 1}`}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-xs text-text-muted dark:text-text-dark-muted">{item.caption || `Transformation ${i + 1}`}</span>
+                  {item.likes !== undefined && item.likes > 0 && (
+                    <span className="inline-flex items-center gap-1 text-xs text-rose-500"><Heart size={12} fill="currentColor" /> {item.likes}</span>
+                  )}
+                </div>
+              </div>
+            </motion.button>
+          ))}
+        </div>
       </div>
-      {canScrollLeft && (
-        <button onClick={() => scrollTo("left")} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-9 h-9 rounded-full flex items-center justify-center bg-white dark:bg-surface-dark-tertiary shadow-md text-text-secondary dark:text-text-dark-secondary transition-all duration-200 hover:bg-warm-50 dark:hover:bg-surface-dark-hover z-10" aria-label="Previous"><ChevronLeft size={16} /></button>
+      {canGoLeft && (
+        <button onClick={() => scrollCarousel("left")}
+          className="absolute left-0 top-[40%] -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-surface-dark-secondary shadow-lg text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-hover z-20 pointer-events-auto"
+          aria-label="Previous"
+        >
+          <ChevronLeft size={18} />
+        </button>
       )}
-      {canScrollRight && (
-        <button onClick={() => scrollTo("right")} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-9 h-9 rounded-full flex items-center justify-center bg-white dark:bg-surface-dark-tertiary shadow-md text-text-secondary dark:text-text-dark-secondary transition-all duration-200 hover:bg-warm-50 dark:hover:bg-surface-dark-hover z-10" aria-label="Next"><ChevronRight size={16} /></button>
+      {canGoRight && (
+        <button onClick={() => scrollCarousel("right")}
+          className="absolute right-0 top-[40%] -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-surface-dark-secondary shadow-lg text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-hover z-20 pointer-events-auto"
+          aria-label="Next"
+        >
+          <ChevronRight size={18} />
+        </button>
       )}
       {total > 1 && (
         <div className="flex items-center justify-center gap-1.5 mt-4">
           {items.map((_, i) => (
-            <button key={i} onClick={() => { const el = scrollRef.current; if (!el) return; const cardWidth = el.children[0] ? (el.children[0] as HTMLElement).offsetWidth + 16 : 280; el.scrollTo({ left: i * cardWidth, behavior: "smooth" }); }}
-              className={`rounded-full transition-all duration-300 ${i === currentIndex ? "w-6 h-1.5 bg-brand-500" : "w-1.5 h-1.5 bg-gray-300 dark:bg-gray-600"}`} aria-label={`Go to slide ${i + 1}`} />
+            <button key={i} onClick={() => goToIndex(i)}
+              className={`rounded-full transition-all duration-300 ${i === currentIndex ? "w-6 h-1.5 bg-brand-500" : "w-1.5 h-1.5 bg-gray-300 dark:bg-gray-600"}`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
           ))}
         </div>
       )}

@@ -35,10 +35,11 @@ interface FloatingHeart {
 }
 
 const TIKTOK_RED = "#FE2C55";
-const SWIPE_THRESHOLD = 20;
+const SWIPE_THRESHOLD = 30;
 const LIKE_COOLDOWN_MS = 2000;
 const HEART_ANIM_MS = 500;
 const VIRAL_ENGAGEMENT_THRESHOLD = 0.02;
+const TRANSITION_MS = 300;
 
 function formatCount(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
@@ -116,16 +117,20 @@ export default function TrendingFeed() {
   const [reportSubmitted, setReportSubmitted] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
   const commentInputRef = useRef<HTMLInputElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const viewedPostsRef = useRef<Set<string>>(new Set());
   const pollIntervalRef = useRef<ReturnType<typeof setInterval>>();
-  const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const manuallyPausedRef = useRef<Set<string>>(new Set());
 
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const touchDeltaRef = useRef(0);
   const isSwipingRef = useRef(false);
+  const isTransitioningRef = useRef(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -193,12 +198,8 @@ export default function TrendingFeed() {
       if (highlightId && newItems.length > 0) {
         const targetIndex = newItems.findIndex((item) => item.id === highlightId);
         if (targetIndex !== -1) {
-          setTimeout(() => {
-            containerRef.current?.scrollTo({
-              top: targetIndex * window.innerHeight,
-              behavior: "smooth",
-            });
-          }, 150);
+          currentIndexRef.current = targetIndex;
+          setCurrentIndex(targetIndex);
         }
         viewedPostsRef.current.add(highlightId);
       }
@@ -506,32 +507,28 @@ export default function TrendingFeed() {
     setReportSubmitted(true);
   };
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || items.length === 0) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const idx = Number(entry.target.getAttribute("data-index"));
-            if (!isNaN(idx) && idx !== currentIndexRef.current) {
-              currentIndexRef.current = idx;
-              setCurrentIndex(idx);
-            }
-          }
-        }
-      },
-      { root: container, threshold: 0.5 },
-    );
-    for (const item of items) {
-      const el = itemRefs.current.get(item.id);
-      if (el) observer.observe(el);
-    }
-    return () => observer.disconnect();
-  }, [items]);
+  const goToIndex = useCallback(
+    (newIndex: number) => {
+      if (isTransitioningRef.current) return;
+      if (newIndex < 0 || newIndex >= items.length) return;
+      if (newIndex === currentIndexRef.current) return;
+
+      isTransitioningRef.current = true;
+      currentIndexRef.current = newIndex;
+      setCurrentIndex(newIndex);
+      setDragOffset(0);
+      setIsDragging(false);
+
+      setTimeout(() => {
+        isTransitioningRef.current = false;
+      }, TRANSITION_MS + 50);
+    },
+    [items.length],
+  );
 
   useEffect(() => {
     if (loading || items.length === 0) return;
+
     items.forEach((item, idx) => {
       const video = videoRefs.current.get(item.id);
       if (!video) return;
@@ -550,13 +547,14 @@ export default function TrendingFeed() {
       }
     });
 
-    if (currentIndex + 1 < items.length) {
-      const nextItem = items[currentIndex + 1];
-      const nextVideo = videoRefs.current.get(nextItem.id);
-      if (nextVideo) {
-        nextVideo.muted = true;
-        nextVideo.preload = "auto";
-        nextVideo.load();
+    const preloadIndices = [currentIndex - 1, currentIndex + 1, currentIndex + 2];
+    for (const pi of preloadIndices) {
+      if (pi >= 0 && pi < items.length) {
+        const pv = videoRefs.current.get(items[pi].id);
+        if (pv) {
+          pv.muted = true;
+          pv.preload = "auto";
+        }
       }
     }
   }, [currentIndex, items, loading, soundOn]);
@@ -602,45 +600,81 @@ export default function TrendingFeed() {
     });
   }, [items]);
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartRef.current = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    };
-    isSwipingRef.current = false;
-  }, []);
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (isTransitioningRef.current) return;
+      const touch = e.touches[0];
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+      touchDeltaRef.current = 0;
+      isSwipingRef.current = false;
+      setIsDragging(true);
+    },
+    [],
+  );
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
-      if (!touchStartRef.current) return;
-      const deltaY = touchStartRef.current.y - e.touches[0].clientY;
-      if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
-        isSwipingRef.current = true;
+      if (!touchStartRef.current || isTransitioningRef.current) return;
+      const touch = e.touches[0];
+      const deltaY = touchStartRef.current.y - touch.clientY;
+      const deltaX = touch.clientX - touchStartRef.current.x;
+
+      if (!isSwipingRef.current) {
+        if (Math.abs(deltaY) > 8 && Math.abs(deltaY) > Math.abs(deltaX) * 1.2) {
+          isSwipingRef.current = true;
+        } else if (Math.abs(deltaX) > 8) {
+          touchStartRef.current = null;
+          setIsDragging(false);
+          return;
+        }
+      }
+
+      if (isSwipingRef.current) {
+        e.preventDefault();
+        let adjustedDelta = deltaY;
+        if ((deltaY > 0 && currentIndexRef.current === 0) ||
+            (deltaY < 0 && currentIndexRef.current === items.length - 1)) {
+          adjustedDelta = deltaY * 0.25;
+        }
+        touchDeltaRef.current = adjustedDelta;
+        setDragOffset(adjustedDelta);
       }
     },
-    [],
+    [items.length],
   );
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
       if (!touchStartRef.current) return;
       const deltaY = touchStartRef.current.y - e.changedTouches[0].clientY;
+      const elapsed = Date.now() - touchStartRef.current.time;
+      const velocity = Math.abs(deltaY) / Math.max(elapsed, 1);
       touchStartRef.current = null;
-      if (!isSwipingRef.current) return;
-      isSwipingRef.current = false;
-      if (deltaY > SWIPE_THRESHOLD && currentIndex < items.length - 1) {
-        containerRef.current?.scrollTo({
-          top: (currentIndex + 1) * window.innerHeight,
-          behavior: "smooth",
-        });
-      } else if (deltaY < -SWIPE_THRESHOLD && currentIndex > 0) {
-        containerRef.current?.scrollTo({
-          top: (currentIndex - 1) * window.innerHeight,
-          behavior: "smooth",
-        });
+
+      if (!isSwipingRef.current) {
+        setIsDragging(false);
+        setDragOffset(0);
+        return;
+      }
+
+      const fastSwipe = velocity > 0.5 && Math.abs(deltaY) > 15;
+      const longSwipe = Math.abs(deltaY) > SWIPE_THRESHOLD;
+
+      if (fastSwipe || longSwipe) {
+        if (deltaY > 0 && currentIndexRef.current < items.length - 1) {
+          goToIndex(currentIndexRef.current + 1);
+        } else if (deltaY < 0 && currentIndexRef.current > 0) {
+          goToIndex(currentIndexRef.current - 1);
+        } else {
+          setDragOffset(0);
+          setIsDragging(false);
+        }
+      } else {
+        setDragOffset(0);
+        setIsDragging(false);
       }
     },
-    [currentIndex, items.length],
+    [items.length, goToIndex],
   );
 
   const imgUrl = (url: string) =>
@@ -663,9 +697,14 @@ export default function TrendingFeed() {
     );
   }
 
+  const slideHeight = typeof window !== "undefined" ? window.innerHeight : 800;
+  const translateY = -(currentIndex * slideHeight) + (isDragging ? -dragOffset : 0);
+
   return (
     <div
-      className="fixed inset-0 bg-black z-50"
+      ref={containerRef}
+      className="fixed inset-0 bg-black z-50 overflow-hidden"
+      style={{ touchAction: "none" }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -717,11 +756,15 @@ export default function TrendingFeed() {
         )}
       </button>
 
-      {/* Snap scroll container */}
+      {/* Transform-based sliding container */}
       <div
-        ref={containerRef}
-        className="h-full w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        ref={sliderRef}
+        className="w-full"
+        style={{
+          transform: `translate3d(0, ${translateY}px, 0)`,
+          transition: isDragging ? "none" : `transform ${TRANSITION_MS}ms cubic-bezier(0.25, 1, 0.5, 1)`,
+          willChange: "transform",
+        }}
       >
         {items.map((item, idx) => {
           const engagementRate = getEngagementRate(item);
@@ -731,12 +774,13 @@ export default function TrendingFeed() {
           return (
             <div
               key={item.id}
-              ref={(el) => {
-                if (el) itemRefs.current.set(item.id, el);
+              className="relative w-full overflow-hidden"
+              style={{
+                height: slideHeight,
+                opacity: isActive ? 1 : 0.4,
+                transition: isDragging ? "none" : `opacity ${TRANSITION_MS}ms ease`,
+                willChange: "opacity",
               }}
-              data-index={idx}
-              className="relative h-screen w-full snap-start"
-              style={{ opacity: isActive ? 1 : 0.3, transition: "opacity 300ms ease" }}
             >
               {/* Video / Image */}
               <div className="absolute inset-0 z-0">
@@ -753,8 +797,8 @@ export default function TrendingFeed() {
                       className="w-full h-full object-cover"
                       loop
                       playsInline
-                      autoPlay
                       muted
+                      preload={Math.abs(idx - currentIndex) <= 2 ? "auto" : "none"}
                     />
                     {showPauseIcon[item.id] && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -820,7 +864,7 @@ export default function TrendingFeed() {
                 </div>
               )}
 
-              {/* Right side action buttons — TikTok order: Heart, Comment, Share, Save */}
+              {/* Right side action buttons */}
               <div className="absolute right-2 sm:right-4 bottom-24 sm:bottom-36 z-10 flex flex-col items-center gap-4">
                 {/* Heart (Like) */}
                 <button
@@ -964,8 +1008,8 @@ export default function TrendingFeed() {
                 </div>
               </div>
 
-              {/* Swipe up hint on first video */}
-              {idx === 0 && (
+              {/* Swipe hint on first video */}
+              {idx === 0 && currentIndex === 0 && !isDragging && (
                 <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
                   <div className="text-white/50 text-xs flex flex-col items-center">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="rotate-180">
@@ -976,7 +1020,7 @@ export default function TrendingFeed() {
                 </div>
               )}
 
-              {/* Pull-to-refresh hint */}
+              {/* Refreshing indicator */}
               {idx === 0 && refreshing && (
                 <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-20">
                   <RefreshCw size={16} className="text-white/50 animate-spin" />
@@ -985,15 +1029,10 @@ export default function TrendingFeed() {
             </div>
           );
         })}
-
-        {/* Infinite scroll sentinel */}
-        <div ref={sentinelRef} className="h-4 w-full" />
-        {loadingMore && (
-          <div className="h-16 flex items-center justify-center">
-            <div className="text-white/40 text-xs animate-pulse">Loading more...</div>
-          </div>
-        )}
       </div>
+
+      {/* Infinite scroll sentinel */}
+      <div ref={sentinelRef} className="h-4 w-full" />
 
       {/* Fixed top header */}
       <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-4 bg-gradient-to-b from-black/60 to-transparent">
@@ -1083,7 +1122,7 @@ export default function TrendingFeed() {
         </div>
       )}
 
-      {/* Comment modal — slide-up from bottom */}
+      {/* Comment modal */}
       {commentModalOpen && activePostId && (
         <div
           className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end lg:items-center lg:justify-center"
@@ -1094,7 +1133,6 @@ export default function TrendingFeed() {
             style={{ backgroundColor: "#1a1a1a" }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Desktop: post preview on left */}
             <div className="hidden lg:flex lg:w-1/2 bg-black items-center justify-center min-h-[50vh]">
               {(() => {
                 const post = items.find((item) => item.id === activePostId);
@@ -1129,7 +1167,6 @@ export default function TrendingFeed() {
               })()}
             </div>
 
-            {/* Comments panel */}
             <div className="flex flex-col lg:w-1/2 lg:max-h-[90vh]">
               <div className="flex justify-between items-center px-4 py-3 border-b border-white/10 shrink-0">
                 <h3 className="text-white font-semibold text-base">

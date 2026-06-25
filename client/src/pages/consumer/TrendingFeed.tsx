@@ -170,20 +170,7 @@ export default function TrendingFeed() {
             return Array.from(seen.values());
           });
         } else {
-          setItems((prev) => {
-            const prevMap = new Map(prev.map((i) => [i.id, i]));
-            return newItems.map((n) => {
-              const existing = prevMap.get(n.id);
-              if (!existing) return n;
-              return {
-                ...n,
-                likes: existing.likes,
-                bookmarks: existing.bookmarks,
-                shares: existing.shares,
-                commentCount: existing.commentCount,
-              };
-            });
-          });
+          setItems(newItems);
         }
         setCursor(result.nextCursor);
         setHasMore(!!result.nextCursor);
@@ -247,9 +234,6 @@ export default function TrendingFeed() {
   useEffect(() => {
     const handler = () => {
       setSoundOn(true);
-      videoRefs.current.forEach((video) => {
-        video.muted = false;
-      });
     };
     window.addEventListener("click", handler, { once: true });
     window.addEventListener("touchstart", handler, { once: true });
@@ -552,11 +536,17 @@ export default function TrendingFeed() {
       const video = videoRefs.current.get(item.id);
       if (!video) return;
       if (idx === currentIndex) {
-        if (manuallyPausedRef.current.has(item.id)) return;
+        if (manuallyPausedRef.current.has(item.id)) {
+          video.muted = true;
+          video.pause();
+          return;
+        }
         video.muted = !soundOn;
-        video.play().catch(() => {});
+        const playPromise = video.play();
+        if (playPromise) playPromise.catch(() => {});
       } else {
         video.pause();
+        video.muted = true;
       }
     });
 
@@ -564,6 +554,7 @@ export default function TrendingFeed() {
       const nextItem = items[currentIndex + 1];
       const nextVideo = videoRefs.current.get(nextItem.id);
       if (nextVideo) {
+        nextVideo.muted = true;
         nextVideo.preload = "auto";
         nextVideo.load();
       }
@@ -583,28 +574,33 @@ export default function TrendingFeed() {
     const video = videoRefs.current.get(itemId);
     if (!video) return;
     if (video.paused) {
-      video.play().catch(() => {});
+      video.muted = !soundOn;
+      const playPromise = video.play();
+      if (playPromise) playPromise.catch(() => {});
       manuallyPausedRef.current.delete(itemId);
     } else {
       video.pause();
+      video.muted = true;
       manuallyPausedRef.current.add(itemId);
     }
     setShowPauseIcon((prev) => ({ ...prev, [itemId]: true }));
     setTimeout(() => {
       setShowPauseIcon((prev) => ({ ...prev, [itemId]: false }));
     }, 400);
-  }, []);
+  }, [soundOn]);
 
   const toggleSound = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     setSoundOn((prev) => {
       const next = !prev;
-      videoRefs.current.forEach((video) => {
-        video.muted = !next;
-      });
+      const currentItem = items[currentIndexRef.current];
+      if (currentItem) {
+        const video = videoRefs.current.get(currentItem.id);
+        if (video) video.muted = !next;
+      }
       return next;
     });
-  }, []);
+  }, [items]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartRef.current = {

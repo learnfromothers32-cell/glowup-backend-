@@ -297,16 +297,22 @@ function PortfolioCarousel({ items, onView }: {
         </div>
       </div>
       {canGoLeft && (
-        <button onClick={() => scrollCarousel("left")}
-          className="absolute left-0 top-[40%] -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-surface-dark-secondary shadow-lg text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-hover z-20 pointer-events-auto"
+        <button
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); e.preventDefault(); scrollCarousel("left"); }}
+          className="absolute left-0 top-[40%] -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-surface-dark-secondary shadow-lg text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-hover z-30"
+          style={{ pointerEvents: "auto" }}
           aria-label="Previous"
         >
           <ChevronLeft size={18} />
         </button>
       )}
       {canGoRight && (
-        <button onClick={() => scrollCarousel("right")}
-          className="absolute right-0 top-[40%] -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-surface-dark-secondary shadow-lg text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-hover z-20 pointer-events-auto"
+        <button
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); e.preventDefault(); scrollCarousel("right"); }}
+          className="absolute right-0 top-[40%] -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-surface-dark-secondary shadow-lg text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-hover z-30"
+          style={{ pointerEvents: "auto" }}
           aria-label="Next"
         >
           <ChevronRight size={18} />
@@ -315,7 +321,9 @@ function PortfolioCarousel({ items, onView }: {
       {total > 1 && (
         <div className="flex items-center justify-center gap-1.5 mt-4">
           {items.map((_, i) => (
-            <button key={i} onClick={() => goToIndex(i)}
+            <button key={i}
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); goToIndex(i); }}
               className={`rounded-full transition-all duration-300 ${i === currentIndex ? "w-6 h-1.5 bg-brand-500" : "w-1.5 h-1.5 bg-gray-300 dark:bg-gray-600"}`}
               aria-label={`Go to slide ${i + 1}`}
             />

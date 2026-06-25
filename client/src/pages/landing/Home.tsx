@@ -20,6 +20,7 @@ import ClientManagementFeature from "../../components/sections/ClientManagementF
 import AIRecommendationsFeature from "../../components/sections/AIRecommendationsFeature";
 import PaymentsFeature from "../../components/sections/PaymentsFeature";
 import NotificationsFeature from "../../components/sections/NotificationsFeature";
+import PwaInstallModal from "../../components/PwaInstallModal";
 
 export default function Home() {
   const location = useLocation();
@@ -62,18 +63,18 @@ export default function Home() {
       <LandingNavbar />
       <main>
         <Hero />
-        <FeaturesSection />
-        <HowItWorks />
-        <QueueFeature />
-        <BookingFeature />
-        <PortfolioFeature />
+        <div id="features"><FeaturesSection /></div>
+        <div id="how"><HowItWorks /></div>
+        <div id="queue"><QueueFeature /></div>
+        <div id="booking"><BookingFeature /></div>
+        <div id="portfolio"><PortfolioFeature /></div>
         <StylistFeature />
-        <LiveFeature />
-        <TrendingFeature />
+        <div id="live"><LiveFeature /></div>
+        <div id="trending"><TrendingFeature /></div>
         <StatsSection />
         <PricingFeature />
-        <ReviewsFeature />
-        <ServicesSection />
+        <div id="testimonials"><ReviewsFeature /></div>
+        <div id="services"><ServicesSection /></div>
         <ClientManagementFeature />
         <AIRecommendationsFeature />
         <PaymentsFeature />
@@ -81,6 +82,7 @@ export default function Home() {
         <FinalCTASection />
       </main>
       <AppFooter variant="landing" />
+      <PwaInstallModal />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Star, Play, Shield, Sparkles } from "lucide-react";
 import { usePwaInstall } from "../../hooks/usePwaInstall";
-import { PwaInstallModal } from "../PwaInstallModal";
+import PwaInstallModal from "../PwaInstallModal";
 import { useState } from "react";
 
 export default function Hero() {

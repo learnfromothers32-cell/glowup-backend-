@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePwaInstall } from "../../../hooks/usePwaInstall";
-import { PwaInstallModal } from "../../PwaInstallModal";
+import PwaInstallModal from "../../PwaInstallModal";
 
 // ─── Social Icons ─────────────────────────────────────────────────────────────
 const InstagramIcon = () => (

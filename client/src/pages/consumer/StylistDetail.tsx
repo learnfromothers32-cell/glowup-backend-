@@ -197,135 +197,113 @@ function EmptyState({ icon: Icon, title, sub }: { icon: React.ElementType; title
 }
 
 /* ═══════════════════════════════════════════════════════════
-   SWIPEABLE CAROUSEL
+   TRANSFORMATION VIEWER (slideshow with prev/next)
    ═══════════════════════════════════════════════════════════ */
 function PortfolioCarousel({ items, onView }: {
   items: Array<{ url: string; type: "image" | "video"; caption?: string; service?: string; likes?: number }>;
   onView: (index: number) => void;
 }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const total = items.length;
 
-  const getCardWidth = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el || !el.children[0]) return 280;
-    return (el.children[0] as HTMLElement).offsetWidth + 16;
-  }, []);
+  if (total === 0) return null;
 
-  const updateIndex = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const cw = getCardWidth();
-    setCurrentIndex(Math.min(Math.round(el.scrollLeft / cw), total - 1));
-  }, [getCardWidth, total]);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    updateIndex();
-    el.addEventListener("scroll", updateIndex, { passive: true });
-    window.addEventListener("resize", updateIndex);
-    return () => { el.removeEventListener("scroll", updateIndex); window.removeEventListener("resize", updateIndex); };
-  }, [updateIndex]);
-
-  const scrollCarousel = (dir: "left" | "right") => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const cw = getCardWidth();
-    const max = el.scrollWidth - el.clientWidth;
-    const target = dir === "left"
-      ? Math.max(0, el.scrollLeft - cw)
-      : Math.min(max, el.scrollLeft + cw);
-    el.scrollLeft = target;
-  };
-
-  const goToIndex = (idx: number) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollLeft = idx * getCardWidth();
-  };
-
+  const item = items[currentIndex];
   const canGoLeft = currentIndex > 0;
   const canGoRight = currentIndex < total - 1;
 
-  if (total === 0) return null;
+  const goPrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setCurrentIndex((i) => (i > 0 ? i - 1 : total - 1));
+  };
+
+  const goNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setCurrentIndex((i) => (i < total - 1 ? i + 1 : 0));
+  };
 
   return (
     <div className="relative">
-      <div style={{ paddingLeft: 20, paddingRight: 20 }}>
-        <div ref={scrollRef} onScroll={updateIndex}
-          className="flex gap-4 overflow-x-auto pb-2"
-          style={{ scrollbarWidth: "none", scrollBehavior: "auto", WebkitOverflowScrolling: "touch" }}
-        >
-          {items.map((item, i) => (
-            <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              onClick={() => onView(i)}
-              className="shrink-0 w-[260px] sm:w-[280px] rounded-2xl overflow-hidden cursor-pointer bg-white dark:bg-surface-dark-secondary shadow-[0_1px_3px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-all duration-300 hover:scale-[1.02]"
-              style={{ scrollSnapAlign: "start" }}
-            >
-              <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-surface-dark-tertiary">
-                {item.type === "video" ? (
-                  <>
-                    <video src={imgSrc(item)} className="absolute inset-0 w-full h-full object-cover" muted playsInline preload="metadata" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="8,5 19,12 8,19" /></svg>
-                      </div>
-                    </div>
-                    <div className="absolute top-2 left-2">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold text-white bg-black/50 backdrop-blur-sm">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21" /></svg> Video
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  <img src={imgSrc(item)} alt={item.caption || ""} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
-                )}
-              </div>
-              <div className="p-3.5">
-                <p className="text-sm font-semibold text-text-primary dark:text-text-dark-primary truncate">{item.service || item.caption || `Work #${i + 1}`}</p>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-xs text-text-muted dark:text-text-dark-muted">{item.caption || `Transformation ${i + 1}`}</span>
-                  {item.likes !== undefined && item.likes > 0 && (
-                    <span className="inline-flex items-center gap-1 text-xs text-rose-500"><Heart size={12} fill="currentColor" /> {item.likes}</span>
-                  )}
+      {/* Main card — click opens fullscreen viewer */}
+      <motion.button
+        key={currentIndex}
+        initial={{ opacity: 0, x: 30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.25 }}
+        onClick={() => onView(currentIndex)}
+        className="w-full rounded-2xl overflow-hidden cursor-pointer bg-white dark:bg-surface-dark-secondary shadow-[0_2px_8px_rgba(0,0,0,0.10)]"
+      >
+        <div className="relative aspect-[16/10] overflow-hidden bg-gray-100 dark:bg-surface-dark-tertiary">
+          {item.type === "video" ? (
+            <>
+              <video src={imgSrc(item)} className="absolute inset-0 w-full h-full object-cover" muted playsInline preload="metadata" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><polygon points="8,5 19,12 8,19" /></svg>
                 </div>
               </div>
-            </motion.button>
-          ))}
+              <div className="absolute top-3 left-3">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-white bg-black/50 backdrop-blur-sm">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21" /></svg> Video
+                </span>
+              </div>
+            </>
+          ) : (
+            <img src={imgSrc(item)} alt={item.caption || ""} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+          )}
+          {/* Caption overlay */}
+          {(item.caption || item.service) && (
+            <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
+              {item.service && <p className="text-sm font-semibold text-white">{item.service}</p>}
+              {item.caption && <p className="text-xs text-white/70 mt-0.5">{item.caption}</p>}
+            </div>
+          )}
         </div>
-      </div>
+      </motion.button>
+
+      {/* Left arrow */}
       {canGoLeft && (
         <button
           onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); e.preventDefault(); scrollCarousel("left"); }}
-          className="absolute left-0 top-[40%] -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-surface-dark-secondary shadow-lg text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-hover z-30"
-          style={{ pointerEvents: "auto" }}
-          aria-label="Previous"
+          onClick={goPrev}
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white/90 dark:bg-surface-dark-secondary/90 shadow-lg text-text-secondary dark:text-text-dark-secondary hover:bg-white dark:hover:bg-surface-dark-hover z-30 transition-all"
+          aria-label="Previous transformation"
         >
-          <ChevronLeft size={18} />
+          <ChevronLeft size={20} />
         </button>
       )}
+
+      {/* Right arrow */}
       {canGoRight && (
         <button
           onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); e.preventDefault(); scrollCarousel("right"); }}
-          className="absolute right-0 top-[40%] -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-surface-dark-secondary shadow-lg text-text-secondary dark:text-text-dark-secondary hover:bg-gray-50 dark:hover:bg-surface-dark-hover z-30"
-          style={{ pointerEvents: "auto" }}
-          aria-label="Next"
+          onClick={goNext}
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white/90 dark:bg-surface-dark-secondary/90 shadow-lg text-text-secondary dark:text-text-dark-secondary hover:bg-white dark:hover:bg-surface-dark-hover z-30 transition-all"
+          aria-label="Next transformation"
         >
-          <ChevronRight size={18} />
+          <ChevronRight size={20} />
         </button>
       )}
+
+      {/* Counter badge */}
       {total > 1 && (
-        <div className="flex items-center justify-center gap-1.5 mt-4">
+        <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-[11px] font-semibold text-white tabular-nums z-10">
+          {currentIndex + 1} / {total}
+        </div>
+      )}
+
+      {/* Dot indicators */}
+      {total > 1 && (
+        <div className="flex items-center justify-center gap-1.5 mt-3">
           {items.map((_, i) => (
-            <button key={i}
+            <button
+              key={i}
               onMouseDown={(e) => e.stopPropagation()}
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); goToIndex(i); }}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); setCurrentIndex(i); }}
               className={`rounded-full transition-all duration-300 ${i === currentIndex ? "w-6 h-1.5 bg-brand-500" : "w-1.5 h-1.5 bg-gray-300 dark:bg-gray-600"}`}
-              aria-label={`Go to slide ${i + 1}`}
+              aria-label={`Go to transformation ${i + 1}`}
             />
           ))}
         </div>

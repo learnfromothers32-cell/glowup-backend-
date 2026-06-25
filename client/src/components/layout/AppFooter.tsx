@@ -1,502 +1,99 @@
-import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import {
-  Sparkles,
-  ArrowRight,
-  Send,
-  Check,
-  Heart,
-  MapPin,
-  Mail,
-} from "lucide-react";
-import { motion } from "framer-motion";
-import { usePwaInstall } from "../../hooks/usePwaInstall";
-import { PwaInstallModal } from "../PwaInstallModal";
+import { Sparkles, Heart, Globe, MessageSquareShare, Mail } from "lucide-react";
 
-function useReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.add("visible");
-          observer.unobserve(el);
-        }
-      },
-      { threshold: 0.15 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-  return ref;
-}
+const FOOTER_LINKS = {
+  Product: [
+    { label: "Features", to: "/#features" },
+    { label: "How It Works", to: "/#how" },
+    { label: "Pricing", to: "/#services" },
+    { label: "For Stylists", to: "/stylist/signup" },
+  ],
+  Company: [
+    { label: "About", to: "/about" },
+    { label: "Careers", to: "/careers" },
+    { label: "Blog", to: "/blog" },
+    { label: "Press Kit", to: "/press" },
+  ],
+  Support: [
+    { label: "Help Center", to: "/help" },
+    { label: "Contact", to: "/contact" },
+    { label: "Privacy Policy", to: "/privacy" },
+    { label: "Terms of Service", to: "/terms" },
+  ],
+};
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-interface NavLink {
-  label: string;
-  href: string;
-  badge?: string;
-}
-
-interface FooterGroup {
-  heading: string;
-  links: NavLink[];
-}
-
-interface SocialLink {
-  label: string;
-  href: string;
-  icon: React.ReactNode;
-}
-
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const CONSUMER_GROUPS: FooterGroup[] = [
-  {
-    heading: "Discover",
-    links: [
-      { label: "Home", href: "/app" },
-      { label: "Vibe Match", href: "/app/vibe-match", badge: "AI" },
-      { label: "Trending", href: "/app/trending" },
-      { label: "Rewards", href: "/app/rewards" },
-      { label: "Live Sessions", href: "/app/live" },
-    ],
-  },
-  {
-    heading: "Account",
-    links: [
-      { label: "My Bookings", href: "/app/my-bookings" },
-      { label: "Favorites", href: "/app/favorites" },
-      { label: "Profile", href: "/app/profile" },
-      { label: "Settings", href: "/app/settings" },
-    ],
-  },
-  {
-    heading: "Support",
-    links: [
-      { label: "Help Center", href: "/help" },
-      { label: "FAQ", href: "/faq" },
-      { label: "Contact Us", href: "/contact" },
-      { label: "Report a Problem", href: "/report" },
-    ],
-  },
-  {
-    heading: "Legal",
-    links: [
-      { label: "Terms & Conditions", href: "/terms" },
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Cookie Policy", href: "/cookies" },
-      { label: "Refund Policy", href: "/refunds" },
-    ],
-  },
+const SOCIALS = [
+  { icon: Globe, label: "Website", href: "#" },
+  { icon: MessageSquareShare, label: "Community", href: "#" },
 ];
 
-const LANDING_GROUPS: FooterGroup[] = [
-  {
-    heading: "Product",
-    links: [
-      { label: "Features", href: "/#features" },
-      { label: "How It Works", href: "/#how" },
-      { label: "AI Vibe Match", href: "#", badge: "Coming Soon" },
-      { label: "Live Sessions", href: "/signup" },
-      { label: "Pricing", href: "/#pricing" },
-    ],
-  },
-  {
-    heading: "For Stylists",
-    links: [
-      { label: "Join as Stylist", href: "/signup" },
-      { label: "Stylist Dashboard", href: "/login" },
-      { label: "Creator Program", href: "/signup", badge: "New" },
-      { label: "Get a Demo", href: "/signup" },
-    ],
-  },
-  {
-    heading: "Company",
-    links: [
-      { label: "About Us", href: "/about" },
-      { label: "Blog", href: "/blog" },
-      { label: "Careers", href: "/careers", badge: "Hiring" },
-      { label: "Press Kit", href: "/press-kit" },
-      { label: "Contact", href: "/contact" },
-    ],
-  },
-  {
-    heading: "Legal",
-    links: [
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Terms of Service", href: "/terms" },
-      { label: "Cookie Policy", href: "/cookies" },
-    ],
-  },
-];
-
-const SOCIAL_LINKS: SocialLink[] = [
-  {
-    label: "Instagram",
-    href: "https://www.instagram.com/glowupapp",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
-        <rect x="2" y="2" width="20" height="20" rx="5" />
-        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-      </svg>
-    ),
-  },
-  {
-    label: "X (Twitter)",
-    href: "https://twitter.com/glowupapp",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
-        <path d="M4 4l11.733 16h4.267l-11.733-16z" />
-        <path d="M4 20l6.768-6.768m2.46-2.46L20 4" />
-      </svg>
-    ),
-  },
-  {
-    label: "TikTok",
-    href: "https://www.tiktok.com/@glowupapp",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
-        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
-      </svg>
-    ),
-  },
-  {
-    label: "LinkedIn",
-    href: "https://www.linkedin.com/company/glowupapp",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
-        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" />
-        <rect x="2" y="9" width="4" height="12" />
-        <circle cx="4" cy="4" r="2" />
-      </svg>
-    ),
-  },
-];
-
-const CURRENT_YEAR = new Date().getFullYear();
-
-// ─── Newsletter Form ──────────────────────────────────────────────────────────
-function NewsletterForm() {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setLoading(true);
-    setTimeout(() => {
-      setSubmitted(true);
-      setLoading(false);
-    }, 1000);
-  };
-
-  return (
-    <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-7 h-7 rounded-lg bg-brand-500/10 flex items-center justify-center">
-          <Mail size={13} className="text-brand-400" />
-        </div>
-        <p className="text-sm font-semibold text-neutral-200">Stay in the loop</p>
-      </div>
-      <p className="text-xs text-neutral-500 mb-3 leading-relaxed">
-        Get beauty tips, exclusive deals, and new stylist alerts — straight to your inbox.
-      </p>
-
-      {submitted ? (
-        <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 py-2.5 px-3 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium"
-        >
-          <Check size={14} />
-          You're subscribed! Check your inbox.
-        </motion.div>
-      ) : (
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="your@email.com"
-            required
-            className="flex-1 min-w-0 bg-white/[0.05] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-white/20 focus:ring-2 focus:ring-brand-500/20 transition-colors"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="shrink-0 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/[0.08] text-neutral-300 text-sm font-medium hover:bg-white/[0.12] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 transition-all disabled:opacity-50"
-          >
-            {loading ? (
-              <div className="w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
-                <Send size={13} />
-                <span className="hidden sm:inline">Subscribe</span>
-              </>
-            )}
-          </button>
-        </form>
-      )}
-    </div>
-  );
-}
-
-// ─── Nav Group ────────────────────────────────────────────────────────────────
-function NavGroup({ heading, links }: FooterGroup) {
-  return (
-    <nav aria-label={heading}>
-      <p className="text-[11px] uppercase tracking-[0.14em] font-bold text-neutral-400 mb-4">
-        {heading}
-      </p>
-      <ul className="space-y-3">
-        {links.map(({ label, href, badge }) => (
-          <li key={label}>
-            <Link
-              to={href}
-              className="group inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-200 transition-colors duration-200"
-            >
-              {label}
-              {badge && (
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand-500/15 text-brand-400 uppercase tracking-wider">
-                  {badge}
-                </span>
-              )}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
-}
-
-// ─── Social Button ────────────────────────────────────────────────────────────
-function SocialBtn({ label, href, icon }: SocialLink) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`GlowUp on ${label}`}
-      className="w-9 h-9 flex items-center justify-center rounded-xl
-        text-neutral-500 border border-white/[0.06] bg-white/[0.02]
-        hover:text-white hover:border-white/20 hover:bg-white/[0.06]
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60
-        transition-all duration-200"
-    >
-      {icon}
-    </a>
-  );
-}
-
-// ─── Main Component ───────────────────────────────────────────────────────────
 interface AppFooterProps {
   variant?: "landing" | "consumer";
 }
 
 export default function AppFooter({ variant = "landing" }: AppFooterProps) {
-  const isConsumer = variant === "consumer";
-  const navGroups = isConsumer ? CONSUMER_GROUPS : LANDING_GROUPS;
-  const ctaReveal = useReveal();
-  const bodyReveal = useReveal();
-  const [showInstallModal, setShowInstallModal] = useState(false);
-  const { isIOS, isAndroid, promptInstall, isInstallable } = usePwaInstall();
-
-  const handleInstall = async () => {
-    if (isIOS || (!isAndroid && !isInstallable)) {
-      setShowInstallModal(true);
-      return;
-    }
-    const accepted = await promptInstall();
-    if (!accepted) {
-      setShowInstallModal(true);
-    }
-  };
-
   return (
-    <>
-      <style>{`
-        @media (prefers-reduced-motion: reduce) {
-          .footer-section * { transition: none !important; animation: none !important; }
-        }
-      `}</style>
-      <footer
-        aria-label="Site footer"
-        className="bg-neutral-950 border-t border-white/[0.06] mt-12 footer-section"
-      >
-        {/* ── CTA Banner ─────────────────────────────────────── */}
-        <div ref={ctaReveal} className="border-b border-white/[0.06] reveal">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
-            <div className="max-w-md">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-lg bg-brand-500/10 flex items-center justify-center">
-                  <Sparkles size={13} className="text-brand-400" />
-                </div>
-                <span className="text-[11px] uppercase tracking-[0.14em] font-bold text-brand-400">
-                  Ready to glow?
-                </span>
+    <footer className="bg-gray-900 dark:bg-surface-dark">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8 py-16">
+        <div className="grid gap-10 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
+          {/* Brand */}
+          <div>
+            <Link to="/" className="inline-flex items-center gap-2.5 group">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600">
+                <Sparkles size={18} className="text-white" />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight tracking-tight">
-                Book your next look in{" "}
-                <span className="text-brand-400">seconds.</span>
-              </h2>
-              <p className="text-sm text-neutral-500 mt-2 leading-relaxed">
-                Join thousands of people discovering top stylists and transforming their style.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3 shrink-0">
-              <Link
-                to={isConsumer ? "/app/vibe-match" : "/signup"}
-                className="inline-flex items-center gap-2.5 bg-white text-gray-900 text-sm font-semibold px-6 py-3 rounded-xl hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 transition-colors duration-200 shadow-lg shadow-white/10"
-              >
-                {isConsumer ? "Find Your Vibe" : "Get Started"}
-                <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Main Footer Body ───────────────────────────────── */}
-      <div ref={bodyReveal} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16 reveal reveal-delay-1">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_3fr] gap-12 lg:gap-16">
-          {/* Brand column */}
-          <div className="flex flex-col gap-8">
-            {/* Logo + tagline */}
-            <div>
-              <Link to="/" className="flex items-center gap-2.5 group">
-                <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center">
-                  <Sparkles size={16} className="text-gray-900" />
-                </div>
-                <span className="text-lg font-bold text-white tracking-tight">
-                  GlowUp
-                </span>
-              </Link>
-              <p className="mt-4 text-sm text-neutral-500 leading-relaxed max-w-[280px]">
-                {isConsumer
-                  ? "Your beauty & style companion — discover top stylists, book appointments, and transform your look."
-                  : "The modern beauty platform — live sessions, AI matching, instant booking, and growth tools for stylists."}
-              </p>
-            </div>
-
-            {/* Newsletter */}
-            <NewsletterForm />
-
-            {/* Social links */}
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.14em] font-bold text-neutral-400 mb-3">
-                Follow us
-              </p>
-              <div className="flex items-center gap-2">
-                {SOCIAL_LINKS.map((s) => (
-                  <SocialBtn key={s.label} {...s} />
-                ))}
-              </div>
-            </div>
-
-            {/* App store badges */}
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.14em] font-bold text-neutral-400 mb-3">
-                Get the app
-              </p>
-              <div className="flex flex-row flex-wrap gap-2">
-                {[
-                  {
-                    store: "App Store",
-                    sub: isIOS ? "Add to Home Screen" : "Download on the",
-                    icon: (
-                      <svg className="w-4 h-4 sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-                      </svg>
-                    ),
-                  },
-                  {
-                    store: "Google Play",
-                    sub: isAndroid ? "Install app" : "Get it on",
-                    icon: (
-                      <svg className="w-4 h-4 sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.302 1.33c.576.334.576 1.16 0 1.494l-2.302 1.33-2.532-2.532 2.532-2.622zM5.864 3.458L16.8 9.79l-2.302 2.302-8.635-8.634z" />
-                      </svg>
-                    ),
-                  },
-                ].map(({ store, sub, icon }) => (
-                  <button
-                    key={store}
-                    onClick={handleInstall}
-                    className="flex-1 inline-flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] text-neutral-400 hover:border-white/15 hover:text-white hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 transition-all duration-200"
-                    style={{ fontFamily: "inherit", cursor: "pointer" }}
-                  >
-                    <span className="shrink-0 text-neutral-300">{icon}</span>
-                    <div className="text-left min-w-0">
-                      <p className="text-[8px] sm:text-[9px] text-neutral-500 leading-none truncate">{sub}</p>
-                      <p className="text-xs sm:text-sm font-semibold leading-tight truncate">{store}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 lg:gap-6">
-            {navGroups.map((group) => (
-              <NavGroup key={group.heading} {...group} />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Bottom Bar ─────────────────────────────────────── */}
-      <div className="border-t border-white/[0.06]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            {/* Left: copyright + location */}
-            <div className="flex items-center gap-4 text-xs text-neutral-600">
-              <span>© {CURRENT_YEAR} GlowUp Technologies Ltd.</span>
-              <span className="hidden sm:flex items-center gap-1">
-                <MapPin size={10} />
-                Accra, Ghana
-              </span>
-            </div>
-
-            {/* Center: legal links */}
-            <div className="flex items-center gap-5">
-              {[
-                { label: "Privacy", href: "/privacy" },
-                { label: "Terms", href: "/terms" },
-                { label: "Cookies", href: "/cookies" },
-              ].map(({ label, href }) => (
-                <Link
-                  key={label}
-                  to={href}
-                  className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors"
+              <span className="font-display text-xl font-extrabold text-white">GlowUp</span>
+            </Link>
+            <p className="mt-4 text-sm text-gray-400 leading-relaxed max-w-xs">
+              The AI-powered beauty platform connecting clients with verified stylists across Ghana.
+            </p>
+            <div className="mt-6 flex items-center gap-3">
+              {SOCIALS.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  aria-label={s.label}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-all"
                 >
-                  {label}
-                </Link>
+                  <s.icon size={16} />
+                </a>
               ))}
             </div>
-
-            {/* Right: made with love */}
-            <div className="flex items-center gap-1.5 text-xs text-neutral-600">
-              <span>Made with</span>
-              <Heart size={10} fill="#f43f5e" className="text-brand-500" />
-              <span>in Accra</span>
-            </div>
           </div>
+
+          {/* Link columns */}
+          {Object.entries(FOOTER_LINKS).map(([heading, links]) => (
+            <div key={heading}>
+              <h4 className="text-xs font-bold uppercase tracking-[0.14em] text-gray-500 mb-4">{heading}</h4>
+              <ul className="space-y-2.5">
+                {links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      to={link.to}
+                      className="text-sm text-gray-400 hover:text-white transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom bar */}
+        <div className="mt-14 pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-gray-500">
+            © {new Date().getFullYear()} GlowUp Technologies Ltd. All rights reserved.
+          </p>
+          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+            Made with <Heart size={10} fill="#f43f5e" className="text-brand-500" /> in Accra
+          </div>
+          <a href="mailto:hello@glowup.app" className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors">
+            <Mail size={12} /> hello@glowup.app
+          </a>
         </div>
       </div>
     </footer>
-    <PwaInstallModal
-      open={showInstallModal}
-      onClose={() => setShowInstallModal(false)}
-      isIOS={isIOS}
-      isAndroid={isAndroid}
-    />
-    </>
   );
 }

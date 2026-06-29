@@ -9,7 +9,7 @@ import { Conversation } from '../models/Conversation';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { ApiError } from '../utils/apiError';
 import { sendSuccess, sendPaginated } from '../utils/apiResponse';
-import { notifyBookingConfirmed, notifyBookingStatusChange } from '../utils/notify';
+import { notifyBookingCreated, notifyBookingStatusChange } from '../utils/notify';
 import { getIO } from '../socket';
 import { emitQueueUpdate } from '../utils/queue';
 
@@ -111,7 +111,7 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
 
   const stylist = await Stylist.findById(stylistId);
   if (stylist) {
-    notifyBookingConfirmed(clientId, stylist.name, booking._id.toString()).catch(() => {});
+    notifyBookingCreated(clientId, stylist.name, booking._id.toString()).catch(() => {});
   }
 
   // Atomically add to queue ($push never overwrites concurrent entries)

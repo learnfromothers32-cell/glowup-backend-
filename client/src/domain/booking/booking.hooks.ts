@@ -15,14 +15,15 @@ const MY_BOOKINGS_KEY = [BOOKINGS_KEY, "my"];
 const STYLIST_BOOKINGS_KEY = [BOOKINGS_KEY, "stylist"];
 
 function adaptBooking(b: any): Booking {
+  const startTime = b.startTime || new Date().toISOString();
   return {
     _id: b._id || b.id,
     id: b._id || b.id,
     clientId: b.clientId,
     stylistId: b.stylistId,
     serviceId: b.serviceId,
-    startTime: b.startTime,
-    endTime: b.endTime || new Date(new Date(b.startTime).getTime() + 3600000).toISOString(),
+    startTime,
+    endTime: b.endTime || new Date(new Date(startTime).getTime() + 3600000).toISOString(),
     status: b.status || "pending",
     totalPrice: b.totalPrice ?? 0,
     notes: b.notes,

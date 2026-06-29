@@ -341,7 +341,7 @@ export default function BookingModal({
           <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-gray-700/40 shrink-0">
             <div>
               <h2 className="text-base font-semibold text-text-primary dark:text-text-dark-primary">
-                {phase === "success" ? "Booking Confirmed" : `Book with ${stylist.name}`}
+                {phase === "success" ? "Booking Placed" : `Book with ${stylist.name}`}
               </h2>
               {phase !== "success" && (
                 <p className="text-xs text-text-muted dark:text-text-dark-muted mt-0.5">

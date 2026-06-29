@@ -56,7 +56,7 @@ export default function SuccessView({
         className="text-center mb-6"
       >
         <h3 className="text-2xl font-bold text-text-primary dark:text-text-dark-primary mb-1">You're all set!</h3>
-        <p className="text-sm text-text-muted dark:text-text-dark-muted">Confirmation sent to your email and phone</p>
+        <p className="text-sm text-text-muted dark:text-text-dark-muted">Awaiting stylist confirmation — we'll notify you</p>
       </motion.div>
 
       <motion.div

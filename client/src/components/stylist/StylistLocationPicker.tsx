@@ -1,19 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
-import { MapPin, Crosshair, Loader2, Search, Navigation, X } from "lucide-react";
+import { MapPin, Crosshair, Loader2, Search, Navigation, X, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { searchLocation } from "../../utils/locationSearch";
-import type { SearchResult } from "../../utils/locationSearch";
+import { searchLocation } from "@/utils/locationSearch";
+import type { SearchResult } from "@/utils/locationSearch";
+import { fixLeafletIcons, tileUrl, TILE_ATTRIBUTION } from "@/utils/leaflet";
 import "leaflet/dist/leaflet.css";
 
-const iconDefault = L.Icon.Default.prototype as unknown as { _getIconUrl?: () => string };
-delete iconDefault._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
+fixLeafletIcons();
 
 export interface LocationValue {
   area: string;
@@ -28,6 +23,23 @@ interface Props {
 
 const SEARCH_DEBOUNCE = 350;
 
+function MapClickHandler({
+  markerRef,
+  onMoveRef,
+}: {
+  markerRef: React.RefObject<L.Marker | null>;
+  onMoveRef: React.RefObject<(lat: number, lng: number) => void>;
+}) {
+  useMapEvents({
+    click(e) {
+      const { lat: newLat, lng: newLng } = e.latlng;
+      if (markerRef.current) markerRef.current.setLatLng([newLat, newLng]);
+      onMoveRef.current?.(newLat, newLng);
+    },
+  });
+  return null;
+}
+
 function MapPinPicker({
   lat,
   lng,
@@ -41,24 +53,17 @@ function MapPinPicker({
 }) {
   const markerRef = useRef<L.Marker>(null);
   const onMoveRef = useRef(onMove);
-  onMoveRef.current = onMove;
+  const [tileError, setTileError] = useState(false);
 
-  function MapEvents() {
-    useMapEvents({
-      click(e) {
-        const { lat: newLat, lng: newLng } = e.latlng;
-        if (markerRef.current) markerRef.current.setLatLng([newLat, newLng]);
-        onMoveRef.current(newLat, newLng);
-      },
-    });
-    return null;
-  }
+  useEffect(() => {
+    onMoveRef.current = onMove;
+  }, [onMove]);
 
   const hasCoords = lat !== 0 && lng !== 0;
 
   return (
     <div className="rounded-xl overflow-hidden border border-gray-200">
-      <div style={{ height: 260, width: "100%" }}>
+      <div style={{ height: 260, width: "100%" }} className="relative">
         <MapContainer
           center={[lat, lng]}
           zoom={hasCoords ? 16 : 2}
@@ -67,10 +72,13 @@ function MapPinPicker({
           zoomControl={false}
         >
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+            url={tileUrl(false)}
+            attribution={TILE_ATTRIBUTION}
+            eventHandlers={{
+              tileerror: () => setTileError(true),
+            }}
           />
-          <MapEvents />
+          <MapClickHandler markerRef={markerRef} onMoveRef={onMoveRef} />
           <Marker
             ref={markerRef}
             position={[lat, lng]}
@@ -80,12 +88,21 @@ function MapPinPicker({
                 const marker = markerRef.current;
                 if (marker) {
                   const { lat: mlat, lng: mlng } = marker.getLatLng();
-                  onMoveRef.current(mlat, mlng);
+                  onMoveRef.current?.(mlat, mlng);
                 }
               },
             }}
           />
         </MapContainer>
+        {tileError && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/80">
+            <div className="text-center p-4">
+              <AlertCircle size={20} className="mx-auto mb-1 text-amber-500" />
+              <p className="text-xs font-medium text-gray-700">Map tiles failed to load</p>
+            </div>
+          </div>
+        )}
+        <style>{`.leaflet-tile-pane { filter: saturate(0); }`}</style>
       </div>
       <div className="flex items-center justify-between px-4 py-2.5 bg-gray-50 border-t border-gray-100">
         <p className="text-xs text-gray-500 flex items-center gap-1.5">
@@ -122,7 +139,10 @@ export default function StylistLocationPicker({ value, onChange }: Props) {
       }
     };
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, []);
 
   const doSearch = useCallback(async (q: string) => {
@@ -215,6 +235,8 @@ export default function StylistLocationPicker({ value, onChange }: Props) {
               onChange={(e) => handleInput(e.target.value)}
               onFocus={() => results.length > 0 && setShowResults(true)}
               placeholder="Search for your location..."
+              aria-label="Search location"
+              aria-expanded={showResults}
               className="w-full pl-10 pr-9 py-3 rounded-xl border border-gray-200 text-sm bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
             />
             {query && (
@@ -226,6 +248,7 @@ export default function StylistLocationPicker({ value, onChange }: Props) {
                   setShowResults(false);
                   onChange({ area: "", lat: 0, lng: 0 });
                 }}
+                aria-label="Clear search"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 <X size={15} />
@@ -236,6 +259,7 @@ export default function StylistLocationPicker({ value, onChange }: Props) {
             type="button"
             onClick={handleDetect}
             disabled={detecting}
+            aria-label={detecting ? "Detecting location..." : "Detect current location"}
             className="px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-600 hover:text-gray-900 hover:border-gray-300 transition-all shrink-0 flex items-center gap-2 text-sm font-medium"
           >
             {detecting ? <Loader2 size={16} className="animate-spin" /> : <Crosshair size={16} />}
@@ -270,6 +294,7 @@ export default function StylistLocationPicker({ value, onChange }: Props) {
                       key={`${r.lat}-${r.lng}-${i}`}
                       type="button"
                       onClick={() => selectResult(r)}
+                      aria-label={`Select location: ${r.displayName.split(",")[0]}`}
                       className="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
                     >
                       <MapPin size={15} className="text-gray-400 mt-0.5 shrink-0" />
@@ -295,6 +320,7 @@ export default function StylistLocationPicker({ value, onChange }: Props) {
         <button
           type="button"
           onClick={() => setShowMap(true)}
+          aria-label="Fine-tune location on map"
           className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-gray-300 text-sm text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-all bg-gray-50/50"
         >
           <MapPin size={14} />

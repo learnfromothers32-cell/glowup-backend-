@@ -42,12 +42,12 @@ export async function createNotification(input: NotifyInput) {
   return notification;
 }
 
-export async function notifyBookingConfirmed(userId: string, stylistName: string, bookingId: string) {
+export async function notifyBookingCreated(userId: string, stylistName: string, bookingId: string) {
   return createNotification({
     userId,
     type: 'booking',
-    title: 'Booking Confirmed',
-    message: `Your booking with ${stylistName} is confirmed!`,
+    title: 'Booking Placed',
+    message: `Your booking with ${stylistName} is pending stylist confirmation. We'll notify you when it's confirmed.`,
     link: `/app/my-bookings`,
     metadata: { bookingId },
   });

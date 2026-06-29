@@ -9,6 +9,7 @@ const notifIconMap: Record<string, string> = {
   badge: "🏆",
   promo: "🎁",
   reminder: "⏰",
+  waitlist: "🔔",
 };
 
 function formatRelativeTime(dateStr: string): string {

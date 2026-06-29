@@ -44,6 +44,7 @@ const ConsumerProfile = lazy(() => import("../pages/consumer/Profile"));
 const ConsumerMessages = lazy(() => import("../pages/consumer/Messages"));
 const ConsumerNotifications = lazy(() => import("../pages/consumer/Notifications"));
 const Favorites = lazy(() => import("../pages/consumer/Favorites"));
+const ConsumerWaitlist = lazy(() => import("../pages/consumer/Waitlist"));
 const Settings = lazy(() => import("../pages/consumer/Settings"));
 const LiveStylists = lazy(() => import("../pages/consumer/LiveStylists"));
 const ServiceDetailPage = lazy(() => import("../pages/consumer/ServiceDetailPage"));
@@ -188,6 +189,7 @@ function AppRoutes() {
         <Route path="my-bookings" element={<MyBookings />} />
         <Route path="profile" element={<ConsumerProfile />} />
         <Route path="favorites" element={<Favorites />} />
+        <Route path="waitlist" element={<ConsumerWaitlist />} />
         <Route path="settings" element={<Settings />} />
         <Route path="stylist/:id" element={<StylistDetail />} />
         <Route path="stylist/:stylistId/service/:serviceId" element={<ServiceDetailPage />} />

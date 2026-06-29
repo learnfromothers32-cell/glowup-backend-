@@ -62,6 +62,7 @@ const DISCOVER_LINKS = [
 
 const ACCOUNT_LINKS = [
   { label: "My Bookings", to: "/app/my-bookings" },
+  { label: "Waitlist", to: "/app/waitlist" },
   { label: "Favorites", to: "/app/favorites" },
   { label: "Profile", to: "/app/profile" },
   { label: "Settings", to: "/app/settings" },

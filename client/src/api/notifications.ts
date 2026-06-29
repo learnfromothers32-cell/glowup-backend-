@@ -3,7 +3,7 @@ import api from './axios';
 export interface NotificationItem {
   _id: string;
   userId: string;
-  type: 'booking' | 'stylist' | 'badge' | 'promo' | 'reminder';
+  type: 'booking' | 'stylist' | 'badge' | 'promo' | 'reminder' | 'waitlist';
   title: string;
   message: string;
   link: string;

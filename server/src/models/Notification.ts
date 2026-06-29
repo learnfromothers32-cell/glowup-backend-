@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface INotification extends Document {
   userId: mongoose.Types.ObjectId;
-  type: 'booking' | 'stylist' | 'badge' | 'promo' | 'reminder' | 'live' | 'follow';
+  type: 'booking' | 'stylist' | 'badge' | 'promo' | 'reminder' | 'live' | 'follow' | 'waitlist';
   title: string;
   message: string;
   link: string;
@@ -15,7 +15,7 @@ const notificationSchema = new Schema<INotification>(
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     type: {
       type: String,
-      enum: ['booking', 'stylist', 'badge', 'promo', 'reminder', 'live', 'follow'],
+      enum: ['booking', 'stylist', 'badge', 'promo', 'reminder', 'live', 'follow', 'waitlist'],
       required: true,
     },
     title: { type: String, required: true },

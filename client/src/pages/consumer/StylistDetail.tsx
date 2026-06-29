@@ -1344,6 +1344,9 @@ export default function StylistDetail() {
   const [tiers, setTiers] = useState<any[]>([]);
   const [joiningWaitlist, setJoiningWaitlist] = useState(false);
   const [waitlistJoined, setWaitlistJoined] = useState(false);
+  const [showWaitlistDialog, setShowWaitlistDialog] = useState(false);
+  const [selectedService, setSelectedService] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [buyingPackage, setBuyingPackage] = useState<string | null>(null);
   const [subscribingTier, setSubscribingTier] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -1451,14 +1454,22 @@ export default function StylistDetail() {
     window.open(`tel:${phoneNumber}`);
   }, [phoneNumber]);
 
-  const handleJoinWaitlist = useCallback(async () => {
-    if (!stylistId || joiningWaitlist) return;
+  const handleJoinWaitlist = useCallback(() => {
+    if (!stylistId) return;
+    setSelectedService('');
+    setSelectedDate(new Date().toISOString().split('T')[0]);
+    setShowWaitlistDialog(true);
+  }, [stylistId]);
+
+  const handleConfirmWaitlist = useCallback(async () => {
+    if (!stylistId || !selectedService || !selectedDate || joiningWaitlist) return;
     setJoiningWaitlist(true);
+    setShowWaitlistDialog(false);
     try {
       await joinWaitlist({
         stylistId,
-        serviceId: "",
-        preferredDate: new Date().toISOString(),
+        serviceId: selectedService,
+        preferredDate: new Date(selectedDate).toISOString(),
       });
       setWaitlistJoined(true);
       setTimeout(() => setWaitlistJoined(false), 3000);
@@ -1466,7 +1477,7 @@ export default function StylistDetail() {
       /* ignore */
     }
     setJoiningWaitlist(false);
-  }, [stylistId, joiningWaitlist]);
+  }, [stylistId, selectedService, selectedDate, joiningWaitlist]);
 
   const handleBuyPackage = useCallback(async (packageId: string) => {
     setBuyingPackage(packageId);
@@ -2295,6 +2306,76 @@ export default function StylistDetail() {
             onClose={() => setBookingModal({ open: false, service: null })}
             onSuccess={handleBookingSuccess}
           />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showWaitlistDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[300] flex items-center justify-center p-4"
+          >
+            <div className="absolute inset-0 bg-black/40" onClick={() => setShowWaitlistDialog(false)} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-gray-100 dark:border-gray-800">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">Join Waitlist</h3>
+                <button
+                  onClick={() => setShowWaitlistDialog(false)}
+                  className="p-1.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+              <div className="px-5 py-4 space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">Select Service</label>
+                  <select
+                    value={selectedService}
+                    onChange={e => setSelectedService(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  >
+                    <option value="">Choose a service...</option>
+                    {(Array.isArray(services) ? services : []).map(s => (
+                      <option key={s._id} value={s._id}>
+                        {s.name} {s.price ? `(GH₵ ${s.price})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">Preferred Date</label>
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={e => setSelectedDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2.5 rounded-xl text-sm border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-2 px-5 pb-5 pt-2">
+                <button
+                  onClick={() => setShowWaitlistDialog(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmWaitlist}
+                  disabled={!selectedService || !selectedDate || joiningWaitlist}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-brand-500 text-white hover:bg-brand-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {joiningWaitlist ? <Loader2 size={13} className="animate-spin" /> : 'Confirm'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
       <AnimatePresence>

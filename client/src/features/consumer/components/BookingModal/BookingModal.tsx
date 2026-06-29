@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, Loader2, Check } from "lucide-react";
 import type { Stylist } from "@/domain/stylist/stylist.types";
 import type { PaymentMethod } from "@/domain/booking/booking.types";
 import { useCreateBookingMutation } from "@/domain/booking/booking.hooks";
 import { useGamification } from "@/hooks/useGamification";
 import { useAuth } from "@/context/authUtils";
 import { initializePayment } from "@/api/payments";
+import { joinWaitlist } from "@/api/waitlist";
 import OfflineBanner from "./OfflineBanner";
 import ServiceStep from "./ServiceStep";
 import DateStep from "./DateStep";
@@ -91,6 +92,12 @@ export default function BookingModal({
     estimatedWaitMinutes: number;
   } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [joiningWaitlistBm, setJoiningWaitlistBm] = useState(false);
+  const [waitlistJoinedBm, setWaitlistJoinedBm] = useState(false);
+
+  const TIME_SLOTS_COUNT = 9;
+  const dateUnavailable = unavailableSlots[state.selectedDate ?? ""] || [];
+  const allSlotsUnavailable = state.selectedDate !== null && dateUnavailable.length >= TIME_SLOTS_COUNT && !loadingSlots;
 
   const serviceComplete = state.selectedService !== null;
   const dateComplete = state.selectedDate !== null;
@@ -283,6 +290,23 @@ export default function BookingModal({
     onClose();
   };
 
+  const handleWaitlistFallback = useCallback(async () => {
+    if (!state.selectedService || !state.selectedDate) return;
+    setJoiningWaitlistBm(true);
+    try {
+      const serviceId = (state.selectedService as Record<string, unknown>)._id || (state.selectedService as Record<string, unknown>).id;
+      await joinWaitlist({
+        stylistId: stylist.id,
+        serviceId: (serviceId as string) || "",
+        preferredDate: new Date(state.selectedDate).toISOString(),
+      });
+      setWaitlistJoinedBm(true);
+    } catch {
+      /* ignore */
+    }
+    setJoiningWaitlistBm(false);
+  }, [state.selectedService, state.selectedDate, stylist.id]);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -418,6 +442,29 @@ export default function BookingModal({
                     completed={timeComplete}
                     disabled={!dateComplete}
                   />
+
+                  {allSlotsUnavailable && !timeComplete && !waitlistJoinedBm && (
+                    <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">
+                        All time slots for this date are booked
+                      </p>
+                      <button
+                        onClick={handleWaitlistFallback}
+                        disabled={joiningWaitlistBm}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 text-white hover:bg-amber-600 disabled:opacity-50 transition-colors"
+                      >
+                        {joiningWaitlistBm && <Loader2 size={14} className="animate-spin" />}
+                        Join Waitlist
+                      </button>
+                    </div>
+                  )}
+                  {waitlistJoinedBm && (
+                    <div className="p-4 rounded-2xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 text-center">
+                      <Check size={20} className="mx-auto mb-1 text-green-600" />
+                      <p className="text-sm font-medium text-green-700 dark:text-green-300">You're on the waitlist!</p>
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">We'll notify you when a spot opens up.</p>
+                    </div>
+                  )}
 
                   <PaymentStep
                     paymentMethod={state.paymentMethod}

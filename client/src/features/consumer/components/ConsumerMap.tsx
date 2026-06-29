@@ -12,6 +12,8 @@ import {
   Crosshair,
   MapPin,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   X,
   Navigation,
   Loader2,
@@ -285,6 +287,13 @@ function StylistPopup({
   onSelect: () => void;
 }) {
   const navigate = useNavigate();
+  const [imgIdx, setImgIdx] = useState(0);
+
+  const images = stylist.portfolioImages?.length
+    ? stylist.portfolioImages.filter((p) => p.type === "image").map((p) => p.url)
+    : stylist.image
+      ? [stylist.image]
+      : [];
 
   const dist =
     userLocation && stylist.location?.lat && stylist.location?.lng
@@ -296,25 +305,75 @@ function StylistPopup({
         )
       : null;
 
+  const prevImg = useCallback(() => {
+    setImgIdx((i) => (i > 0 ? i - 1 : images.length - 1));
+  }, [images.length]);
+
+  const nextImg = useCallback(() => {
+    setImgIdx((i) => (i + 1) % images.length);
+  }, [images.length]);
+
   return (
-    <div className="w-56 font-sans dark:text-text-dark-primary">
-      <div className="relative h-20 -mx-3 -mt-3 mb-2 rounded-t-lg overflow-hidden bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-950 dark:to-purple-950">
-        {stylist.image && (
-          <img
-            src={stylist.image}
-            alt={stylist.name}
-            className="w-full h-full object-cover"
-          />
+    <div className="w-64 font-sans dark:text-text-dark-primary">
+      {/* Image gallery */}
+      <div className="relative h-28 -mx-3 -mt-3 mb-2 rounded-t-lg overflow-hidden bg-gray-100 dark:bg-surface-dark-tertiary">
+        {images.length > 0 ? (
+          <>
+            <img
+              src={images[imgIdx]}
+              alt={`${stylist.name} photo ${imgIdx + 1}`}
+              className="w-full h-full object-cover"
+            />
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={prevImg}
+                  aria-label="Previous photo"
+                  className="absolute left-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors backdrop-blur-sm"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                <button
+                  onClick={nextImg}
+                  aria-label="Next photo"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors backdrop-blur-sm"
+                >
+                  <ChevronRight size={14} />
+                </button>
+                <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex items-center gap-1">
+                  {images.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setImgIdx(i)}
+                      aria-label={`Photo ${i + 1}`}
+                      className={`w-1.5 h-1.5 rounded-full transition-all ${
+                        i === imgIdx
+                          ? "bg-white scale-110"
+                          : "bg-white/50 hover:bg-white/80"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="absolute top-1.5 right-1.5 bg-black/50 text-white text-[10px] font-medium px-1.5 py-0.5 rounded backdrop-blur-sm">
+                  {imgIdx + 1}/{images.length}
+                </span>
+              </>
+            )}
+          </>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-300 dark:text-text-dark-muted">
+            <MapPin size={20} />
+          </div>
         )}
         {stylist.isLive && (
-          <span className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500 text-white text-[10px] font-bold">
+          <span className="absolute top-1.5 left-1.5 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-500 text-white text-[10px] font-bold backdrop-blur-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
             LIVE
           </span>
         )}
       </div>
 
-      <div className="mb-3">
+      <div className="mb-2">
         <h3 className="text-sm font-bold text-gray-900 mb-0.5 dark:text-text-dark-primary">
           {stylist.name}
         </h3>
@@ -341,7 +400,7 @@ function StylistPopup({
       </div>
 
       {stylist.services && stylist.services.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-3">
+        <div className="flex flex-wrap gap-1 mb-2">
           {stylist.services.slice(0, 3).map((s, i) => (
             <span
               key={i}
@@ -358,7 +417,7 @@ function StylistPopup({
         </div>
       )}
 
-      <div className="flex gap-2 mt-3">
+      <div className="flex gap-2 mt-2">
         <button
           onClick={() => navigate(`/app/stylist/${stylist.id}`)}
           aria-label={`View profile of ${stylist.name}`}
@@ -664,7 +723,7 @@ export default function ConsumerMap({
               icon={stylistIcon}
             >
               <Popup
-                maxWidth={240}
+                maxWidth={280}
                 className="stylist-popup"
                 closeButton={false}
               >

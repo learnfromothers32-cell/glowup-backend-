@@ -1008,12 +1008,27 @@ function ReviewsTab({ stylist }: { stylist: ExtendedStylist }) {
 function StylistSkeleton() {
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950">
-      <Skeleton className="h-56 sm:h-64 rounded-none" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-16 relative z-10">
-        <Skeleton className="h-16 w-16 rounded-full mb-4" />
-        <Skeleton className="h-8 w-48 rounded-lg mb-3" />
-        <Skeleton className="h-4 w-32 rounded-lg mb-6" />
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_368px] gap-7 items-start">
+      <Skeleton className="h-44 sm:h-52 rounded-none" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-5">
+        <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-5 sm:p-6">
+          <div className="flex items-center gap-4 mb-5">
+            <Skeleton className="h-16 w-16 rounded-xl shrink-0" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-6 w-40 rounded-lg" />
+              <Skeleton className="h-4 w-28 rounded-lg" />
+            </div>
+          </div>
+          <div className="flex gap-6 mb-5">
+            <Skeleton className="h-10 w-16 rounded-lg" />
+            <Skeleton className="h-10 w-16 rounded-lg" />
+            <Skeleton className="h-10 w-16 rounded-lg" />
+          </div>
+          <div className="flex gap-3">
+            <Skeleton className="h-10 w-28 rounded-xl" />
+            <Skeleton className="h-10 w-24 rounded-xl" />
+          </div>
+        </div>
+        <div className="mt-5 grid grid-cols-1 lg:grid-cols-[1fr_368px] gap-7 items-start">
           <div className="space-y-4">
             <Skeleton className="h-40 rounded-2xl" />
             <Skeleton className="h-40 rounded-2xl" />
@@ -1547,7 +1562,7 @@ export default function StylistDetail() {
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950">
       {/* Cover Image */}
-      <div className="relative h-56 sm:h-64 overflow-hidden">
+      <div className="relative h-44 sm:h-52 overflow-hidden">
         {stylist.image ? (
           <img
             src={stylist.image}
@@ -1557,7 +1572,7 @@ export default function StylistDetail() {
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-brand-500 to-brand-600" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black/70" />
 
         {/* Back + Share + Save */}
         <div className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-4 sm:px-6 pt-5">
@@ -1616,11 +1631,11 @@ export default function StylistDetail() {
       </div>
 
       {/* Stylist Profile Card */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5">
         <div className="rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm p-5 sm:p-6">
-          <div className="flex items-start gap-4 sm:gap-5">
-            <div className="shrink-0 -mt-11 sm:-mt-12">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden ring-4 ring-white dark:ring-gray-900 shadow-md">
+          <div className="flex items-center gap-4 sm:gap-5">
+            <div className="shrink-0">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shadow-md">
                 {stylist.image ? (
                   <img
                     src={stylist.image}
@@ -1634,7 +1649,7 @@ export default function StylistDetail() {
                 )}
               </div>
             </div>
-            <div className="flex-1 min-w-0 pt-0.5">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {stylist.name}
@@ -1648,71 +1663,71 @@ export default function StylistDetail() {
                   onFollowChange={handleFollow ?? (() => {})}
                 />
               </div>
-              <div className="flex flex-wrap items-center gap-2 mt-1.5">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
                 <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                   <MapPin size={11} /> {getLocationString(stylist.location)}
                 </span>
-                <span className="text-gray-300 dark:text-gray-600">|</span>
-                <span className="flex items-center gap-1 text-xs">
+                <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                   <StarRating rating={Math.round(stylist.rating)} size={11} />
                   <span className="font-semibold text-gray-900 dark:text-gray-100 ml-0.5">
                     {stylist.rating.toFixed(1)}
                   </span>
-                  <span className="text-gray-500 dark:text-gray-400">
+                  <span className="text-gray-400">
                     ({stylist.reviews.length})
                   </span>
                 </span>
               </div>
-              {stylist.bio && (
-                <p className="text-sm text-gray-600 dark:text-gray-300 mt-3 leading-relaxed max-w-2xl">
-                  {stylist.bio}
-                </p>
-              )}
             </div>
           </div>
 
-          {/* Stats + Quick Actions Row */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mt-5 pt-5 border-t border-gray-100 dark:border-gray-800">
-            <div className="flex items-center gap-6 sm:gap-8">
-              <div className="text-center">
-                <p className="text-lg font-bold tabular-nums text-gray-900 dark:text-gray-100">
-                  {formatCount(stylist.followerCount ?? 0)}
-                </p>
-                <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                  Followers
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="text-lg font-bold tabular-nums text-gray-900 dark:text-gray-100">
-                  {formatCount(stylist.totalLikes ?? 0)}
-                </p>
-                <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                  Likes
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="text-lg font-bold tabular-nums text-gray-900 dark:text-gray-100">
-                  {stylist.reviews.length}
-                </p>
-                <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                  Reviews
-                </p>
-              </div>
+          {stylist.bio && (
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-4 leading-relaxed max-w-2xl">
+              {stylist.bio}
+            </p>
+          )}
+
+          {/* Stats Row */}
+          <div className="flex items-center gap-8 sm:gap-12 mt-5 pt-5 border-t border-gray-100 dark:border-gray-800">
+            <div className="text-center">
+              <p className="text-lg font-bold tabular-nums text-gray-900 dark:text-gray-100">
+                {formatCount(stylist.followerCount ?? 0)}
+              </p>
+              <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                Followers
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleMessage}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-500/10 dark:hover:text-brand-400"
-              >
-                <MessageSquare size={13} /> Message
-              </button>
-              <button
-                onClick={() => handleBook()}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-brand-500 text-white hover:bg-brand-600"
-              >
-                <Calendar size={13} /> Book
-              </button>
+            <div className="text-center">
+              <p className="text-lg font-bold tabular-nums text-gray-900 dark:text-gray-100">
+                {formatCount(stylist.totalLikes ?? 0)}
+              </p>
+              <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                Likes
+              </p>
             </div>
+            <div className="text-center">
+              <p className="text-lg font-bold tabular-nums text-gray-900 dark:text-gray-100">
+                {stylist.reviews.length}
+              </p>
+              <p className="text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                Reviews
+              </p>
+            </div>
+          </div>
+
+          {/* Action Buttons Row */}
+          <div className="flex items-center gap-3 mt-4">
+            <button
+              onClick={handleMessage}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold transition-all bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-500/10 dark:hover:text-brand-400"
+            >
+              <MessageSquare size={14} /> Message
+            </button>
+            <button
+              onClick={() => handleBook()}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold transition-all bg-brand-500 text-white hover:bg-brand-600 shadow-sm"
+            >
+              <Calendar size={14} /> Book Appointment
+            </button>
           </div>
         </div>
       </div>

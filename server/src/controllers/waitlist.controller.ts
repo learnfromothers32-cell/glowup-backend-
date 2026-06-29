@@ -66,6 +66,18 @@ export const getConsumerWaitlist = asyncHandler(async (req: Request, res: Respon
   return sendSuccess(res, { entries });
 });
 
+export const bookConsumerEntry = asyncHandler(async (req: Request, res: Response) => {
+  const clientId = req.user?.id;
+  const entry = await WaitlistEntry.findOne({ _id: req.params.id, clientId });
+  if (!entry) throw new ApiError(404, 'Waitlist entry not found');
+  if (entry.status !== 'notified') throw new ApiError(400, 'Entry must be notified before booking');
+
+  entry.status = 'booked';
+  await entry.save();
+
+  return sendSuccess(res, { entry }, 'Entry marked as booked');
+});
+
 export const cancelConsumerEntry = asyncHandler(async (req: Request, res: Response) => {
   const clientId = req.user?.id;
   const entry = await WaitlistEntry.findOne({ _id: req.params.id, clientId });

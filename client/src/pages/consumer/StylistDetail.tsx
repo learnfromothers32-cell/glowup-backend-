@@ -1052,7 +1052,7 @@ function BookingCard({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onFollow,
   joiningWaitlist = false,
-  waitlistJoined = false,
+  waitlistEntry,
 }: {
   stylist: ExtendedStylist;
   services: ServiceItem[];
@@ -1063,7 +1063,7 @@ function BookingCard({
   onJoinWaitlist?: () => void;
   onFollow?: (stylistId: string, following: boolean) => void;
   joiningWaitlist?: boolean;
-  waitlistJoined?: boolean;
+  waitlistEntry?: { _id: string; status: string } | null;
 }) {
   return (
     <div className="rounded-2xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
@@ -1190,7 +1190,15 @@ function BookingCard({
             <Phone size={13} /> Call
           </button>
         </div>
-        {waitlistJoined ? (
+        {waitlistEntry?.status === 'notified' ? (
+          <button
+            onClick={() => onBook()}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold bg-green-500 text-white hover:bg-green-600 transition-all duration-200"
+          >
+            <Calendar size={14} />
+            Spot Available! Book Now
+          </button>
+        ) : waitlistEntry?.status === 'waiting' ? (
           <Link
             to="/app/waitlist"
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold bg-green-50 dark:bg-green-500/10 text-green-600 hover:bg-green-100 dark:hover:bg-green-500/20 transition-all duration-200"
@@ -1207,6 +1215,11 @@ function BookingCard({
             {joiningWaitlist ? <Loader2 size={13} className="animate-spin" /> : null}
             Join Waitlist
           </button>
+        )}
+        {waitlistEntry?.status === 'waiting' && (
+          <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center mt-1.5">
+            We'll notify you when {stylist.name} has a spot open
+          </p>
         )}
       </div>
       <div className="mx-5 mt-4 mb-5 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-800/50">
@@ -1349,13 +1362,14 @@ export default function StylistDetail() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [tiers, setTiers] = useState<any[]>([]);
   const [joiningWaitlist, setJoiningWaitlist] = useState(false);
-  const [waitlistJoined, setWaitlistJoined] = useState(false);
+  const [waitlistEntry, setWaitlistEntry] = useState<{ _id: string; status: string; stylistId: string; serviceId: string } | null>(null);
   const [showWaitlistDialog, setShowWaitlistDialog] = useState(false);
   const [selectedService, setSelectedService] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [buyingPackage, setBuyingPackage] = useState<string | null>(null);
   const [subscribingTier, setSubscribingTier] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const stylistId = stylist?.id;
 
   useEffect(() => {
     if (!stylist?.id) return;
@@ -1384,11 +1398,11 @@ export default function StylistDetail() {
   useEffect(() => {
     if (!stylistId) return;
     getConsumerWaitlist()
-      .then((entries: { stylistId: { _id: string }; status: string }[]) => {
-        const hasEntry = entries.some(
+      .then((entries: { _id: string; stylistId: { _id: string }; serviceId: { _id: string }; status: string }[]) => {
+        const match = entries.find(
           e => e.stylistId?._id === stylistId && (e.status === 'waiting' || e.status === 'notified')
         );
-        if (hasEntry) setWaitlistJoined(true);
+        if (match) setWaitlistEntry({ _id: match._id, status: match.status, stylistId, serviceId: match.serviceId?._id || '' });
       })
       .catch(() => {});
   }, [stylistId]);
@@ -1435,7 +1449,6 @@ export default function StylistDetail() {
     [],
   );
 
-  const stylistId = stylist?.id;
   const handleMessage = useCallback(async () => {
     if (!stylistId) return;
     try {
@@ -1484,12 +1497,12 @@ export default function StylistDetail() {
     setJoiningWaitlist(true);
     setShowWaitlistDialog(false);
     try {
-      await joinWaitlist({
+      const entry = await joinWaitlist({
         stylistId,
         serviceId: selectedService,
         preferredDate: new Date(selectedDate).toISOString(),
       });
-      setWaitlistJoined(true);
+      setWaitlistEntry({ _id: entry._id, status: entry.status, stylistId, serviceId: selectedService });
     } catch {
       /* ignore */
     }
@@ -2230,7 +2243,7 @@ export default function StylistDetail() {
                 onJoinWaitlist={handleJoinWaitlist}
                 onFollow={handleFollow}
                 joiningWaitlist={joiningWaitlist}
-                waitlistJoined={waitlistJoined}
+                waitlistEntry={waitlistEntry}
               />
             </motion.div>
             <motion.div

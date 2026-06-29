@@ -15,6 +15,11 @@ export const cancelConsumerEntry = async (id: string) => {
   return data.data.entry;
 };
 
+export const bookConsumerEntry = async (id: string) => {
+  const { data } = await api.patch(`/waitlist/my-entries/${id}/book`);
+  return data.data.entry;
+};
+
 export const notifyWaitlistEntry = async (id: string) => {
   const { data } = await api.post(`/waitlist/${id}/notify`);
   return data.data.entry;

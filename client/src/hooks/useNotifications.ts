@@ -7,6 +7,7 @@ import {
   type NotificationItem,
 } from '../api/notifications';
 import { useAuth } from '../context/authUtils';
+import { onNewNotification, offNewNotification } from '../services/socket';
 
 const POLL_INTERVAL = 30000;
 
@@ -35,6 +36,7 @@ export function useNotifications() {
 
   useEffect(() => {
     if (!isAuthenticated) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNotifications([]);
       setUnreadCount(0);
       setLoading(false);
@@ -45,8 +47,15 @@ export function useNotifications() {
 
     intervalRef.current = setInterval(fetchData, POLL_INTERVAL);
 
+    const handler = (data: NotificationItem) => {
+      setNotifications(prev => [data, ...prev]);
+      if (!data.read) setUnreadCount(prev => prev + 1);
+    };
+    onNewNotification(handler);
+
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      offNewNotification(handler);
     };
   }, [isAuthenticated, fetchData]);
 

@@ -1,5 +1,5 @@
 // src/types/auth.ts
-export type UserRole = "client" | "stylist";
+export type UserRole = "client" | "stylist" | "admin";
 
 export interface User {
   id: string;

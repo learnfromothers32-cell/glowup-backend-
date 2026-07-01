@@ -1,6 +1,6 @@
 // src/domain/user/user.types.ts
 
-export type UserRole = "client" | "stylist";
+export type UserRole = "client" | "stylist" | "admin";
 
 export type User = {
   id: string;

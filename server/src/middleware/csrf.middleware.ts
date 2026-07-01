@@ -20,7 +20,7 @@ export const csrfProtect = (req: Request, _res: Response, next: NextFunction) =>
 
   if (origin) {
     // If an origin is present, it MUST match our allowed list
-    const originOk = ALLOWED_ORIGINS.some((allowed) => origin.toString().startsWith(allowed));
+    const originOk = ALLOWED_ORIGINS.some((allowed) => origin.toString() === allowed || origin.toString().startsWith(allowed + '/'));
     if (!originOk) {
       throw new ApiError(403, 'Cross-origin request blocked');
     }

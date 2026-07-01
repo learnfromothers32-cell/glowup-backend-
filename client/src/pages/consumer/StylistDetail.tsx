@@ -1628,7 +1628,7 @@ export default function StylistDetail() {
           <img
             src={stylist.image}
             alt={stylist.name}
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            className="absolute inset-0 w-full h-full object-cover object-top"
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-brand-500 to-brand-600" />

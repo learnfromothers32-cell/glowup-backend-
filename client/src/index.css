@@ -3,8 +3,16 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    height: 100%;
+    scrollbar-gutter: stable;
+  }
   body {
+    min-height: 100%;
     @apply bg-warm-50 text-text-primary antialiased dark:bg-surface-dark dark:text-text-dark-primary;
+  }
+  #root {
+    min-height: 100vh;
   }
 }
 

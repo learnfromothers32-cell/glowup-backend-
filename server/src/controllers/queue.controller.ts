@@ -93,4 +93,34 @@ export const markDone = asyncHandler(async (req: Request, res: Response) => {
   return sendSuccess(res, { queue: toPublicQueue(queue) }, 'Customer marked as done');
 });
 
+export const skipQueueEntry = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const { stylistId, entryUserId } = req.params;
+
+  const stylist = await Stylist.findOne({ userId });
+  if (!stylist || stylist.id !== stylistId) {
+    throw new ApiError(403, 'Only the stylist can manage their queue');
+  }
+
+  const queue = await Queue.findOne({ stylistId });
+  if (!queue) {
+    throw new ApiError(404, 'Queue not found');
+  }
+
+  const entry = queue.entries.find(
+    e => e.userId.toString() === entryUserId && e.status === 'waiting'
+  );
+  if (!entry) {
+    throw new ApiError(404, 'Waiting entry not found');
+  }
+
+  entry.status = 'skipped';
+  queue.recalculate();
+  await queue.save();
+
+  emitQueueUpdate(stylistId, queue);
+
+  return sendSuccess(res, { queue: toPublicQueue(queue) }, 'Entry skipped');
+});
+
 

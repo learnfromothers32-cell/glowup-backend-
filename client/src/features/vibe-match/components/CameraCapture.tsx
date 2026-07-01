@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Camera, ChevronLeft, ChevronRight, Check, Loader2, AlertTriangle } from "lucide-react";
 import { useHairTryOn } from "../hooks/useHairTryOn";
 import { HAIRSTYLES } from "../data/hairstyles";
-import Button from "@/components/ui/button";
+import Button from "@/components/ui/Button";
 
 interface CameraCaptureProps {
   onComplete: (hairstyleId: string) => void;

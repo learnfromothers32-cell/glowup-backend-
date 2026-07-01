@@ -18,7 +18,7 @@ export const verifyAccessToken = (token: string): AuthUser => {
   if (!appConfig.jwtSecret) {
     throw new ApiError(500, 'JWT_SECRET is not configured');
   }
-  return jwt.verify(token, appConfig.jwtSecret) as AuthUser;
+  return jwt.verify(token, appConfig.jwtSecret, { algorithms: ['HS256'] }) as AuthUser;
 };
 
 export const signRefreshToken = (user: AuthUser) => {
@@ -32,7 +32,7 @@ export const verifyRefreshToken = (token: string): AuthUser => {
   if (!appConfig.jwtRefreshSecret) {
     throw new ApiError(500, 'JWT_REFRESH_SECRET is not configured');
   }
-  return jwt.verify(token, appConfig.jwtRefreshSecret) as AuthUser;
+  return jwt.verify(token, appConfig.jwtRefreshSecret, { algorithms: ['HS256'] }) as AuthUser;
 };
 
 export const hashToken = (token: string) =>

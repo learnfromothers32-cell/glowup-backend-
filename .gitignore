@@ -6,3 +6,5 @@ uploads/
 *.log
 .DS_Store
 render-env.txt
+stylist_reg.json
+stylist_uid.txt

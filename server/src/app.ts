@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 import path from 'path';
 import cookieParser from 'cookie-parser';
+import mongoSanitize from 'express-mongo-sanitize';
 import { appConfig } from './config/app';
 import apiRoutes from './routes';
 import { errorHandler, notFound } from './middleware/error.middleware';
@@ -25,7 +26,7 @@ app.use(cors({
       'http://localhost:5173',
       'http://localhost:5000',
     ];
-    if (!origin || allowed.some((a) => origin.startsWith(a))) {
+    if (!origin || allowed.some((a) => origin === a || origin.startsWith(a + '/'))) {
       cb(null, true);
     } else {
       cb(new Error('Not allowed by CORS'));
@@ -39,6 +40,7 @@ app.use(morgan('dev'));
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
+app.use(mongoSanitize());
 app.use('/api', csrfProtect);
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

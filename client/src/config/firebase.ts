@@ -1,5 +1,5 @@
 import { initializeApp, type FirebaseApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, GithubAuthProvider, OAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -35,4 +35,13 @@ export function getGithubProvider(): GithubAuthProvider {
     githubProvider = new GithubAuthProvider();
   }
   return githubProvider;
+}
+
+let appleProvider: OAuthProvider | null = null;
+
+export function getAppleProvider(): OAuthProvider {
+  if (!appleProvider) {
+    appleProvider = new OAuthProvider('apple.com');
+  }
+  return appleProvider;
 }

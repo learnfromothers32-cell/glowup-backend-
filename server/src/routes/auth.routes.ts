@@ -22,7 +22,7 @@ const router = Router();
 router.post('/register', authLimiter, validate(registerSchema), register);
 router.post('/login', authLimiter, validate(loginSchema), login);
 router.post('/social-login', authLimiter, validate(socialLoginSchema), socialLogin);
-router.get('/refresh', refresh);
+router.post('/refresh', refresh);
 router.post('/logout', generalLimiter, logout);
 router.post('/verify-email', generalLimiter, verifyEmail);
 router.post('/forgot-password', authLimiter, validate(forgotPasswordSchema), forgotPassword);

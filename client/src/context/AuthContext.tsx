@@ -9,7 +9,7 @@ import type { UserRole, User } from "../types/auth";
 import * as authApi from "../api/auth";
 import { setAccessToken, API_SERVER_URL } from "../api/axios";
 import { signInWithPopup, signOut } from "firebase/auth";
-import { getFirebaseAuth, getGoogleProvider, getGithubProvider } from "../config/firebase";
+import { getFirebaseAuth, getGoogleProvider, getGithubProvider, getAppleProvider } from "../config/firebase";
 
 interface AuthState {
   user: User | null;
@@ -150,10 +150,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const socialLogin = useCallback(
     async (provider: "google" | "apple" | "instagram", role: UserRole = "client") => {
       let firebaseProvider;
-      if (provider === "github") {
-        firebaseProvider = getGithubProvider();
-      } else {
+      if (provider === "google") {
         firebaseProvider = getGoogleProvider();
+      } else if (provider === "apple") {
+        firebaseProvider = getAppleProvider();
+      } else {
+        firebaseProvider = getGithubProvider();
       }
       const result = await signInWithPopup(getFirebaseAuth(), firebaseProvider).catch(
         (err) => {

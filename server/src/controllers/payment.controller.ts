@@ -205,6 +205,18 @@ export const paystackWebhook = asyncHandler(async (req: Request, res: Response) 
     }
   }
 
+  if (event.event === 'charge.failed') {
+    const { reference } = event.data;
+    logger.warn('Payment charge failed', { reference });
+    const transaction = await Transaction.findOneAndUpdate(
+      { paymentRef: reference, status: 'pending' },
+      { $set: { status: 'failed' } },
+    );
+    if (transaction) {
+      await Booking.findByIdAndUpdate(transaction.bookingId, { paymentStatus: 'failed' });
+    }
+  }
+
   return res.status(200).json({ status: 'ok' });
 });
 

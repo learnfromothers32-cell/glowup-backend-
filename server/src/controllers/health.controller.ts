@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { redisClient } from '../config/redis';
+import { asyncHandler } from '../middleware/asyncHandler';
 import { sendSuccess } from '../utils/apiResponse';
 
-export const hello = async (_req: Request, res: Response) => {
+export const hello = asyncHandler(async (_req: Request, res: Response) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'healthy' : 'unhealthy';
   let redisStatus = 'not configured';
   if (redisClient) {
@@ -24,9 +25,9 @@ export const hello = async (_req: Request, res: Response) => {
       redis: redisStatus,
     },
   });
-};
+});
 
-export const health = async (_req: Request, res: Response) => {
+export const health = asyncHandler(async (_req: Request, res: Response) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'healthy' : 'unhealthy';
   const dbState = ['disconnected', 'connected', 'connecting', 'disconnecting'];
 
@@ -67,4 +68,4 @@ export const health = async (_req: Request, res: Response) => {
     memory: process.memoryUsage(),
     version: '1.0.0',
   });
-};
+});

@@ -103,6 +103,28 @@ export async function notifyBadgeEarned(userId: string, badgeName: string) {
   });
 }
 
+export async function notifyNewBookingForStylist(stylistId: string, clientName: string, bookingId: string) {
+  return createNotification({
+    userId: stylistId,
+    type: 'booking',
+    title: 'New Booking',
+    message: `${clientName} has booked an appointment with you.`,
+    link: `/app/stylist/bookings`,
+    metadata: { bookingId },
+  });
+}
+
+export async function notifyBookingRescheduled(clientId: string, stylistName: string, bookingId: string) {
+  return createNotification({
+    userId: clientId,
+    type: 'booking',
+    title: 'Booking Rescheduled',
+    message: `Your booking with ${stylistName} has been rescheduled.`,
+    link: '/app/my-bookings',
+    metadata: { bookingId },
+  });
+}
+
 export async function notifyPromo(userId: string, promoMessage: string, link?: string) {
   return createNotification({
     userId,

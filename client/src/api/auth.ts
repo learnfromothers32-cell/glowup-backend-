@@ -41,8 +41,20 @@ export const socialLogin = async (idToken: string, role: UserRole): Promise<Auth
 };
 
 export const refreshToken = async (): Promise<AuthResponse> => {
-  const { data } = await api.get<AuthResponse>('/auth/refresh');
+  const { data } = await api.post<AuthResponse>('/auth/refresh');
   return data;
+};
+
+export const verifyEmail = async (token: string): Promise<void> => {
+  await api.post('/auth/verify-email', { token });
+};
+
+export const forgotPassword = async (email: string): Promise<void> => {
+  await api.post('/auth/forgot-password', { email });
+};
+
+export const resetPassword = async (token: string, password: string): Promise<void> => {
+  await api.post('/auth/reset-password', { token, password });
 };
 
 export const logout = async (): Promise<void> => {

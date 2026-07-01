@@ -131,7 +131,7 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const origin = req.headers.origin || req.headers.referer;
   if (origin) {
     const allowedOrigins = [appConfig.clientUrl, 'http://localhost:5173', 'http://localhost:5000'];
-    const originOk = allowedOrigins.some((allowed) => origin.startsWith(allowed));
+    const originOk = allowedOrigins.some((allowed) => origin === allowed || origin.startsWith(allowed + '/'));
     if (!originOk) {
       clearRefreshCookie(res);
       throw new ApiError(403, 'Cross-origin request blocked');

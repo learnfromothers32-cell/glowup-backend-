@@ -37,7 +37,6 @@ export interface HairstyleResult {
 
 export interface GenerateResponse {
   result: HairstyleResult;
-  faceAnalysis: FaceAnalysis;
   generation: GenerationInfo;
   credits?: { balance: number };
 }

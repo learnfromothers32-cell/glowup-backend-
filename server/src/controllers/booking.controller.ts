@@ -6,13 +6,14 @@ import { IQueueEntry, Queue } from '../models/Queue';
 import { Service } from '../models/Service';
 import { Stylist } from '../models/Stylist';
 import { StylistSettings } from '../models/StylistSettings';
+import { User } from '../models/User';
 import { Client } from '../models/Client';
 import { Conversation } from '../models/Conversation';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { ApiError } from '../utils/apiError';
 import { sendSuccess, sendPaginated } from '../utils/apiResponse';
 import logger from '../utils/logger';
-import { notifyBookingCreated, notifyBookingStatusChange } from '../utils/notify';
+import { notifyBookingCreated, notifyBookingStatusChange, notifyNewBookingForStylist, notifyBookingRescheduled } from '../utils/notify';
 import { getIO } from '../socket';
 import { emitQueueUpdate } from '../utils/queue';
 
@@ -161,6 +162,10 @@ export const createBooking = asyncHandler(async (req: Request, res: Response) =>
   const stylist = await Stylist.findById(stylistId);
   if (stylist) {
     notifyBookingCreated(clientId, stylist.name, booking._id.toString()).catch(() => {});
+    const clientUser = await User.findById(clientId);
+    if (clientUser) {
+      notifyNewBookingForStylist(stylist.userId as any, clientUser.name, booking._id.toString()).catch(() => {});
+    }
   }
 
   // Atomically add to queue ($pull removes old entry, $push adds new — prevents duplicates)
@@ -524,6 +529,11 @@ export const rescheduleBooking = asyncHandler(async (req: Request, res: Response
     stylistId: updated.stylistId.toString(),
     clientId: updated.clientId.toString(),
   });
+
+  const stylistReschedule = await Stylist.findById(updated.stylistId);
+  if (stylistReschedule) {
+    notifyBookingRescheduled(updated.clientId.toString(), stylistReschedule.name, updated._id.toString()).catch(() => {});
+  }
 
   return sendSuccess(res, { booking: updated }, 'Booking rescheduled successfully');
 });

@@ -199,8 +199,21 @@ export const getUnreadCounts = asyncHandler(async (req: Request, res: Response) 
 
 export const archiveConversation = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
+  const userId = req.user?.id;
+  const userRole = req.user?.role;
+
   const conversation = await Conversation.findById(id);
   if (!conversation) throw new ApiError(404, 'Conversation not found');
+
+  let authorized = false;
+  if (userRole === 'admin') {
+    authorized = true;
+  } else if (userRole === 'stylist' || userRole === 'client') {
+    const stylist = userRole === 'stylist' ? await Stylist.findOne({ userId }) : null;
+    const stylistId = stylist?.id?.toString();
+    authorized = conversation.stylistId.toString() === stylistId || conversation.clientId.toString() === userId;
+  }
+  if (!authorized) throw new ApiError(403, 'Not authorized to archive this conversation');
 
   conversation.archived = true;
   await conversation.save();

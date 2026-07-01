@@ -15,6 +15,9 @@ import { toPublicQueue } from '../utils/queue';
 
 let io: Server;
 
+// ── In-memory user socket map ──
+const userSockets = new Map<string, Set<string>>();
+
 // ── Redis-backed room state (muted/blocked/likers) ──
 class RoomState {
   private redis: Redis | null;
@@ -109,7 +112,7 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
           'http://localhost:5173',
           'http://localhost:5000',
         ];
-        if (!origin || allowed.some((a) => origin?.startsWith(a))) {
+        if (!origin || allowed.some((a) => origin === a || origin?.startsWith(a + '/'))) {
           cb(null, true);
         } else {
           cb(new Error('Not allowed by CORS'));
@@ -308,9 +311,21 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
 
     if (userId) {
       socket.join(`user:${userId}`);
+      if (!userSockets.has(userId)) {
+        userSockets.set(userId, new Set());
+      }
+      userSockets.get(userId)!.add(socket.id);
     }
 
-    socket.on('disconnect', () => {});
+    socket.on('disconnect', () => {
+      if (userId) {
+        userSockets.get(userId)?.delete(socket.id);
+        if (userSockets.get(userId)?.size === 0) {
+          userSockets.delete(userId);
+        }
+      }
+      socket.removeAllListeners();
+    });
   });
 
   // ── Conversation namespace ──
@@ -382,7 +397,15 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
       });
     });
 
-    socket.on('disconnect', () => {});
+    socket.on('disconnect', () => {
+      if (userId) {
+        userSockets.get(userId)?.delete(socket.id);
+        if (userSockets.get(userId)?.size === 0) {
+          userSockets.delete(userId);
+        }
+      }
+      socket.removeAllListeners();
+    });
   });
 
   // ── Live streaming namespace ──

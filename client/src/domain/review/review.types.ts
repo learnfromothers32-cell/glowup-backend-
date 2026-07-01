@@ -5,7 +5,7 @@ export type Review = {
 
   // relationships
   stylistId: string;
-  userId: string;
+  clientId: string;
 
   // content
   rating: number; // 1 - 5

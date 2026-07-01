@@ -6,6 +6,7 @@ import compression from 'compression';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
+import * as Sentry from '@sentry/node';
 import { appConfig } from './config/app';
 import apiRoutes from './routes';
 import { errorHandler, notFound } from './middleware/error.middleware';
@@ -14,6 +15,14 @@ import { generalLimiter } from './middleware/rateLimiter';
 import { correlationId } from './middleware/correlationId';
 
 const app = express();
+
+if (appConfig.sentryDsn) {
+  Sentry.init({
+    dsn: appConfig.sentryDsn,
+    environment: appConfig.env,
+    tracesSampleRate: 0.1,
+  });
+}
 
 app.set('trust proxy', 1);
 
@@ -48,6 +57,9 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api', apiRoutes);
 
 app.use(notFound);
+if (appConfig.sentryDsn) {
+  app.use(Sentry.expressErrorHandler() as any);
+}
 app.use(errorHandler);
 
 export default app;

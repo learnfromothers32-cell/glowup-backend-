@@ -9,6 +9,7 @@ import { prewarmFirebaseKeys } from './utils/firebase-verify';
 import { initSocket } from './socket';
 import { runMigrations } from './migrate';
 import { syncRedisEngagementToMongo } from './services/trending.service';
+import { runDatabaseBackup } from './scripts/backup';
 import logger from './utils/logger';
 
 const server = http.createServer(app);
@@ -63,6 +64,15 @@ const start = async () => {
       logger.error('Failed to sync Redis engagement to MongoDB', { error: (err as Error).message }),
     );
   });
+
+  // Daily database backup at 3:00 AM
+  if (appConfig.env === 'production') {
+    cron.schedule('0 3 * * *', () => {
+      runDatabaseBackup().catch((err) =>
+        logger.error('Scheduled database backup failed', { error: (err as Error).message }),
+      );
+    });
+  }
 
   server.listen(appConfig.port, '0.0.0.0', () => {
     logger.info(`Server running on port ${appConfig.port}`);

@@ -28,18 +28,18 @@ const logger = winston.createLogger({
   ],
 });
 
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.printf(({ timestamp, level, message, ...meta }) => {
-          const metaStr = Object.keys(meta).length > 1 ? ` ${JSON.stringify(meta)}` : '';
-          return `${timestamp} [${level}]: ${message}${metaStr}`;
-        }),
-      ),
-    }),
-  );
-}
+logger.add(
+  new winston.transports.Console({
+    format: process.env.NODE_ENV === 'production'
+      ? winston.format.json()
+      : winston.format.combine(
+          winston.format.colorize(),
+          winston.format.printf(({ timestamp, level, message, ...meta }) => {
+            const metaStr = Object.keys(meta).length > 1 ? ` ${JSON.stringify(meta)}` : '';
+            return `${timestamp} [${level}]: ${message}${metaStr}`;
+          }),
+        ),
+  }),
+);
 
 export default logger;

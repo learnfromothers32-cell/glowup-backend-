@@ -20,6 +20,7 @@ export const appConfig = {
   paystackSecretKey: process.env.PAYSTACK_SECRET_KEY || '',
   hfToken: process.env.HF_TOKEN || '',
   hfModel: process.env.HF_MODEL || 'black-forest-labs/FLUX.1-schnell',
+  sentryDsn: process.env.SENTRY_DSN || '',
 };
 
 export const isProduction = appConfig.env === 'production';

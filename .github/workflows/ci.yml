@@ -2,53 +2,46 @@ name: CI
 
 on:
   push:
-    branches: [main, master, develop]
+    branches: [master]
   pull_request:
-    branches: [main, master]
+    branches: [master]
 
 jobs:
-  server:
-    name: Server
+  build-and-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install server dependencies
+        run: npm ci
         working-directory: server
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: server/package-lock.json
-
-      - run: npm ci
-
-      - run: npm run build --if-present
-
-      - name: TypeScript check
+      - name: TypeScript check (server)
         run: npx tsc --noEmit
+        working-directory: server
 
-  client:
-    name: Client
-    runs-on: ubuntu-latest
-    defaults:
-      run:
+      - name: Build (server)
+        run: npm run build
+        working-directory: server
+
+      - name: Run server tests
+        run: npm test
+        working-directory: server
+
+      - name: Install client dependencies
+        run: npm ci --legacy-peer-deps
         working-directory: client
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: client/package-lock.json
-
-      - run: npm ci
-
-      - run: npm run build --if-present
-
-      - name: TypeScript check
+      - name: TypeScript check (client)
         run: npx tsc --noEmit
+        working-directory: client
+
+      - name: Build (client)
+        run: npm run build
+        working-directory: client

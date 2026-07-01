@@ -701,350 +701,518 @@ export default function TrendingFeed() {
   const translateY = -(currentIndex * slideHeight) + (isDragging ? -dragOffset : 0);
 
   return (
-    <div
-      ref={containerRef}
-      className="fixed inset-0 bg-black z-50 overflow-hidden"
-      style={{ touchAction: "none" }}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* Floating hearts */}
-      <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden">
-        {floatingHearts.map((h) => {
-          const elapsed = Date.now() - h.startTime;
-          const progress = Math.min(elapsed / HEART_ANIM_MS, 1);
-          const y = progress * -200;
-          const opacity = 1 - progress;
-          const scale = h.scale * (1 + progress * 0.5);
-          return (
-            <span
-              key={h.id}
-              className="absolute text-2xl"
-              style={{
-                left: `${h.x}%`,
-                bottom: "30%",
-                transform: `translateY(${y}px) scale(${scale})`,
-                opacity,
-                transition: `opacity ${HEART_ANIM_MS}ms ease-out`,
-              }}
-            >
-              ❤️
-            </span>
-          );
-        })}
-      </div>
-
-      {/* Sound toggle */}
-      <button
-        onClick={toggleSound}
-        className="absolute top-12 right-4 z-30 w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white transition-all hover:bg-black/70"
-        aria-label={soundOn ? "Mute sound" : "Unmute sound"}
-      >
-        {soundOn ? (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-          </svg>
-        ) : (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <line x1="23" y1="9" x2="17" y2="15" />
-            <line x1="17" y1="9" x2="23" y2="15" />
-          </svg>
-        )}
-      </button>
-
-      {/* Transform-based sliding container */}
+    <>
+      {/* ── Mobile swipe view ───────────────────────────── */}
       <div
-        ref={sliderRef}
-        className="w-full"
-        style={{
-          transform: `translate3d(0, ${translateY}px, 0)`,
-          transition: isDragging ? "none" : `transform ${TRANSITION_MS}ms cubic-bezier(0.25, 1, 0.5, 1)`,
-          willChange: "transform",
-        }}
+        ref={containerRef}
+        className="fixed inset-0 bg-black z-50 overflow-hidden lg:hidden"
+        style={{ touchAction: "none" }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
-        {items.map((item, idx) => {
-          const engagementRate = getEngagementRate(item);
-          const isViral = engagementRate >= VIRAL_ENGAGEMENT_THRESHOLD;
-          const isActive = idx === currentIndex;
+        {/* Floating hearts */}
+        <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden">
+          {floatingHearts.map((h) => {
+            const elapsed = Date.now() - h.startTime;
+            const progress = Math.min(elapsed / HEART_ANIM_MS, 1);
+            const y = progress * -200;
+            const opacity = 1 - progress;
+            const scale = h.scale * (1 + progress * 0.5);
+            return (
+              <span
+                key={h.id}
+                className="absolute text-2xl"
+                style={{
+                  left: `${h.x}%`,
+                  bottom: "30%",
+                  transform: `translateY(${y}px) scale(${scale})`,
+                  opacity,
+                  transition: `opacity ${HEART_ANIM_MS}ms ease-out`,
+                }}
+              >
+                ❤️
+              </span>
+            );
+          })}
+        </div>
 
-          return (
-            <div
-              key={item.id}
-              className="relative w-full overflow-hidden"
-              style={{
-                height: slideHeight,
-                opacity: isActive ? 1 : 0.4,
-                transition: isDragging ? "none" : `opacity ${TRANSITION_MS}ms ease`,
-                willChange: "opacity",
-              }}
-            >
-              {/* Video / Image */}
-              <div className="absolute inset-0 z-0">
-                {item.mediaType === "video" ? (
-                  <div
-                    className="relative w-full h-full bg-black flex items-center justify-center cursor-pointer"
-                    onClick={() => togglePlay(item.id)}
-                  >
-                    <video
-                      ref={(el) => {
-                        if (el) videoRefs.current.set(item.id, el);
-                      }}
-                      src={imgUrl(item.after)}
-                      className="w-full h-full object-cover"
-                      loop
-                      playsInline
-                      muted
-                      preload={Math.abs(idx - currentIndex) <= 2 ? "auto" : "none"}
-                    />
-                    {showPauseIcon[item.id] && (
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center animate-scale-in">
-                          {videoRefs.current.get(item.id)?.paused ? (
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-                              <polygon points="6,4 20,12 6,20" />
-                            </svg>
-                          ) : (
-                            <div className="flex items-center gap-1.5">
-                              <div className="w-1.5 h-6 rounded-full bg-white" />
-                              <div className="w-1.5 h-6 rounded-full bg-white" />
-                            </div>
-                          )}
+        {/* Sound toggle */}
+        <button
+          onClick={toggleSound}
+          className="absolute top-12 right-4 z-30 w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white transition-all hover:bg-black/70"
+          aria-label={soundOn ? "Mute sound" : "Unmute sound"}
+        >
+          {soundOn ? (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
+          )}
+        </button>
+
+        {/* Transform-based sliding container */}
+        <div
+          ref={sliderRef}
+          className="w-full"
+          style={{
+            transform: `translate3d(0, ${translateY}px, 0)`,
+            transition: isDragging ? "none" : `transform ${TRANSITION_MS}ms cubic-bezier(0.25, 1, 0.5, 1)`,
+            willChange: "transform",
+          }}
+        >
+          {items.map((item, idx) => {
+            const engagementRate = getEngagementRate(item);
+            const isViral = engagementRate >= VIRAL_ENGAGEMENT_THRESHOLD;
+            const isActive = idx === currentIndex;
+
+            return (
+              <div
+                key={item.id}
+                className="relative w-full overflow-hidden"
+                style={{
+                  height: slideHeight,
+                  opacity: isActive ? 1 : 0.4,
+                  transition: isDragging ? "none" : `opacity ${TRANSITION_MS}ms ease`,
+                  willChange: "opacity",
+                }}
+              >
+                {/* Video / Image */}
+                <div className="absolute inset-0 z-0">
+                  {item.mediaType === "video" ? (
+                    <div
+                      className="relative w-full h-full bg-black flex items-center justify-center cursor-pointer"
+                      onClick={() => togglePlay(item.id)}
+                    >
+                      <video
+                        ref={(el) => {
+                          if (el) videoRefs.current.set(item.id, el);
+                        }}
+                        src={imgUrl(item.after)}
+                        className="w-full h-full object-cover"
+                        loop
+                        playsInline
+                        muted
+                        preload={Math.abs(idx - currentIndex) <= 2 ? "auto" : "none"}
+                      />
+                      {showPauseIcon[item.id] && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center animate-scale-in">
+                            {videoRefs.current.get(item.id)?.paused ? (
+                              <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                                <polygon points="6,4 20,12 6,20" />
+                              </svg>
+                            ) : (
+                              <div className="flex items-center gap-1.5">
+                                <div className="w-1.5 h-6 rounded-full bg-white" />
+                                <div className="w-1.5 h-6 rounded-full bg-white" />
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ) : item.before ? (
-                  <div className="grid grid-cols-2 w-full h-full">
-                    <div className="relative overflow-hidden">
-                      <img src={imgUrl(item.before)} alt="Before" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                      <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white bg-black/50">
-                        BEFORE
-                      </span>
+                      )}
                     </div>
-                    <div className="relative overflow-hidden">
-                      <img src={imgUrl(item.after)} alt="After" className="w-full h-full object-cover" />
+                  ) : item.before ? (
+                    <div className="grid grid-cols-2 w-full h-full">
+                      <div className="relative overflow-hidden">
+                        <img src={imgUrl(item.before)} alt="Before" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                        <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white bg-black/50">
+                          BEFORE
+                        </span>
+                      </div>
+                      <div className="relative overflow-hidden">
+                        <img src={imgUrl(item.after)} alt="After" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                        <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white" style={{ backgroundColor: TIKTOK_RED }}>
+                          AFTER
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-black relative">
+                      <img src={imgUrl(item.after)} alt="Transformation" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                       <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white" style={{ backgroundColor: TIKTOK_RED }}>
-                        AFTER
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-black relative">
-                    <img src={imgUrl(item.after)} alt="Transformation" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                    <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white" style={{ backgroundColor: TIKTOK_RED }}>
-                      Transformation
-                    </span>
-                  </div>
-                )}
-
-                {/* Dark gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
-              </div>
-
-              {/* Trending badge */}
-              {isViral && (
-                <div className="absolute top-4 left-4 z-20">
-                  <div
-                    className="px-2.5 py-1 rounded-full text-[10px] font-bold text-white flex items-center gap-1"
-                    style={{ backgroundColor: TIKTOK_RED }}
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                      <polyline points="17 6 23 6 23 12" />
-                    </svg>
-                    Trending
-                  </div>
-                </div>
-              )}
-
-              {/* Right side action buttons */}
-              <div className="absolute right-2 sm:right-4 bottom-24 sm:bottom-36 z-10 flex flex-col items-center gap-4">
-                {/* Heart (Like) */}
-                <button
-                  onClick={() => handleLike(item.id)}
-                  className="flex flex-col items-center active:scale-90 transition-transform duration-100"
-                  aria-label={likedItems.has(item.id) ? "Unlike" : "Like"}
-                  disabled={likeCooldown}
-                >
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}
-                  >
-                    <Heart
-                      size={28}
-                      className={likedItems.has(item.id) ? "" : "text-white"}
-                      style={
-                        likedItems.has(item.id)
-                          ? { color: TIKTOK_RED, fill: TIKTOK_RED }
-                          : undefined
-                      }
-                    />
-                  </div>
-                  <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">
-                    {formatCount(item.likes)}
-                  </span>
-                </button>
-
-                {/* Comment */}
-                <button
-                  onClick={() => openComments(item.id, item.stylistId)}
-                  className="flex flex-col items-center active:scale-90 transition-transform duration-100"
-                  aria-label="Comments"
-                >
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}
-                  >
-                    <MessageCircle size={28} className="text-white" />
-                  </div>
-                  <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">
-                    {formatCount(item.commentCount)}
-                  </span>
-                </button>
-
-                {/* Share */}
-                <button
-                  onClick={() => handleShare(item)}
-                  className="flex flex-col items-center active:scale-90 transition-transform duration-100"
-                  aria-label="Share"
-                >
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}
-                  >
-                    <Share2 size={28} className="text-white" />
-                  </div>
-                  <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">
-                    {formatCount(item.shares)}
-                  </span>
-                </button>
-
-                {/* Bookmark (Save) */}
-                <button
-                  onClick={() => handleBookmark(item.id)}
-                  className="flex flex-col items-center active:scale-90 transition-transform duration-100"
-                  aria-label={bookmarkedItems.has(item.id) ? "Unsave" : "Save"}
-                >
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}
-                  >
-                    <Bookmark
-                      size={28}
-                      className={bookmarkedItems.has(item.id) ? "" : "text-white"}
-                      style={
-                        bookmarkedItems.has(item.id)
-                          ? { color: "#FACC15", fill: "#FACC15" }
-                          : undefined
-                      }
-                    />
-                  </div>
-                  <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">
-                    {formatCount(item.bookmarks)}
-                  </span>
-                </button>
-
-                {/* Report (subtle) */}
-                <button
-                  onClick={() => {
-                    setActivePostId(item.id);
-                    setActiveStylistId(item.stylistId);
-                    setReportModalOpen(true);
-                  }}
-                  className="flex flex-col items-center mt-1 active:scale-90 transition-transform duration-100"
-                  aria-label="Report"
-                >
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: "rgba(0,0,0,0.25)", backdropFilter: "blur(8px)" }}
-                  >
-                    <Flag size={20} className="text-white/50" />
-                  </div>
-                </button>
-              </div>
-
-              {/* Bottom-left creator info */}
-              <div className="absolute bottom-20 sm:bottom-28 left-4 right-20 z-10">
-                <div className="flex items-center gap-3 mb-2">
-                  {item.stylistImage ? (
-                    <img
-                      src={imgUrl(item.stylistImage)}
-                      className="w-12 h-12 rounded-full border-2 border-white object-cover shrink-0"
-                      alt={item.stylistName}
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full border-2 border-white bg-white/10 flex items-center justify-center shrink-0">
-                      <span className="text-white/60 text-base font-bold">
-                        {item.stylistName[0]}
+                        Transformation
                       </span>
                     </div>
                   )}
-                  <div className="flex-1 min-w-0">
+
+                  {/* Dark gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
+                </div>
+
+                {/* Trending badge */}
+                {isViral && (
+                  <div className="absolute top-4 left-4 z-20">
+                    <div
+                      className="px-2.5 py-1 rounded-full text-[10px] font-bold text-white flex items-center gap-1"
+                      style={{ backgroundColor: TIKTOK_RED }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                        <polyline points="17 6 23 6 23 12" />
+                      </svg>
+                      Trending
+                    </div>
+                  </div>
+                )}
+
+                {/* Right side action buttons */}
+                <div className="absolute right-2 sm:right-4 bottom-24 sm:bottom-36 z-10 flex flex-col items-center gap-4">
+                  {/* Heart (Like) */}
+                  <button
+                    onClick={() => handleLike(item.id)}
+                    className="flex flex-col items-center active:scale-90 transition-transform duration-100"
+                    aria-label={likedItems.has(item.id) ? "Unlike" : "Like"}
+                    disabled={likeCooldown}
+                  >
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}
+                    >
+                      <Heart
+                        size={28}
+                        className={likedItems.has(item.id) ? "" : "text-white"}
+                        style={
+                          likedItems.has(item.id)
+                            ? { color: TIKTOK_RED, fill: TIKTOK_RED }
+                            : undefined
+                        }
+                      />
+                    </div>
+                    <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">
+                      {formatCount(item.likes)}
+                    </span>
+                  </button>
+
+                  {/* Comment */}
+                  <button
+                    onClick={() => openComments(item.id, item.stylistId)}
+                    className="flex flex-col items-center active:scale-90 transition-transform duration-100"
+                    aria-label="Comments"
+                  >
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}
+                    >
+                      <MessageCircle size={28} className="text-white" />
+                    </div>
+                    <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">
+                      {formatCount(item.commentCount)}
+                    </span>
+                  </button>
+
+                  {/* Share */}
+                  <button
+                    onClick={() => handleShare(item)}
+                    className="flex flex-col items-center active:scale-90 transition-transform duration-100"
+                    aria-label="Share"
+                  >
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}
+                    >
+                      <Share2 size={28} className="text-white" />
+                    </div>
+                    <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">
+                      {formatCount(item.shares)}
+                    </span>
+                  </button>
+
+                  {/* Bookmark (Save) */}
+                  <button
+                    onClick={() => handleBookmark(item.id)}
+                    className="flex flex-col items-center active:scale-90 transition-transform duration-100"
+                    aria-label={bookmarkedItems.has(item.id) ? "Unsave" : "Save"}
+                  >
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}
+                    >
+                      <Bookmark
+                        size={28}
+                        className={bookmarkedItems.has(item.id) ? "" : "text-white"}
+                        style={
+                          bookmarkedItems.has(item.id)
+                            ? { color: "#FACC15", fill: "#FACC15" }
+                            : undefined
+                        }
+                      />
+                    </div>
+                    <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">
+                      {formatCount(item.bookmarks)}
+                    </span>
+                  </button>
+
+                  {/* Report (subtle) */}
+                  <button
+                    onClick={() => {
+                      setActivePostId(item.id);
+                      setActiveStylistId(item.stylistId);
+                      setReportModalOpen(true);
+                    }}
+                    className="flex flex-col items-center mt-1 active:scale-90 transition-transform duration-100"
+                    aria-label="Report"
+                  >
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: "rgba(0,0,0,0.25)", backdropFilter: "blur(8px)" }}
+                    >
+                      <Flag size={20} className="text-white/50" />
+                    </div>
+                  </button>
+                </div>
+
+                {/* Bottom-left creator info */}
+                <div className="absolute bottom-20 sm:bottom-28 left-4 right-20 z-10">
+                  <div className="flex items-center gap-3 mb-2">
+                    {item.stylistImage ? (
+                      <img
+                        src={imgUrl(item.stylistImage)}
+                        className="w-12 h-12 rounded-full border-2 border-white object-cover shrink-0"
+                        alt={item.stylistName}
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full border-2 border-white bg-white/10 flex items-center justify-center shrink-0">
+                        <span className="text-white/60 text-base font-bold">
+                          {item.stylistName[0]}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => navigate(`/app/stylist/${item.stylistId}`)}
+                          className="text-white font-bold text-base hover:underline truncate"
+                        >
+                          {item.stylistName}
+                        </button>
+                        <button
+                          onClick={() => navigate(`/app/stylist/${item.stylistId}`)}
+                          className="px-3 py-0.5 rounded text-[12px] font-semibold border border-white/40 text-white/90 hover:bg-white/10 transition-colors"
+                        >
+                          Follow
+                        </button>
+                      </div>
+                      <p className="text-white/90 text-sm mt-0.5 line-clamp-3 leading-snug">
+                        {item.caption}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Swipe hint on first video */}
+                {idx === 0 && currentIndex === 0 && !isDragging && (
+                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
+                    <div className="text-white/50 text-xs flex flex-col items-center">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="rotate-180">
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                      <span className="text-[10px]">Swipe up</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Refreshing indicator */}
+                {idx === 0 && refreshing && (
+                  <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-20">
+                    <RefreshCw size={16} className="text-white/50 animate-spin" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Infinite scroll sentinel */}
+        <div ref={sentinelRef} className="h-4 w-full" />
+
+        {/* Fixed top header */}
+        <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-4 bg-gradient-to-b from-black/60 to-transparent">
+          <button onClick={() => navigate(-1)} className="text-white text-sm font-medium" aria-label="Go back">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <h1 className="text-white font-bold text-base">Trending</h1>
+          <button onClick={handleRefresh} className="text-white/60 hover:text-white" aria-label="Refresh feed">
+            <RefreshCw size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* ── Desktop grid view ───────────────────────────── */}
+      <div className="fixed inset-0 z-50 overflow-y-auto hidden lg:block bg-gradient-to-b from-gray-900 via-black to-gray-950">
+        {/* Top bar */}
+        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-gradient-to-b from-black/80 to-transparent backdrop-blur-sm">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <h1 className="text-white font-bold text-lg">Trending</h1>
+          <button
+            onClick={handleRefresh}
+            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/50 hover:text-white hover:bg-white/20 transition-all"
+          >
+            <RefreshCw size={18} />
+          </button>
+        </div>
+
+        {/* Grid */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {items.map((item) => {
+              const engagementRate = getEngagementRate(item);
+              const isViral = engagementRate >= VIRAL_ENGAGEMENT_THRESHOLD;
+
+              return (
+                <div
+                  key={item.id}
+                  className="group relative bg-gray-900/80 rounded-2xl overflow-hidden border border-white/5 hover:border-white/20 transition-all duration-300"
+                >
+                  {/* Media */}
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    {item.mediaType === "video" ? (
+                      <video
+                        src={imgUrl(item.after)}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        muted
+                        loop
+                        playsInline
+                      />
+                    ) : item.before ? (
+                      <div className="grid grid-cols-2 w-full h-full">
+                        <div className="relative overflow-hidden">
+                          <img src={imgUrl(item.before)} alt="Before" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded text-[8px] font-bold text-white bg-black/60">
+                            BEFORE
+                          </span>
+                        </div>
+                        <div className="relative overflow-hidden">
+                          <img src={imgUrl(item.after)} alt="After" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded text-[8px] font-bold text-white" style={{ backgroundColor: TIKTOK_RED }}>
+                            AFTER
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <img
+                        src={imgUrl(item.after)}
+                        alt="Transformation"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    )}
+
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/10 pointer-events-none" />
+
+                    {/* Viral badge */}
+                    {isViral && (
+                      <div className="absolute top-3 left-3 z-10">
+                        <div className="px-2 py-0.5 rounded-full text-[9px] font-bold text-white flex items-center gap-1 bg-black/50 backdrop-blur-sm">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                            <polyline points="17 6 23 6 23 12" />
+                          </svg>
+                          Trending
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Hover actions overlay */}
+                    <div className="absolute inset-0 flex items-end justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                      <div className="flex items-center gap-3 pointer-events-auto">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleLike(item.id); }}
+                          className="flex flex-col items-center gap-0.5"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                            <Heart size={20} className={likedItems.has(item.id) ? "text-white" : "text-white"} style={likedItems.has(item.id) ? { color: TIKTOK_RED, fill: TIKTOK_RED } : undefined} />
+                          </div>
+                          <span className="text-white text-[11px] font-semibold tabular-nums">{formatCount(item.likes)}</span>
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); openComments(item.id, item.stylistId); }}
+                          className="flex flex-col items-center gap-0.5"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                            <MessageCircle size={20} className="text-white" />
+                          </div>
+                          <span className="text-white text-[11px] font-semibold tabular-nums">{formatCount(item.commentCount)}</span>
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleShare(item); }}
+                          className="flex flex-col items-center gap-0.5"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                            <Share2 size={20} className="text-white" />
+                          </div>
+                          <span className="text-white text-[11px] font-semibold tabular-nums">{formatCount(item.shares)}</span>
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleBookmark(item.id); }}
+                          className="flex flex-col items-center gap-0.5"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                            <Bookmark size={20} className="text-white" style={bookmarkedItems.has(item.id) ? { color: "#FACC15", fill: "#FACC15" } : undefined} />
+                          </div>
+                          <span className="text-white text-[11px] font-semibold tabular-nums">{formatCount(item.bookmarks)}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card footer */}
+                  <div className="p-3">
                     <div className="flex items-center gap-2">
+                      {item.stylistImage ? (
+                        <img src={imgUrl(item.stylistImage)} className="w-7 h-7 rounded-full object-cover shrink-0 ring-1 ring-white/20" alt="" />
+                      ) : (
+                        <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                          <span className="text-white/50 text-[10px] font-bold">{item.stylistName[0]}</span>
+                        </div>
+                      )}
                       <button
                         onClick={() => navigate(`/app/stylist/${item.stylistId}`)}
-                        className="text-white font-bold text-base hover:underline truncate"
+                        className="text-white text-sm font-semibold truncate hover:underline"
                       >
                         {item.stylistName}
                       </button>
-                      <button
-                        onClick={() => navigate(`/app/stylist/${item.stylistId}`)}
-                        className="px-3 py-0.5 rounded text-[12px] font-semibold border border-white/40 text-white/90 hover:bg-white/10 transition-colors"
-                      >
-                        Follow
-                      </button>
                     </div>
-                    <p className="text-white/90 text-sm mt-0.5 line-clamp-3 leading-snug">
-                      {item.caption}
-                    </p>
+                    {item.caption && (
+                      <p className="text-white/50 text-[12px] mt-1.5 line-clamp-2 leading-relaxed">
+                        {item.caption}
+                      </p>
+                    )}
                   </div>
                 </div>
-              </div>
+              );
+            })}
+          </div>
 
-              {/* Swipe hint on first video */}
-              {idx === 0 && currentIndex === 0 && !isDragging && (
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
-                  <div className="text-white/50 text-xs flex flex-col items-center">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="rotate-180">
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                    <span className="text-[10px]">Swipe up</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Refreshing indicator */}
-              {idx === 0 && refreshing && (
-                <div className="absolute top-16 left-1/2 transform -translate-x-1/2 z-20">
-                  <RefreshCw size={16} className="text-white/50 animate-spin" />
-                </div>
-              )}
+          {/* Loading more indicator */}
+          {loadingMore && (
+            <div className="flex justify-center py-8">
+              <div className="w-6 h-6 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
             </div>
-          );
-        })}
-      </div>
+          )}
 
-      {/* Infinite scroll sentinel */}
-      <div ref={sentinelRef} className="h-4 w-full" />
-
-      {/* Fixed top header */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-4 bg-gradient-to-b from-black/60 to-transparent">
-        <button onClick={() => navigate(-1)} className="text-white text-sm font-medium" aria-label="Go back">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
-        <h1 className="text-white font-bold text-base">Trending</h1>
-        <button onClick={handleRefresh} className="text-white/60 hover:text-white" aria-label="Refresh feed">
-          <RefreshCw size={18} />
-        </button>
+          {/* Infinite scroll sentinel */}
+          <div ref={sentinelRef} className="h-4 w-full" />
+        </div>
       </div>
 
       {/* Share menu */}
@@ -1351,6 +1519,6 @@ export default function TrendingFeed() {
       <style>{`
         div::-webkit-scrollbar { display: none; }
       `}</style>
-    </div>
+    </>
   );
 }

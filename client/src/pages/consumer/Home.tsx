@@ -93,11 +93,11 @@ export default function Home() {
         const bookings = await getMyBookings();
         const upcoming = bookings.find((b: any) => b.status === 'confirmed' || b.status === 'pending');
         if (upcoming) {
-          const stylistId = typeof upcoming.stylistId === 'object' ? upcoming.stylistId._id : upcoming.stylistId;
-          const clientId = typeof upcoming.clientId === 'object' ? upcoming.clientId._id : upcoming.clientId;
-          const stylistName = typeof upcoming.stylistId === 'object' ? upcoming.stylistId.name : '';
-          const serviceName = typeof upcoming.serviceId === 'object' ? upcoming.serviceId.name : '';
-          const stylistImage = typeof upcoming.stylistId === 'object' ? upcoming.stylistId.image : '';
+          const stylistId = upcoming.stylistId && typeof upcoming.stylistId === 'object' ? upcoming.stylistId._id : upcoming.stylistId;
+          const clientId = upcoming.clientId && typeof upcoming.clientId === 'object' ? upcoming.clientId._id : upcoming.clientId;
+          const stylistName = upcoming.stylistId && typeof upcoming.stylistId === 'object' ? upcoming.stylistId.name : '';
+          const serviceName = upcoming.serviceId && typeof upcoming.serviceId === 'object' ? upcoming.serviceId.name : '';
+          const stylistImage = upcoming.stylistId && typeof upcoming.stylistId === 'object' ? upcoming.stylistId.image : '';
           try {
             const queueData = await getQueueStatus(stylistId);
             const myEntry = queueData?.queue?.entries?.find((e: any) => e.userId === clientId);

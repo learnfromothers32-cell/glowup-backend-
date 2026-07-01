@@ -46,7 +46,7 @@ function fmtDuration(b: Booking): string | null {
       return `${mins}min`;
     }
   }
-  if (typeof b.serviceId === "object" && (b.serviceId as any).duration) {
+  if (b.serviceId && typeof b.serviceId === "object" && (b.serviceId as any).duration) {
     return `${(b.serviceId as any).duration}min`;
   }
   return null;

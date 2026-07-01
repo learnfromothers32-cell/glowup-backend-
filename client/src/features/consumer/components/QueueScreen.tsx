@@ -108,9 +108,9 @@ function StatusBadgeInline({ status }: { status: string }) {
 function HeroCard({ booking, queueData, onView }: { booking: Booking; queueData?: QueueEntry | null; onView: () => void }) {
   const isToday = fmtDate(new Date(booking.startTime)) === "Today";
   const isNext = queueData?.position === 1;
-  const stylistName = typeof booking.stylistId === "object" ? (booking.stylistId as any).name || "Stylist" : "Stylist";
-  const serviceName = typeof booking.serviceId === "object" ? (booking.serviceId as any).name || "Service" : "Service";
-  const duration = typeof booking.serviceId === "object" ? (booking.serviceId as any).duration || 30 : 30;
+  const stylistName = booking.stylistId && typeof booking.stylistId === "object" ? (booking.stylistId as any).name || "Stylist" : "Stylist";
+  const serviceName = booking.serviceId && typeof booking.serviceId === "object" ? (booking.serviceId as any).name || "Service" : "Service";
+  const duration = booking.serviceId && typeof booking.serviceId === "object" ? (booking.serviceId as any).duration || 30 : 30;
 
   const accent = isNext ? "emerald" : isToday ? "brand" : "sky";
 
@@ -234,8 +234,8 @@ function BookingRow({ booking, queueData, onView, onCancel, index }: {
 }) {
   const isToday = fmtDate(new Date(booking.startTime)) === "Today";
   const isCancelled = booking.status === "cancelled";
-  const stylistName = typeof booking.stylistId === "object" ? (booking.stylistId as any).name || "Stylist" : "Stylist";
-  const serviceName = typeof booking.serviceId === "object" ? (booking.serviceId as any).name || "Service" : "Service";
+  const stylistName = booking.stylistId && typeof booking.stylistId === "object" ? (booking.stylistId as any).name || "Stylist" : "Stylist";
+  const serviceName = booking.serviceId && typeof booking.serviceId === "object" ? (booking.serviceId as any).name || "Service" : "Service";
 
   return (
     <motion.div
@@ -311,10 +311,10 @@ function DetailModal({ booking, queueData, onClose, onCancel }: {
   const isToday = fmtDate(new Date(booking.startTime)) === "Today";
   const isNext = queueData?.position === 1;
   const cancelled = booking.status === "cancelled";
-  const stylistName = typeof booking.stylistId === "object" ? (booking.stylistId as any).name || "Stylist" : "Stylist";
-  const serviceName = typeof booking.serviceId === "object" ? (booking.serviceId as any).name || "Service" : "Service";
-  const price = typeof booking.serviceId === "object" ? (booking.serviceId as any).price || booking.totalPrice : booking.totalPrice;
-  const duration = typeof booking.serviceId === "object" ? (booking.serviceId as any).duration || 30 : 30;
+  const stylistName = booking.stylistId && typeof booking.stylistId === "object" ? (booking.stylistId as any).name || "Stylist" : "Stylist";
+  const serviceName = booking.serviceId && typeof booking.serviceId === "object" ? (booking.serviceId as any).name || "Service" : "Service";
+  const price = booking.serviceId && typeof booking.serviceId === "object" ? (booking.serviceId as any).price || booking.totalPrice : booking.totalPrice;
+  const duration = booking.serviceId && typeof booking.serviceId === "object" ? (booking.serviceId as any).duration || 30 : 30;
 
   const handleCopy = () => { navigator.clipboard.writeText(booking._id); setCopied(true); setTimeout(() => setCopied(false), 2000); };
 
@@ -489,7 +489,7 @@ export default function QueueScreen() {
   useEffect(() => {
     connectQueue();
     const stylistIds = [...new Set(bookings.map((b) => {
-      const sid = typeof b.stylistId === "object" ? (b.stylistId as any)._id : b.stylistId;
+      const sid = b.stylistId && typeof b.stylistId === "object" ? (b.stylistId as any)._id : b.stylistId;
       return typeof sid === "string" ? sid : "";
     }).filter(Boolean))];
     stylistIds.forEach((sid) => { subscribeToQueue(sid); getMyQueueStatus(sid); });
@@ -521,8 +521,8 @@ export default function QueueScreen() {
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter((b) => {
-        const name = typeof b.stylistId === "object" ? (b.stylistId as any).name || "" : "";
-        const svcName = typeof b.serviceId === "object" ? (b.serviceId as any).name || "" : "";
+        const name = b.stylistId && typeof b.stylistId === "object" ? (b.stylistId as any).name || "" : "";
+        const svcName = b.serviceId && typeof b.serviceId === "object" ? (b.serviceId as any).name || "" : "";
         return name.toLowerCase().includes(q) || svcName.toLowerCase().includes(q);
       });
     }
@@ -554,10 +554,10 @@ export default function QueueScreen() {
   }, [filtered]);
 
   const getQueueForBooking = (booking: Booking): QueueEntry | null | undefined => {
-    const stylistId = typeof booking.stylistId === "object" ? (booking.stylistId as any)._id : booking.stylistId;
+    const stylistId = booking.stylistId && typeof booking.stylistId === "object" ? (booking.stylistId as any)._id : booking.stylistId;
     const q = queues[stylistId];
     if (!q) return null;
-    return q.entries.find((e) => e.userId === (typeof booking.clientId === "object" ? (booking.clientId as any)?._id : booking.clientId)) || null;
+    return q.entries.find((e) => e.userId === (booking.clientId && typeof booking.clientId === "object" ? (booking.clientId as any)?._id : booking.clientId)) || null;
   };
 
   const statCards = [

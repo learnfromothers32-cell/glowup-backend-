@@ -213,7 +213,7 @@ export default function MyBookings() {
     if (bookings.length === 0) return;
     connectQueue();
     bookings.forEach((b) => {
-      const sid = typeof b.stylistId === "object" ? (b.stylistId as any)._id : b.stylistId;
+      const sid = b.stylistId && typeof b.stylistId === "object" ? (b.stylistId as any)._id : b.stylistId;
       if (sid) { subscribeToQueue(sid); getMyQueueStatus(sid); }
     });
     return () => { disconnectQueue(); };
@@ -373,9 +373,9 @@ export default function MyBookings() {
                   </div>
                   <div className="space-y-1.5 sm:space-y-2">
                     {items.map((b) => {
-                      const sid = typeof b.stylistId === "object" ? (b.stylistId as any)._id : b.stylistId;
+                      const sid = b.stylistId && typeof b.stylistId === "object" ? (b.stylistId as any)._id : b.stylistId;
                       const q = queues[sid];
-                      const queueEntry = q?.entries?.find((e: any) => e.userId === (typeof b.clientId === "object" ? (b.clientId as any)?._id : b.clientId));
+                      const queueEntry = q?.entries?.find((e: any) => e.userId === (b.clientId && typeof b.clientId === "object" ? (b.clientId as any)?._id : b.clientId));
                       return (
                         <BookingRow key={b._id} booking={b} filterKey={filter} queueData={queueEntry || null}
                           onCancel={() => setCancel(b)} onReschedule={() => { setReschedule(b); setNewDate(new Date(b.startTime).toISOString().split("T")[0]); setNewTime(fmtISO(b.startTime)); }}

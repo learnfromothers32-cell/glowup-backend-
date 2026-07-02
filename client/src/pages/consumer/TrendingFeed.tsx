@@ -795,8 +795,8 @@ export default function TrendingFeed() {
         onWheel={handleWheel}
       >
         <div className="relative w-full h-full lg:flex lg:items-center lg:justify-center">
-          <div className="relative w-full h-full lg:max-w-xl lg:max-h-[95vh] lg:rounded-2xl lg:overflow-hidden lg:bg-black lg:shadow-2xl">
-        {/* Floating hearts */}
+          <div className="relative w-full h-full lg:max-w-6xl lg:max-h-[94vh] lg:flex lg:gap-8 lg:items-center">
+        {/* Floating hearts (like animation) */}
         <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden">
           {floatingHearts.map((h) => {
             const elapsed = Date.now() - h.startTime;
@@ -821,27 +821,6 @@ export default function TrendingFeed() {
             );
           })}
         </div>
-
-        {/* Sound toggle */}
-        <button
-          onClick={toggleSound}
-          className="absolute top-12 right-4 z-30 w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white transition-all hover:bg-black/70"
-          aria-label={soundOn ? "Mute sound" : "Unmute sound"}
-        >
-          {soundOn ? (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-            </svg>
-          ) : (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <line x1="23" y1="9" x2="17" y2="15" />
-              <line x1="17" y1="9" x2="23" y2="15" />
-            </svg>
-          )}
-        </button>
 
         {/* Transform-based sliding container */}
         <div
@@ -869,245 +848,287 @@ export default function TrendingFeed() {
                   willChange: "opacity",
                 }}
               >
-                {/* Video / Image */}
-                <div className="absolute inset-0 z-0">
-                  {item.mediaType === "video" ? (
-                    <div
-                      className="relative w-full h-full bg-black flex items-center justify-center cursor-pointer"
-                      onClick={(e) => handleMediaTap(e, item.id, () => togglePlay(item.id))}
-                    >
-                      <video
-                        ref={(el) => {
-                          if (el) videoRefs.current.set(item.id, el);
-                        }}
-                        src={imgUrl(item.after)}
-                        className="w-full h-full object-cover"
-                        loop
-                        playsInline
-                        muted
-                        preload={Math.abs(idx - currentIndex) <= 2 ? "auto" : "none"}
-                      />
-                      {showPauseIcon[item.id] && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center animate-scale-in">
-                            {videoRefs.current.get(item.id)?.paused ? (
-                              <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-                                <polygon points="6,4 20,12 6,20" />
-                              </svg>
-                            ) : (
-                              <div className="flex items-center gap-1.5">
-                                <div className="w-1.5 h-6 rounded-full bg-white" />
-                                <div className="w-1.5 h-6 rounded-full bg-white" />
+                {/* ── Desktop: side-by-side layout ── */}
+                <div className="h-full lg:flex lg:items-center">
+                  {/* Media area */}
+                  <div className="relative w-full h-full lg:flex-1 lg:flex lg:items-center lg:justify-center lg:bg-black/95">
+                    <div className="relative w-full h-full lg:max-h-[88vh] lg:aspect-[9/12] lg:rounded-xl lg:overflow-hidden lg:shadow-2xl">
+                      {/* Video / Image */}
+                      <div className="absolute inset-0">
+                        {item.mediaType === "video" ? (
+                          <div
+                            className="relative w-full h-full bg-black flex items-center justify-center cursor-pointer"
+                            onClick={(e) => handleMediaTap(e, item.id, () => togglePlay(item.id))}
+                          >
+                            <video
+                              ref={(el) => {
+                                if (el) videoRefs.current.set(item.id, el);
+                              }}
+                              src={imgUrl(item.after)}
+                              className="w-full h-full lg:object-contain object-cover"
+                              loop
+                              playsInline
+                              muted
+                              preload={Math.abs(idx - currentIndex) <= 2 ? "auto" : "none"}
+                            />
+                            {showPauseIcon[item.id] && (
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center animate-scale-in">
+                                  {videoRefs.current.get(item.id)?.paused ? (
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                                      <polygon points="6,4 20,12 6,20" />
+                                    </svg>
+                                  ) : (
+                                    <div className="flex items-center gap-1.5">
+                                      <div className="w-1.5 h-6 rounded-full bg-white" />
+                                      <div className="w-1.5 h-6 rounded-full bg-white" />
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             )}
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  ) : item.before ? (
-                    <div className="grid grid-cols-2 w-full h-full cursor-pointer" onClick={(e) => handleMediaTap(e, item.id)}>
-                      <div className="relative overflow-hidden">
-                        <img src={imgUrl(item.before)} alt="Before" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                        <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white bg-black/50">
-                          BEFORE
-                        </span>
-                      </div>
-                      <div className="relative overflow-hidden">
-                        <img src={imgUrl(item.after)} alt="After" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                        <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white" style={{ backgroundColor: TIKTOK_RED }}>
-                          AFTER
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-black relative cursor-pointer" onClick={(e) => handleMediaTap(e, item.id)}>
-                      <img src={imgUrl(item.after)} alt="Transformation" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                      <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white" style={{ backgroundColor: TIKTOK_RED }}>
-                        Transformation
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Dark gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
-                </div>
-
-                {/* Trending badge */}
-                {isViral && (
-                  <div className="absolute top-4 left-4 z-20">
-                    <div
-                      className="px-2.5 py-1 rounded-full text-[10px] font-bold text-white flex items-center gap-1"
-                      style={{ backgroundColor: TIKTOK_RED }}
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                        <polyline points="17 6 23 6 23 12" />
-                      </svg>
-                      Trending
-                    </div>
-                  </div>
-                )}
-
-                {/* Right side action buttons */}
-                <div className="absolute right-2 sm:right-4 bottom-24 sm:bottom-36 z-10 flex flex-col items-center gap-4">
-                  {/* Heart (Like) */}
-                  <button
-                    onClick={() => handleLike(item.id)}
-                    className="flex flex-col items-center active:scale-90 transition-transform duration-100"
-                    aria-label={likedItems.has(item.id) ? "Unlike" : "Like"}
-                    disabled={likeCooldown}
-                  >
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}
-                    >
-                      <Heart
-                        size={28}
-                        className={likedItems.has(item.id) ? "" : "text-white"}
-                        style={
-                          likedItems.has(item.id)
-                            ? { color: TIKTOK_RED, fill: TIKTOK_RED }
-                            : undefined
-                        }
-                      />
-                    </div>
-                    <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">
-                      {formatCount(item.likes)}
-                    </span>
-                  </button>
-
-                  {/* Comment */}
-                  <button
-                    onClick={() => openComments(item.id, item.stylistId)}
-                    className="flex flex-col items-center active:scale-90 transition-transform duration-100"
-                    aria-label="Comments"
-                  >
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}
-                    >
-                      <MessageCircle size={28} className="text-white" />
-                    </div>
-                    <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">
-                      {formatCount(item.commentCount)}
-                    </span>
-                  </button>
-
-                  {/* Share */}
-                  <button
-                    onClick={() => handleShare(item)}
-                    className="flex flex-col items-center active:scale-90 transition-transform duration-100"
-                    aria-label="Share"
-                  >
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}
-                    >
-                      <Share2 size={28} className="text-white" />
-                    </div>
-                    <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">
-                      {formatCount(item.shares)}
-                    </span>
-                  </button>
-
-                  {/* Bookmark (Save) */}
-                  <button
-                    onClick={() => handleBookmark(item.id)}
-                    className="flex flex-col items-center active:scale-90 transition-transform duration-100"
-                    aria-label={bookmarkedItems.has(item.id) ? "Unsave" : "Save"}
-                  >
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}
-                    >
-                      <Bookmark
-                        size={28}
-                        className={bookmarkedItems.has(item.id) ? "" : "text-white"}
-                        style={
-                          bookmarkedItems.has(item.id)
-                            ? { color: "#FACC15", fill: "#FACC15" }
-                            : undefined
-                        }
-                      />
-                    </div>
-                    <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">
-                      {formatCount(item.bookmarks)}
-                    </span>
-                  </button>
-
-                  {/* Report (subtle) */}
-                  <button
-                    onClick={() => {
-                      setActivePostId(item.id);
-                      setActiveStylistId(item.stylistId);
-                      setReportModalOpen(true);
-                    }}
-                    className="flex flex-col items-center mt-1 active:scale-90 transition-transform duration-100"
-                    aria-label="Report"
-                  >
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: "rgba(0,0,0,0.25)", backdropFilter: "blur(8px)" }}
-                    >
-                      <Flag size={20} className="text-white/50" />
-                    </div>
-                  </button>
-                </div>
-
-                {/* Bottom-left creator info — TikTok-style */}
-                <div className="absolute bottom-24 left-0 right-24 z-10 px-4">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => navigate(`/app/stylist/${item.stylistId}`)}
-                        className="flex items-center gap-2"
-                      >
-                        {item.stylistImage ? (
-                          <img
-                            src={imgUrl(item.stylistImage)}
-                            className="w-9 h-9 rounded-full border-2 border-white object-cover shrink-0"
-                            alt={item.stylistName}
-                          />
+                        ) : item.before ? (
+                          <div className="grid grid-cols-2 w-full h-full cursor-pointer" onClick={(e) => handleMediaTap(e, item.id)}>
+                            <div className="relative overflow-hidden">
+                              <img src={imgUrl(item.before)} alt="Before" className="w-full h-full lg:object-contain object-cover" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent lg:hidden" />
+                              <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white bg-black/50">
+                                BEFORE
+                              </span>
+                            </div>
+                            <div className="relative overflow-hidden">
+                              <img src={imgUrl(item.after)} alt="After" className="w-full h-full lg:object-contain object-cover" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent lg:hidden" />
+                              <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white" style={{ backgroundColor: TIKTOK_RED }}>
+                                AFTER
+                              </span>
+                            </div>
+                          </div>
                         ) : (
-                          <div className="w-9 h-9 rounded-full border-2 border-white bg-white/10 flex items-center justify-center shrink-0">
-                            <span className="text-white/60 text-sm font-bold">
-                              {item.stylistName[0]}
+                          <div className="w-full h-full flex items-center justify-center bg-black relative cursor-pointer" onClick={(e) => handleMediaTap(e, item.id)}>
+                            <img src={imgUrl(item.after)} alt="Transformation" className="w-full h-full lg:object-contain object-cover" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent lg:hidden" />
+                            <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white lg:hidden" style={{ backgroundColor: TIKTOK_RED }}>
+                              Transformation
                             </span>
                           </div>
                         )}
-                        <span className="text-white font-bold text-sm hover:underline">
-                          {item.stylistName}
-                        </span>
-                      </button>
+
+                        {/* Dark gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none lg:bg-gradient-to-t lg:from-black/40 lg:via-transparent lg:to-black/20" />
+                      </div>
+
+                      {/* Trending badge */}
+                      {isViral && (
+                        <div className="absolute top-4 left-4 z-20">
+                          <div
+                            className="px-2.5 py-1 rounded-full text-[10px] font-bold text-white flex items-center gap-1"
+                            style={{ backgroundColor: TIKTOK_RED }}
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                              <polyline points="17 6 23 6 23 12" />
+                            </svg>
+                            Trending
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Sound toggle (desktop) */}
                       <button
-                        onClick={() => navigate(`/app/stylist/${item.stylistId}`)}
-                        className="px-3 py-0.5 rounded text-[11px] font-semibold border border-white/30 text-white/90 hover:bg-white/15 transition-colors"
+                        onClick={toggleSound}
+                        className="hidden lg:flex absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/40 backdrop-blur-md items-center justify-center text-white hover:bg-black/60 transition-all"
+                        aria-label={soundOn ? "Mute sound" : "Unmute sound"}
                       >
-                        Follow
+                        {soundOn ? (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                          </svg>
+                        ) : (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                            <line x1="23" y1="9" x2="17" y2="15" />
+                            <line x1="17" y1="9" x2="23" y2="15" />
+                          </svg>
+                        )}
+                      </button>
+
+                      {/* Mobile overlays (hidden on desktop) */}
+                      <div className="lg:hidden">
+                        {/* Sound toggle (mobile) */}
+                        <button
+                          onClick={toggleSound}
+                          className="absolute top-12 right-4 z-30 w-11 h-11 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white transition-all hover:bg-black/70"
+                          aria-label={soundOn ? "Mute sound" : "Unmute sound"}
+                        >
+                          {soundOn ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                            </svg>
+                          ) : (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                              <line x1="23" y1="9" x2="17" y2="15" />
+                              <line x1="17" y1="9" x2="23" y2="15" />
+                            </svg>
+                          )}
+                        </button>
+
+                        {/* Mobile right side action buttons */}
+                        <div className="absolute right-2 sm:right-4 bottom-24 sm:bottom-36 z-10 flex flex-col items-center gap-4">
+                          <button
+                            onClick={() => handleLike(item.id)}
+                            className="flex flex-col items-center active:scale-90 transition-transform duration-100"
+                            aria-label={likedItems.has(item.id) ? "Unlike" : "Like"}
+                            disabled={likeCooldown}
+                          >
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}>
+                              <Heart size={28} className={likedItems.has(item.id) ? "" : "text-white"} style={likedItems.has(item.id) ? { color: TIKTOK_RED, fill: TIKTOK_RED } : undefined} />
+                            </div>
+                            <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">{formatCount(item.likes)}</span>
+                          </button>
+                          <button
+                            onClick={() => openComments(item.id, item.stylistId)}
+                            className="flex flex-col items-center active:scale-90 transition-transform duration-100"
+                            aria-label="Comments"
+                          >
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}>
+                              <MessageCircle size={28} className="text-white" />
+                            </div>
+                            <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">{formatCount(item.commentCount)}</span>
+                          </button>
+                          <button
+                            onClick={() => handleShare(item)}
+                            className="flex flex-col items-center active:scale-90 transition-transform duration-100"
+                            aria-label="Share"
+                          >
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}>
+                              <Share2 size={28} className="text-white" />
+                            </div>
+                            <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">{formatCount(item.shares)}</span>
+                          </button>
+                          <button
+                            onClick={() => handleBookmark(item.id)}
+                            className="flex flex-col items-center active:scale-90 transition-transform duration-100"
+                            aria-label={bookmarkedItems.has(item.id) ? "Unsave" : "Save"}
+                          >
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)" }}>
+                              <Bookmark size={28} className={bookmarkedItems.has(item.id) ? "" : "text-white"} style={bookmarkedItems.has(item.id) ? { color: "#FACC15", fill: "#FACC15" } : undefined} />
+                            </div>
+                            <span className="text-white text-[14px] mt-1 font-semibold tabular-nums">{formatCount(item.bookmarks)}</span>
+                          </button>
+                          <button
+                            onClick={() => { setActivePostId(item.id); setActiveStylistId(item.stylistId); setReportModalOpen(true); }}
+                            className="flex flex-col items-center mt-1 active:scale-90 transition-transform duration-100"
+                            aria-label="Report"
+                          >
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.25)", backdropFilter: "blur(8px)" }}>
+                              <Flag size={20} className="text-white/50" />
+                            </div>
+                          </button>
+                        </div>
+
+                        {/* Mobile bottom-left creator info */}
+                        <div className="absolute bottom-24 left-0 right-24 z-10 px-4">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <button onClick={() => navigate(`/app/stylist/${item.stylistId}`)} className="flex items-center gap-2">
+                                {item.stylistImage ? (
+                                  <img src={imgUrl(item.stylistImage)} className="w-9 h-9 rounded-full border-2 border-white object-cover shrink-0" alt={item.stylistName} />
+                                ) : (
+                                  <div className="w-9 h-9 rounded-full border-2 border-white bg-white/10 flex items-center justify-center shrink-0">
+                                    <span className="text-white/60 text-sm font-bold">{item.stylistName[0]}</span>
+                                  </div>
+                                )}
+                                <span className="text-white font-bold text-sm hover:underline">{item.stylistName}</span>
+                              </button>
+                              <button onClick={() => navigate(`/app/stylist/${item.stylistId}`)} className="px-3 py-0.5 rounded text-[11px] font-semibold border border-white/30 text-white/90 hover:bg-white/15 transition-colors">Follow</button>
+                            </div>
+                            {item.caption && <p className="text-white/80 text-xs leading-relaxed line-clamp-2">{item.caption}</p>}
+                          </div>
+                        </div>
+
+                        {/* Swipe hint on first item (mobile) */}
+                        {idx === 0 && currentIndex === 0 && !isDragging && (
+                          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
+                            <div className="text-white/50 text-xs flex flex-col items-center">
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="rotate-180"><polyline points="6 9 12 15 18 9" /></svg>
+                              <span className="text-[10px]">Swipe up</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Desktop side panel (info + actions) ── */}
+                  <div className="hidden lg:flex lg:w-72 lg:flex-col lg:gap-6 lg:pl-2">
+                    {/* Action buttons row */}
+                    <div className="flex items-center gap-6">
+                      <button onClick={() => handleLike(item.id)} className="flex flex-col items-center gap-1 group" disabled={likeCooldown}>
+                        <div className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/15 transition-colors flex items-center justify-center">
+                          <Heart size={30} className={likedItems.has(item.id) ? "" : "text-white"} style={likedItems.has(item.id) ? { color: TIKTOK_RED, fill: TIKTOK_RED } : undefined} />
+                        </div>
+                        <span className="text-white/70 text-[13px] font-semibold">{formatCount(item.likes)}</span>
+                      </button>
+                      <button onClick={() => openComments(item.id, item.stylistId)} className="flex flex-col items-center gap-1 group">
+                        <div className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/15 transition-colors flex items-center justify-center">
+                          <MessageCircle size={30} className="text-white" />
+                        </div>
+                        <span className="text-white/70 text-[13px] font-semibold">{formatCount(item.commentCount)}</span>
+                      </button>
+                      <button onClick={() => handleShare(item)} className="flex flex-col items-center gap-1 group">
+                        <div className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/15 transition-colors flex items-center justify-center">
+                          <Share2 size={30} className="text-white" />
+                        </div>
+                        <span className="text-white/70 text-[13px] font-semibold">{formatCount(item.shares)}</span>
+                      </button>
+                      <button onClick={() => handleBookmark(item.id)} className="flex flex-col items-center gap-1 group">
+                        <div className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/15 transition-colors flex items-center justify-center">
+                          <Bookmark size={30} className={bookmarkedItems.has(item.id) ? "" : "text-white"} style={bookmarkedItems.has(item.id) ? { color: "#FACC15", fill: "#FACC15" } : undefined} />
+                        </div>
+                        <span className="text-white/70 text-[13px] font-semibold">{formatCount(item.bookmarks)}</span>
                       </button>
                     </div>
-                    {item.caption && (
-                      <p className="text-white/80 text-xs leading-relaxed line-clamp-2">
-                        {item.caption}
-                      </p>
-                    )}
+
+                    {/* Creator info & caption */}
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-3">
+                        <button onClick={() => navigate(`/app/stylist/${item.stylistId}`)} className="flex items-center gap-2 group">
+                          {item.stylistImage ? (
+                            <img src={imgUrl(item.stylistImage)} className="w-11 h-11 rounded-full border-2 border-white/30 object-cover shrink-0" alt={item.stylistName} />
+                          ) : (
+                            <div className="w-11 h-11 rounded-full border-2 border-white/30 bg-white/10 flex items-center justify-center shrink-0">
+                              <span className="text-white/50 text-base font-bold">{item.stylistName[0]}</span>
+                            </div>
+                          )}
+                          <div className="text-left">
+                            <p className="text-white font-semibold text-base group-hover:underline leading-tight">{item.stylistName}</p>
+                            <p className="text-white/40 text-[11px]">Stylist</p>
+                          </div>
+                        </button>
+                        <button onClick={() => navigate(`/app/stylist/${item.stylistId}`)} className="ml-auto px-4 py-1.5 rounded-full text-[12px] font-semibold border border-white/30 text-white/90 hover:bg-white/10 transition-colors">Follow</button>
+                      </div>
+                      {item.caption && (
+                        <p className="text-white/70 text-sm leading-relaxed">{item.caption}</p>
+                      )}
+                    </div>
+
+                    {/* Report */}
+                    <button
+                      onClick={() => { setActivePostId(item.id); setActiveStylistId(item.stylistId); setReportModalOpen(true); }}
+                      className="self-start text-white/30 hover:text-white/50 text-[11px] font-medium transition-colors flex items-center gap-1.5 mt-1"
+                    >
+                      <Flag size={13} />
+                      Report
+                    </button>
                   </div>
                 </div>
-
-                {/* Swipe hint on first video */}
-                {idx === 0 && currentIndex === 0 && !isDragging && (
-                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
-                    <div className="text-white/50 text-xs flex flex-col items-center">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="rotate-180">
-                        <polyline points="6 9 12 15 18 9" />
-                      </svg>
-                      <span className="text-[10px]">Swipe up</span>
-                    </div>
-                  </div>
-                )}
 
                 {/* Refreshing indicator */}
                 {idx === 0 && refreshing && (
@@ -1150,15 +1171,15 @@ export default function TrendingFeed() {
         </div>
 
         {/* TikTok-style progress indicator */}
-        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1.5">
+        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 lg:fixed lg:right-4 flex flex-col items-center gap-1.5">
           {items.map((_, idx) => (
             <button
               key={idx}
               onClick={() => goToIndex(idx)}
-              className="rounded-full transition-all duration-300"
+              className="rounded-full transition-all duration-300 hover:scale-125"
               style={{
-                width: idx === currentIndex ? 8 : 4,
-                height: idx === currentIndex ? 8 : 4,
+                width: idx === currentIndex ? 10 : 5,
+                height: idx === currentIndex ? 10 : 5,
                 backgroundColor: idx === currentIndex ? "#ffffff" : "rgba(255,255,255,0.3)",
               }}
               aria-label={`Go to item ${idx + 1}`}

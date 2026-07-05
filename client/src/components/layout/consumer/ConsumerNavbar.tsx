@@ -73,6 +73,7 @@ export default function ConsumerNavbar() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [expandedNotifId, setExpandedNotifId] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState(false);
 
   const { user, logout } = useAuth();
   const {
@@ -422,8 +423,8 @@ export default function ConsumerNavbar() {
                   `}
                   aria-label="Profile menu"
                 >
-                  {user?.avatar ? (
-                    <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm dark:ring-gray-900" />
+                  {user?.avatar && !avatarError ? (
+                    <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm dark:ring-gray-900" onError={() => setAvatarError(true)} />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center text-xs font-bold ring-2 ring-white shadow-sm dark:ring-gray-900">
                       {initials}
@@ -560,8 +561,8 @@ export default function ConsumerNavbar() {
                 className="px-5 py-4 border-b border-gray-100 dark:border-0"
               >
                 <div className="flex items-center gap-3">
-                  {user?.avatar ? (
-                    <img src={user.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                  {user?.avatar && !avatarError ? (
+                    <img src={user.avatar} alt="" className="w-10 h-10 rounded-full object-cover" onError={() => setAvatarError(true)} />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center text-sm font-bold">
                       {initials}

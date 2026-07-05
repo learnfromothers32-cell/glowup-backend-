@@ -800,8 +800,8 @@ export default function TrendingFeed() {
         onTouchEnd={handleTouchEnd}
         onWheel={handleWheel}
       >
-        <div className="relative w-full h-full lg:flex lg:items-center lg:justify-center">
-          <div className="relative w-full h-full lg:max-w-6xl lg:max-h-[94vh] lg:flex lg:gap-8 lg:items-center">
+        <div className="relative w-full h-full lg:flex lg:items-center lg:justify-center lg:bg-gradient-to-br lg:from-zinc-900 lg:via-black lg:to-zinc-900">
+          <div className="relative w-full h-full lg:max-w-7xl lg:max-h-[90vh] lg:flex lg:gap-6 lg:items-center lg:px-8">
         {/* Floating hearts (like animation) */}
         <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden">
           {floatingHearts.map((h) => {
@@ -855,10 +855,10 @@ export default function TrendingFeed() {
                 }}
               >
                 {/* ── Desktop: side-by-side layout ── */}
-                <div className="h-full lg:flex lg:items-center">
+                <div className="h-full lg:flex lg:items-center lg:gap-8">
                   {/* Media area */}
-                  <div className="relative w-full h-full lg:flex lg:items-center lg:justify-center lg:flex-1">
-                    <div className="relative w-full h-full lg:max-h-[85vh] lg:aspect-[9/12] lg:rounded-2xl lg:overflow-hidden lg:shadow-2xl lg:border lg:border-white/[0.06]">
+                  <div className="relative w-full h-full lg:flex lg:items-center lg:justify-center lg:flex-1 lg:min-w-0">
+                    <div className="relative w-full h-full lg:max-h-[82vh] lg:aspect-[9/13] lg:rounded-2xl lg:overflow-hidden lg:shadow-[0_0_40px_rgba(0,0,0,0.5)] lg:border lg:border-white/[0.08] lg:bg-zinc-900">
                       {/* Video / Image */}
                       <div className="absolute inset-0">
                         {item.mediaType === "video" ? (
@@ -896,15 +896,15 @@ export default function TrendingFeed() {
                           </div>
                         ) : item.before ? (
                           <div className="grid grid-cols-2 w-full h-full cursor-pointer" onClick={(e) => handleMediaTap(e, item.id)}>
-                            <div className="relative overflow-hidden">
-                              <img src={imgUrl(item.before)} alt="Before" className="w-full h-full lg:object-contain object-cover" />
+                            <div className="relative overflow-hidden bg-black">
+                              <img src={imgUrl(item.before)} alt="Before" className="w-full h-full lg:object-contain object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent lg:hidden" />
                               <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white bg-black/50">
                                 BEFORE
                               </span>
                             </div>
-                            <div className="relative overflow-hidden">
-                              <img src={imgUrl(item.after)} alt="After" className="w-full h-full lg:object-contain object-cover" />
+                            <div className="relative overflow-hidden bg-black">
+                              <img src={imgUrl(item.after)} alt="After" className="w-full h-full lg:object-contain object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent lg:hidden" />
                               <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white" style={{ backgroundColor: TIKTOK_RED }}>
                                 AFTER
@@ -913,7 +913,7 @@ export default function TrendingFeed() {
                           </div>
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-black relative cursor-pointer" onClick={(e) => handleMediaTap(e, item.id)}>
-                            <img src={imgUrl(item.after)} alt="Transformation" className="w-full h-full lg:object-contain object-cover" />
+                            <img src={imgUrl(item.after)} alt="Transformation" className="w-full h-full lg:object-contain object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent lg:hidden" />
                             <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[9px] font-bold text-white lg:hidden" style={{ backgroundColor: TIKTOK_RED }}>
                               Transformation
@@ -1040,17 +1040,18 @@ export default function TrendingFeed() {
                         </div>
 
                         {/* Mobile bottom-left creator info */}
-                        <div className="absolute bottom-24 left-0 right-24 z-10 px-4">
+                        <div className="absolute bottom-24 left-0 right-28 z-10 px-4">
                           <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-2">
                               <button onClick={() => navigate(`/app/stylist/${item.stylistId}`)} className="flex items-center gap-2">
-                                {item.stylistImage ? (
-                                  <img src={imgUrl(item.stylistImage)} className="w-9 h-9 rounded-full border-2 border-white object-cover shrink-0" alt={item.stylistName} />
-                                ) : (
-                                  <div className="w-9 h-9 rounded-full border-2 border-white bg-white/10 flex items-center justify-center shrink-0">
+                                <div className="relative w-9 h-9 shrink-0">
+                                  {item.stylistImage ? (
+                                    <img src={imgUrl(item.stylistImage)} className="absolute inset-0 w-full h-full rounded-full border-2 border-white object-cover z-10" alt={item.stylistName} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                                  ) : null}
+                                  <div className="w-9 h-9 rounded-full border-2 border-white bg-white/10 flex items-center justify-center">
                                     <span className="text-white/60 text-sm font-bold">{item.stylistName[0]}</span>
                                   </div>
-                                )}
+                                </div>
                                 <span className="text-white font-bold text-sm hover:underline">{item.stylistName}</span>
                               </button>
                               <button onClick={() => navigate(`/app/stylist/${item.stylistId}`)} className="px-3 py-0.5 rounded text-[11px] font-semibold border border-white/30 text-white/90 hover:bg-white/15 transition-colors">Follow</button>
@@ -1072,68 +1073,66 @@ export default function TrendingFeed() {
                     </div>
                   </div>
 
-                  {/* ── Desktop side panel (TikTok-style) ── */}
-                  <div className="hidden lg:flex lg:w-80 lg:flex-col lg:gap-4 lg:pl-6 lg:pb-2">
+                  {/* ── Desktop side panel ── */}
+                  <div className="hidden lg:flex lg:w-96 lg:flex-col lg:gap-5 lg:pr-4 lg:py-2">
                     {/* Creator section */}
-                    <div className="flex items-center gap-3 pb-4 border-b border-white/[0.06]">
+                    <div className="flex items-center gap-3 pb-5 border-b border-white/[0.06]">
                       <button onClick={() => navigate(`/app/stylist/${item.stylistId}`)} className="shrink-0">
-                        {item.stylistImage ? (
-                          <img src={imgUrl(item.stylistImage)} className="w-11 h-11 rounded-full border-2 border-white/20 object-cover" alt={item.stylistName} />
-                        ) : (
-                          <div className="w-11 h-11 rounded-full border-2 border-white/20 bg-white/10 flex items-center justify-center">
-                            <span className="text-white/60 text-base font-bold">{item.stylistName[0]}</span>
+                        <div className="relative w-12 h-12">
+                          {item.stylistImage ? (
+                            <img src={imgUrl(item.stylistImage)} className="absolute inset-0 w-full h-full rounded-full border-2 border-white/20 object-cover z-10" alt={item.stylistName} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                          ) : null}
+                          <div className="w-12 h-12 rounded-full border-2 border-white/20 bg-white/10 flex items-center justify-center">
+                            <span className="text-white/60 text-lg font-bold">{item.stylistName[0]}</span>
                           </div>
-                        )}
+                        </div>
                       </button>
                       <div className="flex-1 min-w-0">
                         <button onClick={() => navigate(`/app/stylist/${item.stylistId}`)} className="hover:underline">
                           <p className="text-white font-semibold text-base truncate">{item.stylistName}</p>
                         </button>
-                        <p className="text-white/40 text-xs">Stylist</p>
+                        <p className="text-white/40 text-xs mt-0.5">{item.category || 'Stylist'} · {item.location || 'Near you'}</p>
                       </div>
-                      <button onClick={() => navigate(`/app/stylist/${item.stylistId}`)} className="shrink-0 px-4 py-1.5 rounded-full text-[12px] font-semibold border border-white/30 text-white/90 hover:bg-white/10 transition-colors">Follow</button>
+                      <button onClick={() => navigate(`/app/stylist/${item.stylistId}`)} className="shrink-0 px-5 py-1.5 rounded-full text-[12px] font-semibold bg-white/10 text-white hover:bg-white/20 transition-all active:scale-95">+ Follow</button>
                     </div>
 
                     {/* Caption */}
                     {item.caption && (
-                      <p className="text-white/70 text-sm leading-relaxed line-clamp-3">{item.caption}</p>
+                      <div className="bg-white/[0.03] rounded-xl p-4 border border-white/[0.04]">
+                        <p className="text-white/75 text-sm leading-relaxed">{item.caption}</p>
+                        {item.serviceName && (
+                          <span className="inline-block mt-2 text-[11px] font-medium text-white/40 bg-white/5 px-2.5 py-1 rounded-full">{item.serviceName}</span>
+                        )}
+                      </div>
                     )}
 
-                    {/* Action buttons row */}
-                    <div className="flex items-center gap-5 pt-1">
-                      <button onClick={() => handleLike(item.id)} className="flex flex-col items-center gap-1 group" disabled={likeCooldown}>
-                        <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/15 transition-colors flex items-center justify-center">
-                          <Heart size={26} className={likedItems.has(item.id) ? "" : "text-white"} style={likedItems.has(item.id) ? { color: TIKTOK_RED, fill: TIKTOK_RED } : undefined} />
-                        </div>
-                        <span className="text-white/60 text-[11px] font-semibold tabular-nums">{formatCount(item.likes)}</span>
+                    {/* Engagement stats row */}
+                    <div className="grid grid-cols-4 gap-2">
+                      <button onClick={() => handleLike(item.id)} className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] transition-all border border-white/[0.04] group" disabled={likeCooldown}>
+                        <Heart size={22} className={likedItems.has(item.id) ? "" : "text-white/70 group-hover:text-white"} style={likedItems.has(item.id) ? { color: TIKTOK_RED, fill: TIKTOK_RED } : undefined} />
+                        <span className="text-white/50 text-[11px] font-semibold tabular-nums">{formatCount(item.likes)}</span>
                       </button>
-                      <button onClick={() => openComments(item.id, item.stylistId)} className="flex flex-col items-center gap-1 group">
-                        <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/15 transition-colors flex items-center justify-center">
-                          <MessageCircle size={26} className="text-white" />
-                        </div>
-                        <span className="text-white/60 text-[11px] font-semibold tabular-nums">{formatCount(item.commentCount)}</span>
+                      <button onClick={() => openComments(item.id, item.stylistId)} className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] transition-all border border-white/[0.04] group">
+                        <MessageCircle size={22} className="text-white/70 group-hover:text-white" />
+                        <span className="text-white/50 text-[11px] font-semibold tabular-nums">{formatCount(item.commentCount)}</span>
                       </button>
-                      <button onClick={() => handleShare(item)} className="flex flex-col items-center gap-1 group">
-                        <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/15 transition-colors flex items-center justify-center">
-                          <Share2 size={26} className="text-white" />
-                        </div>
-                        <span className="text-white/60 text-[11px] font-semibold tabular-nums">{formatCount(item.shares)}</span>
+                      <button onClick={() => handleShare(item)} className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] transition-all border border-white/[0.04] group">
+                        <Share2 size={22} className="text-white/70 group-hover:text-white" />
+                        <span className="text-white/50 text-[11px] font-semibold tabular-nums">{formatCount(item.shares)}</span>
                       </button>
-                      <button onClick={() => handleBookmark(item.id)} className="flex flex-col items-center gap-1 group">
-                        <div className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/15 transition-colors flex items-center justify-center">
-                          <Bookmark size={26} className={bookmarkedItems.has(item.id) ? "" : "text-white"} style={bookmarkedItems.has(item.id) ? { color: "#FACC15", fill: "#FACC15" } : undefined} />
-                        </div>
-                        <span className="text-white/60 text-[11px] font-semibold tabular-nums">{formatCount(item.bookmarks)}</span>
+                      <button onClick={() => handleBookmark(item.id)} className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] transition-all border border-white/[0.04] group">
+                        <Bookmark size={22} className={bookmarkedItems.has(item.id) ? "" : "text-white/70 group-hover:text-white"} style={bookmarkedItems.has(item.id) ? { color: "#FACC15", fill: "#FACC15" } : undefined} />
+                        <span className="text-white/50 text-[11px] font-semibold tabular-nums">{formatCount(item.bookmarks)}</span>
                       </button>
                     </div>
 
                     {/* Report */}
                     <button
                       onClick={() => { setActivePostId(item.id); setActiveStylistId(item.stylistId); setReportModalOpen(true); }}
-                      className="self-start text-white/40 hover:text-white/60 text-[11px] font-medium transition-colors flex items-center gap-1.5 mt-1"
+                      className="self-start text-white/30 hover:text-white/50 text-[11px] font-medium transition-colors flex items-center gap-1.5 mt-auto pt-2"
                     >
-                      <Flag size={13} />
-                      Report
+                      <Flag size={12} />
+                      Report this post
                     </button>
                   </div>
                 </div>
@@ -1179,16 +1178,17 @@ export default function TrendingFeed() {
         </div>
 
         {/* TikTok-style progress indicator */}
-        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 lg:right-3 flex flex-col items-center gap-1.5">
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 z-20 lg:right-4 flex flex-col items-center gap-2">
           {items.map((_, idx) => (
             <button
               key={idx}
               onClick={() => goToIndex(idx)}
               className="rounded-full transition-all duration-300 hover:scale-125"
               style={{
-                width: idx === currentIndex ? 10 : 5,
-                height: idx === currentIndex ? 10 : 5,
-                backgroundColor: idx === currentIndex ? "#ffffff" : "rgba(255,255,255,0.3)",
+                width: idx === currentIndex ? 12 : 6,
+                height: idx === currentIndex ? 12 : 6,
+                backgroundColor: idx === currentIndex ? "#ffffff" : "rgba(255,255,255,0.25)",
+                boxShadow: idx === currentIndex ? "0 0 8px rgba(255,255,255,0.4)" : "none",
               }}
               aria-label={`Go to item ${idx + 1}`}
             />
@@ -1196,16 +1196,18 @@ export default function TrendingFeed() {
         </div>
 
         {/* Fixed top header */}
-        <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-4 py-3 bg-gradient-to-b from-black/70 to-transparent lg:bg-gradient-to-b lg:from-black/50 lg:to-transparent">
-          <button onClick={() => navigate(-1)} className="text-white/80 hover:text-white p-1" aria-label="Go back">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-4 sm:px-6 py-3 bg-gradient-to-b from-black/70 to-transparent lg:bg-gradient-to-b lg:from-black/50 lg:via-black/20 lg:to-transparent">
+          <button onClick={() => navigate(-1)} className="text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all" aria-label="Go back">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
-          <h1 className="text-white font-bold text-base lg:hidden">Trending</h1>
-          <button onClick={handleRefresh} className="text-white/40 hover:text-white/70 p-1" aria-label="Refresh feed">
-            <RefreshCw size={18} />
-          </button>
+          <div className="flex items-center gap-2">
+            <span className="text-white/50 text-xs font-medium hidden lg:inline tabular-nums">{currentIndex + 1} / {items.length}</span>
+            <button onClick={handleRefresh} className="text-white/40 hover:text-white/70 p-2 rounded-full hover:bg-white/10 transition-all" aria-label="Refresh feed">
+              <RefreshCw size={18} />
+            </button>
+          </div>
           </div>
         </div>
       </div>
@@ -1313,21 +1315,21 @@ export default function TrendingFeed() {
                   />
                 ) : post.before ? (
                   <div className="grid grid-cols-2 w-full h-full">
-                    <div className="relative overflow-hidden">
-                      <img src={imgUrl(post.before)} alt="Before" className="w-full h-full object-cover" />
+                    <div className="relative overflow-hidden bg-black">
+                      <img src={imgUrl(post.before)} alt="Before" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                       <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded text-[8px] font-bold text-white bg-black/50">
                         BEFORE
                       </span>
                     </div>
-                    <div className="relative overflow-hidden">
-                      <img src={imgUrl(post.after)} alt="After" className="w-full h-full object-cover" />
+                    <div className="relative overflow-hidden bg-black">
+                      <img src={imgUrl(post.after)} alt="After" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                       <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded text-[8px] font-bold text-white" style={{ backgroundColor: TIKTOK_RED }}>
                         AFTER
                       </span>
                     </div>
                   </div>
                 ) : (
-                  <img src={imgUrl(post.after)} alt="Post" className="w-full h-full object-contain" />
+                  <img src={imgUrl(post.after)} alt="Post" className="w-full h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                 );
               })()}
             </div>
@@ -1366,18 +1368,20 @@ export default function TrendingFeed() {
                         key={comment.id}
                         className="flex gap-3 px-4 py-3 hover:bg-white/[0.02] transition-colors"
                       >
-                        {comment.userAvatar ? (
-                          <img
-                            src={comment.userAvatar}
-                            className="w-8 h-8 rounded-full object-cover shrink-0 mt-0.5"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center shrink-0">
+                        <div className="relative w-8 h-8 shrink-0 mt-0.5">
+                          {comment.userAvatar ? (
+                            <img
+                              src={comment.userAvatar}
+                              className="absolute inset-0 w-full h-full rounded-full object-cover z-10"
+                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            />
+                          ) : null}
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center">
                             <span className="text-white/50 text-xs font-bold">
                               {comment.userName[0]?.toUpperCase()}
                             </span>
                           </div>
-                        )}
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-baseline gap-2 flex-wrap">
                             <p className="text-white text-sm font-semibold truncate">
@@ -1422,15 +1426,16 @@ export default function TrendingFeed() {
               </div>
 
               <div className="shrink-0 border-t border-white/10 p-3 flex gap-2 items-center">
-                {user?.avatar ? (
-                  <img src={imgUrl(user.avatar)} className="w-7 h-7 rounded-full object-cover shrink-0" />
-                ) : (
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center shrink-0">
+                <div className="relative w-7 h-7 shrink-0">
+                  {user?.avatar ? (
+                    <img src={imgUrl(user.avatar)} className="absolute inset-0 w-full h-full rounded-full object-cover z-10" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                  ) : null}
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center">
                     <span className="text-white/40 text-[10px] font-bold">
                       {user?.name?.[0]?.toUpperCase() || "U"}
                     </span>
                   </div>
-                )}
+                </div>
                 <input
                   ref={commentInputRef}
                   type="text"

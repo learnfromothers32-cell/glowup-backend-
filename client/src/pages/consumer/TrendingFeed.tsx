@@ -1303,8 +1303,8 @@ export default function TrendingFeed() {
     </div>
 
     {/* ── Desktop & Tablet: Scrollable Feed (768px+) ── */}
-    <div className="hidden md:block min-h-screen bg-black">
-      <div className="flex w-full max-w-full overflow-hidden">
+    <div className="hidden md:block min-h-screen bg-black overflow-x-hidden">
+      <div className="flex w-full max-w-full">
         {/* Left Sidebar (lg+) */}
         <aside className="hidden lg:flex lg:w-[240px] xl:w-[280px] 2xl:w-[300px] shrink-0 sticky top-0 h-screen flex-col bg-zinc-950/50 border-r border-white/[0.06]">
           <div className="px-5 py-6 border-b border-white/[0.06]">
@@ -1469,24 +1469,24 @@ export default function TrendingFeed() {
                       </div>
                     )}
                     <div className="flex items-center gap-1 bg-white/[0.02] rounded-xl md:rounded-2xl p-1 border border-white/[0.04]">
-                      <button onClick={() => handleLike(item.id)} className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-2.5 md:py-3 rounded-lg md:rounded-xl hover:bg-white/[0.04] transition-all group/btn" disabled={likeCooldown}>
-                        <Heart size={16} className={likedItems.has(item.id) ? "" : "text-white/50 group-hover/btn:text-white/80"} style={likedItems.has(item.id) ? { color: TIKTOK_RED, fill: TIKTOK_RED } : undefined} />
-                        <span className="text-white/40 group-hover/btn:text-white/60 text-xs font-semibold tabular-nums transition-colors">{formatCount(item.likes)}</span>
+                      <button onClick={() => handleLike(item.id)} className="flex-1 min-w-0 flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-2.5 md:py-3 rounded-lg md:rounded-xl hover:bg-white/[0.04] transition-all group/btn" disabled={likeCooldown}>
+                        <Heart size={16} className={likedItems.has(item.id) ? "" : "text-white/50 group-hover/btn:text-white/80 shrink-0"} style={likedItems.has(item.id) ? { color: TIKTOK_RED, fill: TIKTOK_RED } : undefined} />
+                        <span className="text-white/40 group-hover/btn:text-white/60 text-xs font-semibold tabular-nums transition-colors shrink-0">{formatCount(item.likes)}</span>
                       </button>
-                      <div className="w-px h-6 bg-white/[0.04]" />
-                      <button onClick={() => openComments(item.id, item.stylistId)} className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-2.5 md:py-3 rounded-lg md:rounded-xl hover:bg-white/[0.04] transition-all group/btn">
-                        <MessageCircle size={16} className="text-white/50 group-hover/btn:text-white/80" />
-                        <span className="text-white/40 group-hover/btn:text-white/60 text-xs font-semibold tabular-nums transition-colors">{formatCount(item.commentCount)}</span>
+                      <div className="w-px h-6 bg-white/[0.04] shrink-0" />
+                      <button onClick={() => openComments(item.id, item.stylistId)} className="flex-1 min-w-0 flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-2.5 md:py-3 rounded-lg md:rounded-xl hover:bg-white/[0.04] transition-all group/btn">
+                        <MessageCircle size={16} className="text-white/50 group-hover/btn:text-white/80 shrink-0" />
+                        <span className="text-white/40 group-hover/btn:text-white/60 text-xs font-semibold tabular-nums transition-colors shrink-0">{formatCount(item.commentCount)}</span>
                       </button>
-                      <div className="w-px h-6 bg-white/[0.04]" />
-                      <button onClick={() => handleShare(item)} className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-2.5 md:py-3 rounded-lg md:rounded-xl hover:bg-white/[0.04] transition-all group/btn">
-                        <Share2 size={16} className="text-white/50 group-hover/btn:text-white/80" />
-                        <span className="text-white/40 group-hover/btn:text-white/60 text-xs font-semibold tabular-nums transition-colors">{formatCount(item.shares)}</span>
+                      <div className="w-px h-6 bg-white/[0.04] shrink-0" />
+                      <button onClick={() => handleShare(item)} className="flex-1 min-w-0 flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-2.5 md:py-3 rounded-lg md:rounded-xl hover:bg-white/[0.04] transition-all group/btn">
+                        <Share2 size={16} className="text-white/50 group-hover/btn:text-white/80 shrink-0" />
+                        <span className="text-white/40 group-hover/btn:text-white/60 text-xs font-semibold tabular-nums transition-colors shrink-0">{formatCount(item.shares)}</span>
                       </button>
-                      <div className="w-px h-6 bg-white/[0.04]" />
-                      <button onClick={() => handleBookmark(item.id)} className="flex-1 flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-2.5 md:py-3 rounded-lg md:rounded-xl hover:bg-white/[0.04] transition-all group/btn">
-                        <Bookmark size={16} className={bookmarkedItems.has(item.id) ? "" : "text-white/50 group-hover/btn:text-white/80"} style={bookmarkedItems.has(item.id) ? { color: "#FACC15", fill: "#FACC15" } : undefined} />
-                        <span className="text-white/40 group-hover/btn:text-white/60 text-xs font-semibold tabular-nums transition-colors">{formatCount(item.bookmarks)}</span>
+                      <div className="w-px h-6 bg-white/[0.04] shrink-0" />
+                      <button onClick={() => handleBookmark(item.id)} className="flex-1 min-w-0 flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-2.5 md:py-3 rounded-lg md:rounded-xl hover:bg-white/[0.04] transition-all group/btn">
+                        <Bookmark size={16} className={bookmarkedItems.has(item.id) ? "" : "text-white/50 group-hover/btn:text-white/80 shrink-0"} style={bookmarkedItems.has(item.id) ? { color: "#FACC15", fill: "#FACC15" } : undefined} />
+                        <span className="text-white/40 group-hover/btn:text-white/60 text-xs font-semibold tabular-nums transition-colors shrink-0">{formatCount(item.bookmarks)}</span>
                       </button>
                     </div>
                     {item.tags && item.tags.length > 0 && (

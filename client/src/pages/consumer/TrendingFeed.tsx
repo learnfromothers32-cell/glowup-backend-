@@ -1527,27 +1527,6 @@ export default function TrendingFeed() {
           </div>
 
           <div className="flex-1 overflow-y-auto scrollbar-thin">
-            {/* Featured Stylist */}
-            {stylists.length > 0 && (
-              <div className="px-4 py-5 border-b border-white/[0.06]">
-                <p className="text-white/40 text-[11px] font-semibold uppercase tracking-wider mb-4">Featured Stylist</p>
-                <button onClick={() => navigate(`/app/stylist/${stylists[0].id}`)} className="relative w-full aspect-[16/10] rounded-xl overflow-hidden group block">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
-                  {stylists[0].image ? (
-                    <img src={imgUrl(stylists[0].image)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt={stylists[0].name} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                  ) : (
-                    <div className="absolute inset-0 bg-white/5 flex items-center justify-center">
-                      <span className="text-white/20 text-4xl font-bold">{stylists[0].name[0]}</span>
-                    </div>
-                  )}
-                  <div className="absolute bottom-3 left-3 right-3 z-20">
-                    <p className="text-white font-semibold text-sm truncate">{stylists[0].name}</p>
-                    <p className="text-white/60 text-[11px] mt-0.5 truncate">{stylists[0].category || 'Stylist'} · Featured</p>
-                  </div>
-                </button>
-              </div>
-            )}
-
             {/* Trending Collections */}
             {tags.length > 0 && (
               <div className="px-4 py-5 border-b border-white/[0.06]">
@@ -1562,16 +1541,6 @@ export default function TrendingFeed() {
                 </div>
               </div>
             )}
-
-            {/* Community Tip */}
-            <div className="px-4 py-5 border-b border-white/[0.06]">
-              <p className="text-white/40 text-[11px] font-semibold uppercase tracking-wider mb-3">Community Tip</p>
-              <div className="bg-gradient-to-br from-[#FE2C55]/5 to-transparent rounded-xl p-4 border border-[#FE2C55]/10">
-                <p className="text-white/60 text-xs leading-relaxed">
-                  Double-tap any transformation to show appreciation. Your engagement helps stylists reach more people!
-                </p>
-              </div>
-            </div>
 
             {/* Trending Services */}
             {services.length > 0 && (

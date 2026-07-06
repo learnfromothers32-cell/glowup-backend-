@@ -1304,7 +1304,7 @@ export default function TrendingFeed() {
 
     {/* ── Desktop & Tablet: Scrollable Feed (768px+) ── */}
     <div className="hidden md:block min-h-screen bg-black">
-      <div className="flex">
+      <div className="flex w-full max-w-full overflow-hidden">
         {/* Left Sidebar (lg+) */}
         <aside className="hidden lg:flex lg:w-[240px] xl:w-[280px] 2xl:w-[300px] shrink-0 sticky top-0 h-screen flex-col bg-zinc-950/50 border-r border-white/[0.06]">
           <div className="px-5 py-6 border-b border-white/[0.06]">
@@ -1545,32 +1545,6 @@ export default function TrendingFeed() {
                     <p className="text-white/60 text-[11px] mt-0.5 truncate">{stylists[0].category || 'Stylist'} · Featured</p>
                   </div>
                 </button>
-              </div>
-            )}
-
-            {/* Popular Stylists */}
-            {stylists.length > 1 && (
-              <div className="px-4 py-5 border-b border-white/[0.06]">
-                <p className="text-white/40 text-[11px] font-semibold uppercase tracking-wider mb-3">Popular Stylists</p>
-                <div className="flex flex-col gap-3">
-                  {stylists.slice(1, 5).map(s => (
-                    <button key={s.id} onClick={() => navigate(`/app/stylist/${s.id}`)} className="flex items-center gap-3 group">
-                      <div className="relative w-8 h-8 shrink-0">
-                        {s.image ? (
-                          <img src={imgUrl(s.image)} className="absolute inset-0 w-full h-full rounded-full object-cover z-10" alt={s.name} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                        ) : null}
-                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                          <span className="text-white/50 text-xs font-bold">{s.name[0]}</span>
-                        </div>
-                      </div>
-                      <div className="min-w-0 text-left flex-1">
-                        <p className="text-white text-sm font-medium truncate group-hover:underline">{s.name}</p>
-                        <p className="text-white/30 text-[11px] truncate">{s.category || 'Stylist'}</p>
-                      </div>
-                      <span className="text-white/20 text-[10px] font-medium group-hover:text-white/40 transition-colors">Follow</span>
-                    </button>
-                  ))}
-                </div>
               </div>
             )}
 

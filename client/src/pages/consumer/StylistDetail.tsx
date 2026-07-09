@@ -399,6 +399,10 @@ function EmptyState({
   );
 }
 
+function hasMetricsOrCaption(item: { likes?: number; views?: number; caption?: string; service?: string }) {
+  return (item.likes ?? 0) > 0 || (item.views ?? 0) > 0 || !!item.caption || !!item.service;
+}
+
 function PortfolioCarousel({
   items,
   onView,
@@ -478,34 +482,36 @@ function PortfolioCarousel({
               className="absolute inset-0 w-full h-full object-cover"
             />
           )}
-          <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
-            <div className="flex items-center gap-3">
-              {item.likes !== undefined && item.likes > 0 && (
-                <span className="flex items-center gap-1 text-white text-[11px] font-semibold">
-                  <Heart size={11} fill="#f43f5e" stroke="#f43f5e" />
-                  {formatCount(item.likes)}
-                </span>
-              )}
-              {item.views !== undefined && item.views > 0 && (
-                <span className="flex items-center gap-1 text-white/80 text-[11px] font-semibold">
-                  <Eye size={11} />
-                  {formatCount(item.views)}
-                </span>
-              )}
-            </div>
-            {(item.caption || item.service) && (
-              <div className="mt-1">
-                {item.service && (
-                  <p className="text-xs font-semibold text-white">
-                    {item.service}
-                  </p>
+          {hasMetricsOrCaption(item) && (
+            <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
+              <div className="flex items-center gap-3">
+                {(item.likes ?? 0) > 0 && (
+                  <span className="flex items-center gap-1 text-white text-[11px] font-semibold">
+                    <Heart size={11} fill="#f43f5e" stroke="#f43f5e" />
+                    {formatCount(item.likes!)}
+                  </span>
                 )}
-                {item.caption && (
-                  <p className="text-[10px] text-white/60 mt-0.5 leading-tight line-clamp-1">{item.caption}</p>
+                {(item.views ?? 0) > 0 && (
+                  <span className="flex items-center gap-1 text-white/80 text-[11px] font-semibold">
+                    <Eye size={11} />
+                    {formatCount(item.views!)}
+                  </span>
                 )}
               </div>
-            )}
-          </div>
+              {(item.caption || item.service) && (
+                <div className="mt-1">
+                  {item.service && (
+                    <p className="text-xs font-semibold text-white">
+                      {item.service}
+                    </p>
+                  )}
+                  {item.caption && (
+                    <p className="text-[10px] text-white/60 mt-0.5 leading-tight line-clamp-1">{item.caption}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </motion.button>
 
@@ -753,18 +759,22 @@ function PortfolioTab({
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute bottom-0 inset-x-0 p-1.5 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  {(item.likes ?? 0) > 0 && (
-                    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-black/50 backdrop-blur-sm">
-                      <Heart size={9} fill="#f43f5e" stroke="#f43f5e" />
-                      <span className="text-[10px] font-semibold text-white">{formatCount(item.likes!)}</span>
-                    </span>
-                  )}
-                  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-black/50 backdrop-blur-sm">
-                    <Eye size={9} className="text-white" />
-                    <span className="text-[10px] font-semibold text-white">{formatCount(item.views ?? 0)}</span>
-                  </span>
-                </div>
+                {(item.likes ?? 0) > 0 || (item.views ?? 0) > 0 ? (
+                  <div className="absolute bottom-0 inset-x-0 p-1.5 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    {(item.likes ?? 0) > 0 && (
+                      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-black/50 backdrop-blur-sm">
+                        <Heart size={9} fill="#f43f5e" stroke="#f43f5e" />
+                        <span className="text-[10px] font-semibold text-white">{formatCount(item.likes!)}</span>
+                      </span>
+                    )}
+                    {(item.views ?? 0) > 0 && (
+                      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-black/50 backdrop-blur-sm">
+                        <Eye size={9} className="text-white" />
+                        <span className="text-[10px] font-semibold text-white">{formatCount(item.views!)}</span>
+                      </span>
+                    )}
+                  </div>
+                ) : null}
               </motion.button>
             ))}
           </div>

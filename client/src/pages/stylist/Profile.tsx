@@ -8,6 +8,7 @@ import {
 import { getMyStylistProfile, updateMyProfile, uploadProfileImage } from "../../api/stylists";
 import { useAuth } from "../../context/authUtils";
 import { getMe } from "../../api/auth";
+import api from "../../api/axios";
 import { getLocationString } from "@/utils/location";
 import StylistLocationPicker from "../../components/stylist/StylistLocationPicker";
 import type { LocationValue } from "../../components/stylist/StylistLocationPicker";
@@ -117,6 +118,7 @@ export default function Profile() {
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldError[]>([]);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [uploadLimitMB, setUploadLimitMB] = useState(100);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const categoryRef = useRef<HTMLDivElement>(null);
 
@@ -143,6 +145,14 @@ export default function Profile() {
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  useEffect(() => {
+    api.get<{ data: { maxUploadSizeMB: number } }>('/config/public')
+      .then(({ data }) => {
+        if (data?.data?.maxUploadSizeMB) setUploadLimitMB(data.data.maxUploadSizeMB);
+      })
+      .catch(() => {});
   }, []);
 
   const getFieldError = (field: string): string | undefined => {
@@ -206,8 +216,8 @@ export default function Profile() {
       setError("Please select an image file");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Image must be under 5MB");
+    if (file.size > uploadLimitMB * 1024 * 1024) {
+      setError(`File exceeds ${uploadLimitMB}MB limit`);
       return;
     }
 

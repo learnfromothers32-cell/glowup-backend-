@@ -7,6 +7,7 @@ import {
   uploadArticleImage,
   type Article,
 } from '../../api/tips';
+import api from '../../api/axios';
 import {
   FileText,
   Plus,
@@ -75,8 +76,17 @@ export default function Articles() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [uploadLimitMB, setUploadLimitMB] = useState(100);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    api.get<{ data: { maxUploadSizeMB: number } }>('/config/public')
+      .then(({ data }) => {
+        if (data?.data?.maxUploadSizeMB) setUploadLimitMB(data.data.maxUploadSizeMB);
+      })
+      .catch(() => {});
+  }, []);
 
   const showSuccess = (msg: string) => {
     setSuccessMsg(msg);
@@ -140,6 +150,12 @@ export default function Articles() {
   };
 
   const handleImageUpload = async (file: File) => {
+    if (file.size > uploadLimitMB * 1024 * 1024) {
+      setError(`File exceeds ${uploadLimitMB}MB limit`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (ev) => setImagePreview(ev.target?.result as string);
     reader.readAsDataURL(file);
@@ -161,7 +177,15 @@ export default function Articles() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) handleImageUpload(file);
+    if (file && file.type.startsWith('image/')) {
+      if (file.size > uploadLimitMB * 1024 * 1024) {
+        setError(`File exceeds ${uploadLimitMB}MB limit`);
+        return;
+      }
+      handleImageUpload(file);
+    } else if (file) {
+      setError('Please select an image file (PNG, JPG, WebP)');
+    }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -444,7 +468,7 @@ export default function Articles() {
                             Drop an image here or click to browse
                           </p>
                           <p className="text-xs text-text-muted dark:text-text-dark-muted">
-                            PNG, JPG or WebP up to 10MB
+                            {`PNG, JPG or WebP · Max ${uploadLimitMB}MB`}
                           </p>
                         </>
                       )}

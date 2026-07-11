@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../context/authUtils";
 import { useGamification } from "../../hooks/useGamification";
 import { updateProfile as updateProfileApi, getMe, uploadAvatar } from "../../api/auth";
+import api from "../../api/axios";
 import { Card } from "../../components/ui/Card";
 import { Avatar } from "../../components/ui/Avatar";
 import { Button } from "../../components/ui/Button";
@@ -183,13 +184,35 @@ export default function ConsumerProfile() {
   }));
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadLimitMB, setUploadLimitMB] = useState(100);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { points, badges, checkInStreak } = useGamification();
+
+  useEffect(() => {
+    api.get<{ data: { maxUploadSizeMB: number } }>('/config/public')
+      .then(({ data }) => {
+        if (data?.data?.maxUploadSizeMB) setUploadLimitMB(data.data.maxUploadSizeMB);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please select an image file");
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+    if (file.size > uploadLimitMB * 1024 * 1024) {
+      setUploadError(`File exceeds ${uploadLimitMB}MB limit`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    setUploadError(null);
     setUploading(true);
     try {
       const formData = new FormData();
@@ -197,8 +220,9 @@ export default function ConsumerProfile() {
       const res = await uploadAvatar(formData);
       setProfileUser((prev) => prev ? { ...prev, avatar: res.data.avatar } : null);
       updateUser(res.data.user);
-    } catch {
-      // upload failed
+    } catch (err: unknown) {
+      const msg = (err as any)?.response?.data?.message || (err as any)?.message || "Failed to upload image";
+      setUploadError(msg);
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -289,6 +313,9 @@ export default function ConsumerProfile() {
                 <p className="text-sm text-text-muted dark:text-text-dark-muted mb-3">
                   Member since {memberSince}
                 </p>
+                {uploadError && (
+                  <p className="text-[11px] text-error mb-2">{uploadError}</p>
+                )}
                 <Button
                   onClick={() => setShowEdit(true)}
                   variant="outline"

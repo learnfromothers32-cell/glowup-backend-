@@ -107,9 +107,10 @@ export const uploadPortfolioImage = async (formData: FormData): Promise<any> => 
   return data.data;
 };
 
-export const savePortfolioMedia = async (formData: FormData): Promise<any> => {
+export const savePortfolioMedia = async (formData: FormData, signal?: AbortSignal): Promise<any> => {
   const { data } = await api.post('/stylists/portfolio/batch', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    signal,
   });
   return data.data;
 };

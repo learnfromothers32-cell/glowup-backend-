@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { Sparkles, Download, Heart, ArrowLeftRight, RotateCcw, Check, X, Image as ImageIcon, Camera, ChevronRight, Star, Shield, Zap, Globe, CreditCard, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -17,6 +17,7 @@ import LanguageSwitcher from "../../components/seo/LanguageSwitcher";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Skeleton } from "../../components/ui/Skeleton";
+import api from "../../api/axios";
 
 const CATEGORIES = [
   { id: "all", labelKey: "categories.all" },
@@ -75,6 +76,7 @@ export default function HairstyleStudioPage() {
   });
   const [creditPackages, setCreditPackages] = useState<Array<{ _id: string; name: string; credits: number; price: number; popular: boolean }> | null>(null);
   const [faceAnalysis, setFaceAnalysis] = useState<{ faceShape: string; confidence: number } | null>(null);
+  const [uploadLimitMB, setUploadLimitMB] = useState(100);
   const inputRef = useRef<HTMLInputElement>(null);
   const generationIdRef = useRef(0);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -85,6 +87,14 @@ export default function HairstyleStudioPage() {
   const generateMutation = useGenerateHairstyle();
   const saveFavoriteMutation = useSaveFavorite();
   const deleteMutation = useDeleteResult();
+
+  useEffect(() => {
+    api.get<{ data: { maxUploadSizeMB: number } }>('/config/public')
+      .then(({ data }) => {
+        if (data?.data?.maxUploadSizeMB) setUploadLimitMB(data.data.maxUploadSizeMB);
+      })
+      .catch(() => {});
+  }, []);
 
   const hasPhoto = !!uploadedFile && !!photoUrl;
   const isGenerating = !!selectedHairstyle && !generatedImage;
@@ -103,8 +113,14 @@ export default function HairstyleStudioPage() {
   }, [hairstyles]);
 
   const handleFile = useCallback((file: File) => {
-    if (!file.type.startsWith("image/")) return;
-    if (file.size > 10 * 1024 * 1024) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file (JPEG, PNG, WebP)");
+      return;
+    }
+    if (file.size > uploadLimitMB * 1024 * 1024) {
+      setError(`File exceeds ${uploadLimitMB}MB limit`);
+      return;
+    }
     if (photoUrl) URL.revokeObjectURL(photoUrl);
     setUploadedFile(file);
     setPhotoUrl(URL.createObjectURL(file));
@@ -186,12 +202,6 @@ export default function HairstyleStudioPage() {
     setCurrentResult(null);
     setShowBefore(false);
 
-    setCredits((prev) => {
-      const next = (prev ?? 5) - 1;
-      localStorage.setItem("hairstyle_credits", String(next));
-      return next;
-    });
-
     const genId = ++generationIdRef.current;
 
     const dims = imageDimensions;
@@ -212,16 +222,23 @@ export default function HairstyleStudioPage() {
       { hairstyleId: id, image: uploadedFile, hairMask: maskDataUrl },
       {
         onSuccess: (data) => {
-          if (genId === generationIdRef.current) setCurrentResult(data.result);
+          if (genId === generationIdRef.current) {
+            setCurrentResult(data.result);
+            const balance = data.credits?.balance;
+            if (balance !== undefined) {
+              setCredits(balance);
+              localStorage.setItem("hairstyle_credits", String(balance));
+            }
+          }
         },
-        onError: () => {
+        onError: (err: any) => {
           if (genId === generationIdRef.current && !generatedImage) {
-            setError("Generation failed. The preview is shown without AI enhancement.");
+            setError(err?.response?.data?.message || err?.message || "Generation failed. Please try again.");
           }
         },
       }
     );
-  }, [hairstyles, uploadedFile, generateMutation, photoUrl, faceGeometry, faceLandmarks, imageDimensions, credits]);
+  }, [hairstyles, uploadedFile, generateMutation, photoUrl, faceGeometry, faceLandmarks, imageDimensions]);
 
   const handleToggleFavorite = useCallback((resultId: string) => {
     saveFavoriteMutation.mutate(resultId);
@@ -361,7 +378,7 @@ export default function HairstyleStudioPage() {
                   </p>
                   <div className="flex items-center gap-1.5 text-xs text-text-muted dark:text-text-dark-muted mb-4">
                     <Camera size={12} />
-                    <span>{t("upload.maxSize")}</span>
+                    <span>{`JPEG, PNG, WebP · Max ${uploadLimitMB}MB`}</span>
                   </div>
                 <Button size="lg" className="shadow-lg shadow-black/10">
                   <Camera size={14} /> {t("upload.cta")}

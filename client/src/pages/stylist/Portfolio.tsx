@@ -266,6 +266,16 @@ export default function Portfolio() {
   const [uploadLimitMB, setUploadLimitMB] = useState(100);
   const uploadLimitBytes = uploadLimitMB * 1024 * 1024;
   const transformUrlRef = useRef<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const handleCancelUpload = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    setSaving(false);
+    setError(null);
+  }, []);
 
   const getErrorMessage = (error: unknown, fallback: string) => {
     if (typeof error === "object" && error !== null) {
@@ -458,13 +468,15 @@ export default function Portfolio() {
 
   const handleSaveAll = async () => {
     if (pendingFiles.length === 0) return;
+    const controller = new AbortController();
+    abortRef.current = controller;
     try {
       setSaving(true);
       setError(null);
       const formData = new FormData();
       pendingFiles.forEach((p) => formData.append("media", p.file));
       formData.append("types", JSON.stringify(pendingFiles.map((p) => p.type)));
-      const result = await savePortfolioMedia(formData);
+      const result = await savePortfolioMedia(formData, controller.signal);
       if (!mountedRef.current) return;
       setPortfolioItems(result.portfolioImages);
       pendingFiles.forEach((p) => {
@@ -474,8 +486,10 @@ export default function Portfolio() {
       showSuccess(`Saved ${result.portfolioImages.length > 0 ? "media" : ""}`);
     } catch (err: unknown) {
       if (!mountedRef.current) return;
+      if ((err as any)?.name === "CanceledError" || (err as any)?.code === "ERR_CANCELED") return;
       setError(getErrorMessage(err, "Save failed"));
     } finally {
+      abortRef.current = null;
       if (mountedRef.current) setSaving(false);
     }
   };
@@ -585,11 +599,21 @@ export default function Portfolio() {
                         });
                         setPendingFiles([]);
                       }}
+                      disabled={saving}
                       variant="secondary"
                       size="sm"
                     >
                       Clear all
                     </Button>
+                    {saving ? (
+                      <Button
+                        onClick={handleCancelUpload}
+                        variant="secondary"
+                        size="sm"
+                      >
+                        <X size={13} /> Cancel
+                      </Button>
+                    ) : null}
                     <Button
                       onClick={handleSaveAll}
                       disabled={saving}
@@ -949,7 +973,7 @@ export default function Portfolio() {
                       return;
                     }
                     if (file.size > uploadLimitBytes) {
-                      setTransformFileError(`File must be under ${uploadLimitMB}MB`);
+                      setTransformFileError(`File exceeds ${uploadLimitMB}MB limit`);
                       return;
                     }
                     setTransformUploading(true);

@@ -7,18 +7,27 @@ interface ImageUploaderProps {
   imageUrl?: string | null;
   disabled?: boolean;
   className?: string;
+  maxUploadSizeMB?: number;
 }
 
-export default function ImageUploader({ onUpload, imageUrl, disabled, className }: ImageUploaderProps) {
+export default function ImageUploader({ onUpload, imageUrl, disabled, className, maxUploadSizeMB = 100 }: ImageUploaderProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const displayUrl = imageUrl || preview;
 
   const handleFile = useCallback((file: File) => {
-    if (!file.type.startsWith("image/")) return;
-    if (file.size > 10 * 1024 * 1024) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file (JPEG, PNG, WebP)");
+      return;
+    }
+    if (file.size > maxUploadSizeMB * 1024 * 1024) {
+      setError(`File exceeds ${maxUploadSizeMB}MB limit`);
+      return;
+    }
+    setError(null);
     const url = URL.createObjectURL(file);
     if (preview) URL.revokeObjectURL(preview);
     setPreview(url);
@@ -44,6 +53,11 @@ export default function ImageUploader({ onUpload, imageUrl, disabled, className 
 
   return (
     <div className={cn("relative", className)}>
+      {error && (
+        <div className="absolute top-2 left-2 right-2 z-10 p-2 rounded-xl bg-red-50 border border-red-100 text-xs text-red-600">
+          {error}
+        </div>
+      )}
       {displayUrl ? (
         <div className="relative rounded-2xl overflow-hidden group bg-gray-100">
           <img
@@ -88,7 +102,7 @@ export default function ImageUploader({ onUpload, imageUrl, disabled, className 
           </div>
           <div className="text-center">
             <p className="text-sm font-semibold text-gray-700">Upload your photo</p>
-            <p className="text-xs text-gray-400 mt-0.5">JPEG, PNG, WebP · Max 10MB</p>
+            <p className="text-xs text-gray-400 mt-0.5">{`JPEG, PNG, WebP · Max ${maxUploadSizeMB}MB`}</p>
           </div>
           <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
             <Camera size={10} />

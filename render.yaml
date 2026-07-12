@@ -3,7 +3,7 @@ services:
     name: glowup-backend
     env: node
     rootDir: server
-    buildCommand: npm install --include=dev && npm run build
+    buildCommand: npm ci --omit=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/hello
     envVars:
@@ -36,6 +36,6 @@ services:
       - key: MAX_UPLOAD_SIZE_MB
         sync: false
       - key: SENTRY_DSN
-        value: https://1070fc8faab3ace4632e09d63aa3b3d2@o4511657385000960.ingest.us.sentry.io/4511657392472064
+        sync: false
       - key: VITE_SENTRY_DSN
-        value: https://1070fc8faab3ace4632e09d63aa3b3d2@o4511657385000960.ingest.us.sentry.io/4511657392472064
+        sync: false

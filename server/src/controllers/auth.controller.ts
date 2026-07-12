@@ -8,6 +8,7 @@ import { sendSuccess } from '../utils/apiResponse';
 import { signAccessToken, signRefreshToken, verifyRefreshToken, hashToken } from '../utils/token';
 import { createUser, findUserForLogin, toPublicUser, findOrCreateSocialUser } from '../services/user.service';
 import { appConfig } from '../config/app';
+import logger from '../utils/logger';
 import { admin } from '../config/firebase';
 import { verifyFirebaseToken } from '../utils/firebase-verify';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../services/email.service';
@@ -45,7 +46,9 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
   await user.save();
 
-  sendVerificationEmail(user.email, verificationToken);
+  sendVerificationEmail(user.email, verificationToken).catch((err) => {
+    logger.error('Failed to send verification email', { error: (err as Error).message });
+  });
 
   setRefreshCookie(res, refreshToken);
 
@@ -303,7 +306,9 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
   user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000);
   await user.save();
 
-  sendPasswordResetEmail(user.email, resetToken);
+  sendPasswordResetEmail(user.email, resetToken).catch((err) => {
+    logger.error('Failed to send password reset email', { error: (err as Error).message });
+  });
 
   return sendSuccess(res, null, 'If that email is registered, a reset link has been sent');
 });

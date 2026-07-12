@@ -265,6 +265,8 @@ export const updateMyProfile = asyncHandler(async (req: Request, res: Response) 
     }
   }
 
+  await stylist.save();
+
   const services = await Service.find({ stylistId: stylist.id, isActive: true });
   return sendSuccess(res, { stylist: toPublicStylist(stylist, services) }, 'Profile updated');
 });

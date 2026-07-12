@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import { PosTransaction } from '../models/PosTransaction';
 import { Product } from '../models/Product';
@@ -50,28 +51,42 @@ export const createPosTransaction = asyncHandler(async (req: Request, res: Respo
     };
   });
 
-  // Update product stock for product items
-  for (const item of processedItems) {
-    if (item.type === 'product') {
-      await Product.findByIdAndUpdate(item.itemId, {
-        $inc: { stock: -item.quantity }
-      });
-    }
-  }
-
   const discountAmount = discount || 0;
   const tax = 0;
   const total = subtotal - discountAmount + tax;
 
-  const transaction = await PosTransaction.create({
-    stylistId: stylist.id, clientName, clientId: clientId || null,
-    items: processedItems, subtotal, discount: discountAmount,
-    tax, total, paymentMethod: paymentMethod || 'cash',
-    paymentRef: paymentRef || '', receiptNumber: generateReceiptNumber(),
-    status: 'completed', notes: notes || ''
-  });
+  const session = await mongoose.startSession();
+  let transaction: InstanceType<typeof PosTransaction>;
+  try {
+    await session.withTransaction(async () => {
+      for (const item of processedItems) {
+        if (item.type === 'product') {
+          const updated = await Product.findByIdAndUpdate(
+            item.itemId,
+            { $inc: { stock: -item.quantity } },
+            { new: true, session },
+          );
+          if (!updated || updated.stock < 0) {
+            throw new ApiError(409, `Insufficient stock for ${item.name}`);
+          }
+        }
+      }
 
-  return sendSuccess(res, { transaction }, 'Transaction completed', 201);
+      const created = await PosTransaction.create([{
+        stylistId: stylist.id, clientName, clientId: clientId || null,
+        items: processedItems, subtotal, discount: discountAmount,
+        tax, total, paymentMethod: paymentMethod || 'cash',
+        paymentRef: paymentRef || '', receiptNumber: generateReceiptNumber(),
+        status: 'completed', notes: notes || ''
+      }], { session });
+
+      transaction = created[0];
+    });
+
+    return sendSuccess(res, { transaction: transaction! }, 'Transaction completed', 201);
+  } finally {
+    session.endSession();
+  }
 });
 
 export const voidPosTransaction = asyncHandler(async (req: Request, res: Response) => {
@@ -85,8 +100,25 @@ export const voidPosTransaction = asyncHandler(async (req: Request, res: Respons
     throw new ApiError(400, 'Only completed transactions can be voided');
   }
 
-  transaction.status = 'voided';
-  await transaction.save();
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      for (const item of transaction.items) {
+        if (item.type === 'product') {
+          await Product.findByIdAndUpdate(
+            item.itemId,
+            { $inc: { stock: item.quantity } },
+            { session },
+          );
+        }
+      }
 
-  return sendSuccess(res, { transaction }, 'Transaction voided');
+      transaction.status = 'voided';
+      await transaction.save({ session });
+    });
+
+    return sendSuccess(res, { transaction }, 'Transaction voided');
+  } finally {
+    session.endSession();
+  }
 });

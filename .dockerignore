@@ -1,6 +1,4 @@
-cd C:\Users\learn\desktop\startup
-
-$content = "node_modules
+node_modules
 dist
 .env
 .env.*
@@ -10,9 +8,7 @@ npm-debug.log
 .github
 *.md
 coverage
-.DS_Store"
-
-$content | Out-File -FilePath "client/.dockerignore" -Encoding utf8
-$content | Out-File -FilePath "server/.dockerignore" -Encoding utf8
-
-Write-Host "Done" -ForegroundColor Green
+.DS_Store
+uploads
+*.log
+server/logs

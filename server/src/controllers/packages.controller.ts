@@ -1,9 +1,15 @@
+import Paystack from 'paystack-sdk';
 import { Request, Response } from 'express';
 import { Package, PackagePurchase } from '../models/Package';
 import { Stylist } from '../models/Stylist';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { ApiError } from '../utils/apiError';
 import { sendSuccess } from '../utils/apiResponse';
+import { appConfig, isProduction } from '../config/app';
+import logger from '../utils/logger';
+
+const paystackSecret = appConfig.paystackSecretKey;
+const paystack = paystackSecret ? new Paystack(paystackSecret) : null;
 
 export const getStylistPackages = asyncHandler(async (req: Request, res: Response) => {
   const stylist = await Stylist.findById(req.params.stylistId);
@@ -76,9 +82,10 @@ export const deletePackage = asyncHandler(async (req: Request, res: Response) =>
 
 export const purchasePackage = asyncHandler(async (req: Request, res: Response) => {
   const clientId = req.user?.id;
-  const { packageId } = req.body;
+  const { packageId, paymentRef } = req.body;
 
   if (!packageId) throw new ApiError(400, 'Package ID is required');
+  if (!paymentRef || typeof paymentRef !== 'string') throw new ApiError(400, 'paymentRef is required');
 
   const pkg = await Package.findById(packageId);
   if (!pkg) throw new ApiError(404, 'Package not found');
@@ -86,6 +93,23 @@ export const purchasePackage = asyncHandler(async (req: Request, res: Response) 
 
   const existing = await PackagePurchase.findOne({ packageId, clientId, status: 'active' });
   if (existing) throw new ApiError(400, 'You already have an active purchase for this package');
+
+  if (paystack && isProduction) {
+    try {
+      const verification = await (paystack.transaction.verify as any)(paymentRef);
+      if (verification.data.status !== 'success') {
+        throw new ApiError(402, 'Payment not verified');
+      }
+      const paidAmount = verification.data.amount / 100;
+      if (Math.abs(paidAmount - pkg.price) > 0.01) {
+        throw new ApiError(402, 'Payment amount does not match package price');
+      }
+    } catch (err) {
+      if (err instanceof ApiError) throw err;
+      logger.error('Paystack verification failed for package purchase', { error: (err as Error).message });
+      throw new ApiError(502, 'Payment verification failed');
+    }
+  }
 
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + pkg.expiryDays);

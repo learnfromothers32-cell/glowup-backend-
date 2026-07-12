@@ -1,9 +1,15 @@
+import Paystack from 'paystack-sdk';
 import { Request, Response } from 'express';
 import { MembershipTier, MemberSubscription } from '../models/Membership';
 import { Stylist } from '../models/Stylist';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { ApiError } from '../utils/apiError';
 import { sendSuccess } from '../utils/apiResponse';
+import { appConfig, isProduction } from '../config/app';
+import logger from '../utils/logger';
+
+const paystackSecret = appConfig.paystackSecretKey;
+const paystack = paystackSecret ? new Paystack(paystackSecret) : null;
 
 export const getStylistTiers = asyncHandler(async (req: Request, res: Response) => {
   const stylist = await Stylist.findById(req.params.stylistId);
@@ -70,9 +76,10 @@ export const deleteTier = asyncHandler(async (req: Request, res: Response) => {
 
 export const subscribeToTier = asyncHandler(async (req: Request, res: Response) => {
   const clientId = req.user?.id;
-  const { tierId } = req.body;
+  const { tierId, paymentRef } = req.body;
 
   if (!tierId) throw new ApiError(400, 'Tier ID is required');
+  if (!paymentRef || typeof paymentRef !== 'string') throw new ApiError(400, 'paymentRef is required');
 
   const tier = await MembershipTier.findById(tierId);
   if (!tier) throw new ApiError(404, 'Membership tier not found');
@@ -80,6 +87,23 @@ export const subscribeToTier = asyncHandler(async (req: Request, res: Response) 
 
   const existing = await MemberSubscription.findOne({ tierId, clientId, status: 'active' });
   if (existing) throw new ApiError(400, 'You already have an active subscription to this tier');
+
+  if (paystack && isProduction) {
+    try {
+      const verification = await (paystack.transaction.verify as any)(paymentRef);
+      if (verification.data.status !== 'success') {
+        throw new ApiError(402, 'Payment not verified');
+      }
+      const paidAmount = verification.data.amount / 100;
+      if (Math.abs(paidAmount - tier.price) > 0.01) {
+        throw new ApiError(402, 'Payment amount does not match tier price');
+      }
+    } catch (err) {
+      if (err instanceof ApiError) throw err;
+      logger.error('Paystack verification failed for membership subscription', { error: (err as Error).message });
+      throw new ApiError(502, 'Payment verification failed');
+    }
+  }
 
   const nextBilling = new Date();
   switch (tier.billingCycle) {

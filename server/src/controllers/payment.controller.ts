@@ -168,15 +168,28 @@ export const paystackWebhook = asyncHandler(async (req: Request, res: Response) 
   if (!signature) {
     return res.status(401).json({ status: 'unauthorized' });
   }
+
+  // req.body is a raw Buffer from express.raw() — use it directly for HMAC verification
+  const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(JSON.stringify(req.body));
   const hash = crypto
     .createHmac('sha512', paystackSecret)
-    .update(JSON.stringify(req.body))
+    .update(rawBody)
     .digest('hex');
-  if (hash !== signature) {
+  const sigBuf = Buffer.from(signature, 'utf8');
+  const hashBuf = Buffer.from(hash, 'utf8');
+  if (sigBuf.length !== hashBuf.length || !crypto.timingSafeEqual(sigBuf, hashBuf)) {
     return res.status(401).json({ status: 'invalid signature' });
   }
 
-  const event = req.body;
+  // Parse the raw body to a JSON object for event processing
+  let event: any;
+  if (Buffer.isBuffer(req.body)) {
+    event = JSON.parse(req.body.toString('utf8'));
+  } else if (typeof req.body === 'string') {
+    event = JSON.parse(req.body);
+  } else {
+    event = req.body;
+  }
 
   if (event.event === 'charge.success') {
     const { reference } = event.data;

@@ -14,6 +14,7 @@ import { errorHandler, notFound } from './middleware/error.middleware';
 import { csrfProtect } from './middleware/csrf.middleware';
 import { generalLimiter } from './middleware/rateLimiter';
 import { correlationId } from './middleware/correlationId';
+import logger from './utils/logger';
 
 const app = express();
 
@@ -31,11 +32,10 @@ app.use(correlationId);
 app.use(helmet());
 app.use(cors({
   origin: (origin, cb) => {
-    const allowed = [
-      appConfig.clientUrl,
-      'http://localhost:5173',
-      'http://localhost:5000',
-    ];
+    const allowed = [appConfig.clientUrl];
+    if (appConfig.env !== 'production') {
+      allowed.push('http://localhost:5173', 'http://localhost:5000');
+    }
     if (!origin || allowed.some((a) => origin === a || origin.startsWith(a + '/'))) {
       cb(null, true);
     } else {
@@ -46,14 +46,34 @@ app.use(cors({
 }));
 app.use(generalLimiter);
 app.use(compression());
-app.use(morgan('dev'));
+if (appConfig.env === 'production') {
+  app.use(morgan('combined', { stream: { write: (msg: string) => logger.info(msg.trim()) } }));
+} else {
+  app.use(morgan('dev'));
+}
+// Capture raw body for Paystack webhook signature verification (must be before JSON parser)
+app.use('/api/payments/webhook', express.raw({ type: 'application/json', limit: '500kb' }));
+
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 app.use(mongoSanitize());
 app.use('/api', csrfProtect);
 
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Serve uploads with type restrictions and rate limiting.
+// In production, prefer Cloudinary for file hosting — local uploads are a dev fallback.
+const ALLOWED_UPLOAD_EXTENSIONS = /\.(jpg|jpeg|png|gif|webp|mp4|mov|webm)$/i;
+app.use('/uploads', (req, _res, next) => {
+  if (!ALLOWED_UPLOAD_EXTENSIONS.test(req.path)) {
+    return _res.status(403).json({ success: false, message: 'File type not allowed' });
+  }
+  next();
+}, express.static(path.join(__dirname, '../uploads'), {
+  index: false,
+  dotfiles: 'deny',
+  immutable: true,
+  maxAge: '1d',
+}));
 
 app.use('/api/config', configRoutes);
 app.use('/api', apiRoutes);

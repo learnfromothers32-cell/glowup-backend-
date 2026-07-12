@@ -111,9 +111,14 @@ export const initializePaymentSchema = z.object({
 });
 
 export const createConversationSchema = z.object({
-  recipientId: z.string().min(1, 'recipientId is required'),
-  initialMessage: z.string().min(1, 'Message is required').max(2000),
-});
+  stylistId: z.string().min(1).optional(),
+  clientId: z.string().min(1).optional(),
+  bookingId: z.string().optional(),
+  subject: z.string().max(200).optional(),
+}).refine(
+  (data) => data.stylistId || data.clientId,
+  { message: 'Either stylistId or clientId is required' },
+);
 
 export const sendMessageSchema = z.object({
   content: z.string().min(1, 'Message is required').max(2000),

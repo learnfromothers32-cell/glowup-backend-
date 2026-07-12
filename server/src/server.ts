@@ -90,19 +90,31 @@ const shutdown = async (signal: string) => {
 
   forceKillTimer.unref();
 
-  server.close(() => {
-    logger.info('HTTP server closed');
+  server.close(async () => {
+    logger.info('HTTP server closed — draining complete');
+
+    const mongoose = await import('mongoose');
+    await mongoose.disconnect();
+    logger.info('MongoDB disconnected');
+
+    clearTimeout(forceKillTimer);
+    process.exit(0);
   });
-
-  const mongoose = await import('mongoose');
-  await mongoose.disconnect();
-  logger.info('MongoDB disconnected');
-
-  clearTimeout(forceKillTimer);
-  process.exit(0);
 };
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
 
-start();
+process.on('unhandledRejection', (reason: unknown) => {
+  logger.error('Unhandled promise rejection', { reason: reason instanceof Error ? reason.message : String(reason), stack: reason instanceof Error ? reason.stack : undefined });
+});
+
+process.on('uncaughtException', (err: Error) => {
+  logger.error('Uncaught exception — shutting down', { error: err.message, stack: err.stack });
+  process.exit(1);
+});
+
+start().catch((err) => {
+  logger.error('Failed to start server', { error: (err as Error).message, stack: (err as Error).stack });
+  process.exit(1);
+});

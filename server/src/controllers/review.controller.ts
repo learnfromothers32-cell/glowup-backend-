@@ -1,9 +1,20 @@
 import { Request, Response } from 'express';
 import { Review } from '../models/Review';
 import { Booking } from '../models/Booking';
+import { Stylist } from '../models/Stylist';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { ApiError } from '../utils/apiError';
 import { sendSuccess } from '../utils/apiResponse';
+
+async function recalculateStylistRating(stylistId: string) {
+  const reviews = await Review.find({ stylistId });
+  if (reviews.length === 0) {
+    await Stylist.findByIdAndUpdate(stylistId, { rating: 0, reviewCount: 0 });
+  } else {
+    const avgRating = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
+    await Stylist.findByIdAndUpdate(stylistId, { rating: avgRating, reviewCount: reviews.length });
+  }
+}
 
 export const createReview = asyncHandler(async (req: Request, res: Response) => {
   const { bookingId, rating, comment, images } = req.body;
@@ -63,5 +74,6 @@ export const deleteReview = asyncHandler(async (req: Request, res: Response) => 
   }
 
   await review.deleteOne();
+  await recalculateStylistRating(review.stylistId.toString());
   return sendSuccess(res, null, 'Review deleted');
 });

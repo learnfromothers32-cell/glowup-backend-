@@ -10,7 +10,7 @@ export const getClientDetail = async (id: string) => {
   return data.data;
 };
 
-export const updateClient = async (id: string, payload: any) => {
+export const updateClient = async (id: string, payload: Record<string, unknown>) => {
   const { data } = await api.put(`/clients/${id}`, payload);
   return data.data.client;
 };

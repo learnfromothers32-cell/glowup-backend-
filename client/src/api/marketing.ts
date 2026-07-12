@@ -5,12 +5,12 @@ export const getMyPromoCodes = async () => {
   return data.data.promos;
 };
 
-export const createPromoCode = async (payload: any) => {
+export const createPromoCode = async (payload: Record<string, unknown>) => {
   const { data } = await api.post('/marketing/promos', payload);
   return data.data.promo;
 };
 
-export const updatePromoCode = async (id: string, payload: any) => {
+export const updatePromoCode = async (id: string, payload: Record<string, unknown>) => {
   const { data } = await api.put(`/marketing/promos/${id}`, payload);
   return data.data.promo;
 };
@@ -24,7 +24,7 @@ export const getMyGiftCards = async () => {
   return data.data.giftCards;
 };
 
-export const createGiftCard = async (payload: any) => {
+export const createGiftCard = async (payload: Record<string, unknown>) => {
   const { data } = await api.post('/marketing/gift-cards', payload);
   return data.data.giftCard;
 };

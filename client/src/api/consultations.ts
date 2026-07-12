@@ -5,12 +5,12 @@ export const getMyForms = async () => {
   return data.data.forms;
 };
 
-export const createForm = async (payload: any) => {
+export const createForm = async (payload: Record<string, unknown>) => {
   const { data } = await api.post('/consultations/forms', payload);
   return data.data.form;
 };
 
-export const updateForm = async (id: string, payload: any) => {
+export const updateForm = async (id: string, payload: Record<string, unknown>) => {
   const { data } = await api.put(`/consultations/forms/${id}`, payload);
   return data.data.form;
 };
@@ -24,7 +24,7 @@ export const getFormResponses = async (formId: string) => {
   return data.data;
 };
 
-export const submitConsultationForm = async (formId: string, payload: { answers: { questionId: string; value: any }[]; bookingId?: string }) => {
+export const submitConsultationForm = async (formId: string, payload: { answers: { questionId: string; value: string | number | boolean }[]; bookingId?: string }) => {
   const { data } = await api.post(`/consultations/forms/${formId}/submit`, payload);
   return data.data.response;
 };

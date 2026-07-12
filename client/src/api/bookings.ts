@@ -54,5 +54,5 @@ export const getAvailableSlots = async ({ stylistId, date, serviceId }: GetAvail
   const { data } = await api.get(`/bookings/stylists/${stylistId}/available-slots`, {
     params: { date, serviceId },
   });
-  return data.data as { slots: AvailableSlot[]; services: any[]; date: string };
+  return data.data as { slots: AvailableSlot[]; services: Record<string, unknown>[]; date: string };
 };

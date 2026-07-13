@@ -155,7 +155,7 @@ export default function POS() {
                   className="w-full border border-gray-200 dark:border-gray-600 rounded-xl px-3 py-2 text-sm bg-white dark:bg-surface-dark-secondary text-text-primary dark:text-text-dark-primary mb-3">
                   <option value="cash">Cash</option>
                   <option value="card">Card</option>
-                  <option value="mobile_money">Mobile Money</option>
+                  <option value="mobile-money">Mobile Money</option>
                 </select>
                 <Button onClick={handleCheckout} disabled={saving || cart.length === 0 || !clientName.trim()} loading={saving} className="w-full">
                   Charge GH₵{subtotal.toFixed(0)}

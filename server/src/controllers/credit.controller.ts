@@ -1,15 +1,10 @@
-import Paystack from 'paystack-sdk';
 import { Request, Response } from 'express';
 import { asyncHandler } from '../middleware/asyncHandler';
 import { ApiError } from '../utils/apiError';
 import { sendSuccess } from '../utils/apiResponse';
 import { CreditPackage } from '../models/CreditPackage';
 import { UserCredit } from '../models/UserCredit';
-import { appConfig, isProduction } from '../config/app';
-import logger from '../utils/logger';
-
-const paystackSecret = appConfig.paystackSecretKey;
-const paystack = paystackSecret ? new Paystack(paystackSecret) : null;
+import { verifyPaymentReference } from '../services/payment/verify-payment';
 
 export const getCreditPackages = asyncHandler(async (_req: Request, res: Response) => {
   const packages = await CreditPackage.find({ active: true }).sort({ price: 1 });
@@ -35,22 +30,7 @@ export const purchaseCredits = asyncHandler(async (req: Request, res: Response) 
     throw new ApiError(400, 'paymentRef is required');
   }
 
-  if (paystack && isProduction) {
-    try {
-      const verification = await (paystack.transaction.verify as any)(paymentRef);
-      if (verification.data.status !== 'success') {
-        throw new ApiError(402, 'Payment not verified');
-      }
-      const paidAmount = verification.data.amount / 100;
-      if (Math.abs(paidAmount - creditPackage.price) > 0.01) {
-        throw new ApiError(402, 'Payment amount does not match package price');
-      }
-    } catch (err) {
-      if (err instanceof ApiError) throw err;
-      logger.error('Paystack verification failed for credit purchase', { error: (err as Error).message });
-      throw new ApiError(502, 'Payment verification failed');
-    }
-  }
+  await verifyPaymentReference(paymentRef, creditPackage.price);
 
   let credit = await UserCredit.findOne({ userId });
   if (!credit) {

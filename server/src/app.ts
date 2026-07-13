@@ -51,7 +51,7 @@ if (appConfig.env === 'production') {
 } else {
   app.use(morgan('dev'));
 }
-// Capture raw body for Paystack webhook signature verification (must be before JSON parser)
+// Capture raw body for payment webhook signature verification (must be before JSON parser)
 app.use('/api/payments/webhook', express.raw({ type: 'application/json', limit: '500kb' }));
 
 app.use(express.json({ limit: '10kb' }));

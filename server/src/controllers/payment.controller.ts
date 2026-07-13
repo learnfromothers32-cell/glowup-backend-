@@ -1,7 +1,5 @@
-import crypto from 'crypto';
 import mongoose from 'mongoose';
 import { Request, Response } from 'express';
-import Paystack from 'paystack-sdk';
 import { Booking } from '../models/Booking';
 import { Transaction } from '../models/Transaction';
 import { Stylist } from '../models/Stylist';
@@ -9,16 +7,21 @@ import { asyncHandler } from '../middleware/asyncHandler';
 import { ApiError } from '../utils/apiError';
 import { sendSuccess } from '../utils/apiResponse';
 import { isProduction, appConfig } from '../config/app';
+import { getProvider, isProviderConfigured } from '../services/payment/factory';
+import { CardPaymentProvider } from '../services/payment/types';
+import {
+  calculatePlatformFee,
+  calculateStylistPayout,
+  generateDevReference,
+} from '../services/payment/utils/platform-fee';
 import logger from '../utils/logger';
 
-const paystackSecret = appConfig.paystackSecretKey;
-const paystack = new Paystack(paystackSecret);
-
-const PLATFORM_FEE_PERCENT = 0.13;
+const DEFAULT_PROVIDER = 'paystack';
 
 export const initializePayment = asyncHandler(async (req: Request, res: Response) => {
-  const { bookingId, paymentMethod } = req.body;
+  const { bookingId, paymentMethod, paymentProvider } = req.body;
   const clientId = req.user?.id;
+  const providerName: string = paymentProvider || DEFAULT_PROVIDER;
 
   const booking = await Booking.findById(bookingId).populate('serviceId');
   if (!booking) {
@@ -34,28 +37,28 @@ export const initializePayment = asyncHandler(async (req: Request, res: Response
   }
 
   const amount = booking.totalPrice;
-  const platformFee = Math.round(amount * PLATFORM_FEE_PERCENT * 100);
-  const amountInKobo = amount * 100;
+  const platformFee = calculatePlatformFee(amount);
 
   const user = req.user;
   const method: 'card' | 'mobile-money' | 'cash' = paymentMethod || 'card';
 
   let reference: string;
-  let paymentData: any = null;
+  let authorizationUrl: string | null = null;
+  let accessCode: string | null = null;
 
-  if (!paystackSecret) {
+  if (!isProviderConfigured(providerName)) {
     if (isProduction) {
       throw new ApiError(503, 'Payment service is not configured');
     }
-    // Dev mode — simulate successful payment initialization
-    reference = `DEV-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    reference = generateDevReference();
   } else {
     try {
-      paymentData = await (paystack.transaction.initialize as any)({
-        email: (user as any).email || 'customer@example.com',
-        amount: String(amountInKobo),
+      const provider = getProvider(providerName);
+      const result = await provider.initializePayment({
+        amount,
         currency: 'GHS',
-        callback_url: `${appConfig.clientUrl}/payment/callback`,
+        email: (user as any).email || 'customer@example.com',
+        callbackUrl: `${appConfig.clientUrl}/payment/callback`,
         metadata: {
           bookingId: booking.id,
           clientId: booking.clientId.toString(),
@@ -64,25 +67,26 @@ export const initializePayment = asyncHandler(async (req: Request, res: Response
           platform_fee: platformFee,
         },
       });
+      reference = result.reference;
+      authorizationUrl = result.authorizationUrl;
+      accessCode = result.accessCode;
     } catch (error) {
-    logger.error('Payment initialization failed', { bookingId, error: (error as Error).message });
-    throw new ApiError(503, 'Payment service is temporarily unavailable');
-  }
-    reference = paymentData.data.reference;
+      logger.error('Payment initialization failed', { bookingId, error: (error as Error).message });
+      throw new ApiError(503, 'Payment service is temporarily unavailable');
+    }
   }
 
-  // Atomic: only create transaction if no duplicate paymentRef exists
   try {
     await Transaction.create({
       bookingId: booking.id,
       clientId: booking.clientId,
       stylistId: booking.stylistId,
       amount,
-      platformFee: Math.round(amount * PLATFORM_FEE_PERCENT),
-      stylistPayout: Math.round(amount * (1 - PLATFORM_FEE_PERCENT)),
+      platformFee,
+      stylistPayout: calculateStylistPayout(amount, platformFee),
       currency: 'GHS',
       status: 'pending',
-      paymentProvider: 'paystack',
+      paymentProvider: providerName,
       paymentRef: reference,
       paymentMethod: method,
     });
@@ -97,8 +101,8 @@ export const initializePayment = asyncHandler(async (req: Request, res: Response
   await booking.save();
 
   return sendSuccess(res, {
-    authorization_url: paymentData?.data?.authorization_url ?? null,
-    access_code: paymentData?.data?.access_code ?? null,
+    authorization_url: authorizationUrl,
+    access_code: accessCode,
     reference,
   });
 });
@@ -106,18 +110,20 @@ export const initializePayment = asyncHandler(async (req: Request, res: Response
 export const verifyPayment = asyncHandler(async (req: Request, res: Response) => {
   const { reference } = req.params;
 
-  let verification: any;
-  try {
-    verification = await (paystack.transaction.verify as any)(reference);
-  } catch (error) {
-    const transaction = await Transaction.findOne({ paymentRef: reference });
-    if (!transaction) {
-      throw new ApiError(404, 'Transaction not found');
-    }
-    return sendSuccess(res, { status: transaction.status, transaction });
+  const existing = await Transaction.findOne({ paymentRef: reference });
+  if (!existing) {
+    throw new ApiError(404, 'Transaction not found');
   }
 
-  if (verification.data.status === 'success') {
+  let verification: { status: string; reference: string; amount: number; currency: string };
+  try {
+    const provider = getProvider(existing.paymentProvider);
+    verification = await provider.verifyPayment(reference);
+  } catch (error) {
+    return sendSuccess(res, { status: existing.status, transaction: existing });
+  }
+
+  if (verification.status === 'success') {
     const session = await mongoose.startSession();
     try {
       const result = await session.withTransaction(async () => {
@@ -140,9 +146,9 @@ export const verifyPayment = asyncHandler(async (req: Request, res: Response) =>
       });
 
       if (result.alreadyProcessed) {
-        const existing = await Transaction.findOne({ paymentRef: reference });
-        logger.info('Audit: payment verify — already processed', { reference, status: existing?.status });
-        return sendSuccess(res, { status: existing?.status || 'paid', transaction: existing });
+        const txn = await Transaction.findOne({ paymentRef: reference });
+        logger.info('Audit: payment verify — already processed', { reference, status: txn?.status });
+        return sendSuccess(res, { status: txn?.status || 'paid', transaction: txn });
       }
 
       const tx = result.transaction!;
@@ -154,45 +160,29 @@ export const verifyPayment = asyncHandler(async (req: Request, res: Response) =>
   }
 
   return sendSuccess(res, {
-    status: verification.data.status || 'failed',
+    status: verification.status || 'failed',
   });
 });
 
-export const paystackWebhook = asyncHandler(async (req: Request, res: Response) => {
-  if (!paystackSecret) {
-    logger.warn('Paystack webhook received but PAYSTACK_SECRET_KEY is not configured');
+export const handleWebhook = asyncHandler(async (req: Request, res: Response) => {
+  const providerName: string = req.params.provider || DEFAULT_PROVIDER;
+
+  if (!isProviderConfigured(providerName)) {
+    logger.warn(`Webhook received for unconfigured provider: ${providerName}`);
     return res.status(200).json({ status: 'ok' });
   }
 
-  const signature = req.headers['x-paystack-signature'] as string;
-  if (!signature) {
-    return res.status(401).json({ status: 'unauthorized' });
-  }
-
-  // req.body is a raw Buffer from express.raw() — use it directly for HMAC verification
   const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(JSON.stringify(req.body));
-  const hash = crypto
-    .createHmac('sha512', paystackSecret)
-    .update(rawBody)
-    .digest('hex');
-  const sigBuf = Buffer.from(signature, 'utf8');
-  const hashBuf = Buffer.from(hash, 'utf8');
-  if (sigBuf.length !== hashBuf.length || !crypto.timingSafeEqual(sigBuf, hashBuf)) {
+  const provider = getProvider(providerName);
+
+  if (!provider.validateWebhookSignature(rawBody, req.headers as Record<string, string>)) {
     return res.status(401).json({ status: 'invalid signature' });
   }
 
-  // Parse the raw body to a JSON object for event processing
-  let event: any;
-  if (Buffer.isBuffer(req.body)) {
-    event = JSON.parse(req.body.toString('utf8'));
-  } else if (typeof req.body === 'string') {
-    event = JSON.parse(req.body);
-  } else {
-    event = req.body;
-  }
+  const webhookResult = provider.parseWebhookEvent(rawBody);
 
-  if (event.event === 'charge.success') {
-    const { reference } = event.data;
+  if (webhookResult.event === 'success') {
+    const { reference } = webhookResult;
 
     const session = await mongoose.startSession();
     try {
@@ -203,14 +193,14 @@ export const paystackWebhook = asyncHandler(async (req: Request, res: Response) 
           { new: true, session },
         );
         if (transaction) {
-          logger.info('Audit: payment webhook processed', { reference, bookingId: transaction.bookingId, amount: transaction.amount });
+          logger.info('Audit: payment webhook processed', { reference, provider: providerName, bookingId: transaction.bookingId, amount: transaction.amount });
           await Booking.findByIdAndUpdate(
             transaction.bookingId,
             { paymentStatus: 'paid' },
             { session },
           );
         } else {
-          logger.info('Audit: payment webhook skipped (already processed)', { reference });
+          logger.info('Audit: payment webhook skipped (already processed)', { reference, provider: providerName });
         }
       });
     } finally {
@@ -218,9 +208,9 @@ export const paystackWebhook = asyncHandler(async (req: Request, res: Response) 
     }
   }
 
-  if (event.event === 'charge.failed') {
-    const { reference } = event.data;
-    logger.warn('Payment charge failed', { reference });
+  if (webhookResult.event === 'failed') {
+    const { reference } = webhookResult;
+    logger.warn('Payment charge failed', { reference, provider: providerName });
     const transaction = await Transaction.findOneAndUpdate(
       { paymentRef: reference, status: 'pending' },
       { $set: { status: 'failed' } },
@@ -243,12 +233,14 @@ export const chargeCard = asyncHandler(async (req: Request, res: Response) => {
   if (booking.paymentStatus === 'paid') throw new ApiError(400, 'This booking has already been paid');
 
   const amount = booking.totalPrice;
-  const platformFee = Math.round(amount * PLATFORM_FEE_PERCENT);
-  const stylistPayout = amount - platformFee;
+  const platformFee = calculatePlatformFee(amount);
+  const stylistPayout = calculateStylistPayout(amount, platformFee);
 
-  if (!paystackSecret) {
+  const providerName = DEFAULT_PROVIDER;
+
+  if (!isProviderConfigured(providerName)) {
     if (isProduction) throw new ApiError(503, 'Payment service is not configured');
-    const devRef = `DEV-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    const devRef = generateDevReference();
     const session = await mongoose.startSession();
     try {
       await session.withTransaction(async () => {
@@ -261,7 +253,7 @@ export const chargeCard = asyncHandler(async (req: Request, res: Response) => {
           stylistPayout,
           currency: 'GHS',
           status: 'paid',
-          paymentProvider: 'paystack',
+          paymentProvider: providerName,
           paymentRef: devRef,
           paymentMethod: 'card',
         }).save({ session });
@@ -278,13 +270,18 @@ export const chargeCard = asyncHandler(async (req: Request, res: Response) => {
     return sendSuccess(res, { status: 'paid', reference: devRef });
   }
 
-  const amountInKobo = amount * 100;
-  let chargeResult: any;
+  const provider = getProvider(providerName);
+  if (!('chargeCard' in provider)) {
+    throw new ApiError(501, 'Card charges are not supported by this payment provider');
+  }
+  const cardProvider = provider as CardPaymentProvider;
+
+  let chargeResult: { status: string; reference: string; gatewayResponse?: string };
   try {
-    chargeResult = await (paystack as any).transaction.charge({
+    chargeResult = await cardProvider.chargeCard({
       token,
       email: (req.user as any).email || 'customer@example.com',
-      amount: String(amountInKobo),
+      amount,
       currency: 'GHS',
       metadata: {
         bookingId: booking.id,
@@ -297,7 +294,7 @@ export const chargeCard = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(503, 'Payment processing failed. Please try again.');
   }
 
-  if (chargeResult.data.status === 'success') {
+  if (chargeResult.status === 'success') {
     const session = await mongoose.startSession();
     try {
       await session.withTransaction(async () => {
@@ -310,21 +307,21 @@ export const chargeCard = asyncHandler(async (req: Request, res: Response) => {
           stylistPayout,
           currency: 'GHS',
           status: 'paid',
-          paymentProvider: 'paystack',
-          paymentRef: chargeResult.data.reference,
+          paymentProvider: providerName,
+          paymentRef: chargeResult.reference,
           paymentMethod: 'card',
         }).save({ session });
 
         await Booking.findByIdAndUpdate(
           booking.id,
-          { paymentId: chargeResult.data.reference, paymentStatus: 'paid' },
+          { paymentId: chargeResult.reference, paymentStatus: 'paid' },
           { session },
         );
       });
     } finally {
       session.endSession();
     }
-    return sendSuccess(res, { status: 'paid', reference: chargeResult.data.reference });
+    return sendSuccess(res, { status: 'paid', reference: chargeResult.reference });
   }
 
   await Transaction.create({
@@ -336,14 +333,14 @@ export const chargeCard = asyncHandler(async (req: Request, res: Response) => {
     stylistPayout,
     currency: 'GHS',
     status: 'failed',
-    paymentProvider: 'paystack',
-    paymentRef: chargeResult.data.reference || 'FAILED',
+    paymentProvider: providerName,
+    paymentRef: chargeResult.reference || 'FAILED',
     paymentMethod: 'card',
   });
 
   throw new ApiError(
     402,
-    `Payment failed: ${chargeResult.data.gateway_response || 'Transaction declined'}`,
+    `Payment failed: ${chargeResult.gatewayResponse || 'Transaction declined'}`,
   );
 });
 

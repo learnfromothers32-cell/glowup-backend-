@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {
   initializePayment,
   verifyPayment,
-  paystackWebhook,
+  handleWebhook,
   getPaymentStatus,
   getMyTransactions,
   chargeCard,
@@ -13,7 +13,8 @@ import { validate, initializePaymentSchema } from '../middleware/validate';
 
 const router = Router();
 
-router.post('/webhook', paystackWebhook);
+router.post('/webhook/:provider', handleWebhook);
+router.post('/webhook', handleWebhook);
 
 router.use(protect);
 

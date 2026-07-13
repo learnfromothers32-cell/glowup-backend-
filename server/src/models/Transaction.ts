@@ -10,10 +10,11 @@ export interface ITransaction extends Document {
   stylistPayout: number;
   currency: string;
   status: 'pending' | 'paid' | 'failed' | 'refunded';
-  paymentProvider: 'paystack';
+  paymentProvider: 'paystack' | 'mtn-momo' | 'stripe' | 'mpesa';
   paymentRef: string;
+  providerReference?: string;
+  providerMetadata?: Record<string, any>;
   paymentMethod: 'card' | 'mobile-money' | 'cash';
-  paymentDetails: Record<string, any>;
   metadata: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
@@ -49,19 +50,21 @@ const transactionSchema = new Schema<ITransaction>(
       default: 'pending',
       index: true
     },
-    paymentProvider: { type: String, default: 'paystack' },
+    paymentProvider: { type: String, enum: ['paystack', 'mtn-momo', 'stripe', 'mpesa'], default: 'paystack' },
     paymentRef: { type: String, required: true },
+    providerReference: { type: String },
+    providerMetadata: { type: Schema.Types.Mixed, default: {} },
     paymentMethod: {
       type: String,
       enum: ['card', 'mobile-money', 'cash'],
       default: 'card'
     },
-    paymentDetails: { type: Schema.Types.Mixed, default: {} },
     metadata: { type: Schema.Types.Mixed, default: {} }
   },
   { timestamps: true }
 );
 
 transactionSchema.index({ paymentRef: 1 }, { unique: true });
+transactionSchema.index({ providerReference: 1 }, { sparse: true });
 
 export const Transaction = model<ITransaction>('Transaction', transactionSchema);

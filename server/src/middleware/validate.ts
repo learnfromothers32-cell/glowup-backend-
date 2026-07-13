@@ -108,6 +108,8 @@ export const createReviewSchema = z.object({
 
 export const initializePaymentSchema = z.object({
   bookingId: z.string().min(1, 'bookingId is required'),
+  paymentMethod: z.enum(['card', 'mobile-money', 'cash']).optional(),
+  paymentProvider: z.enum(['paystack', 'mtn-momo', 'stripe', 'mpesa']).optional(),
 });
 
 export const createConversationSchema = z.object({

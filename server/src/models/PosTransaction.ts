@@ -18,7 +18,7 @@ export interface IPosTransaction extends Document {
   discount: number;
   tax: number;
   total: number;
-  paymentMethod: 'cash' | 'card' | 'mobile_money' | 'gift_card';
+  paymentMethod: 'cash' | 'card' | 'mobile-money' | 'gift-card';
   paymentRef: string;
   status: 'completed' | 'refunded' | 'voided';
   notes: string;
@@ -70,7 +70,7 @@ const posTransactionSchema = new Schema<IPosTransaction>(
     total: { type: Number, required: true, min: 0 },
     paymentMethod: {
       type: String,
-      enum: ['cash', 'card', 'mobile_money', 'gift_card'],
+      enum: ['cash', 'card', 'mobile-money', 'gift-card'],
       default: 'cash'
     },
     paymentRef: { type: String, default: '' },

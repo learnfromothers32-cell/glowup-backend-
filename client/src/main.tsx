@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import * as Sentry from "@sentry/react";
+import { initializeAnalytics } from "./services/analytics";
 import App from "./App";
 import "./index.css";
 import "./i18n";
@@ -14,6 +15,8 @@ if (SENTRY_DSN) {
     integrations: [Sentry.browserTracingIntegration()],
   });
 }
+
+initializeAnalytics();
 
 const root = ReactDOM.createRoot(document.getElementById("root")!);
 root.render(

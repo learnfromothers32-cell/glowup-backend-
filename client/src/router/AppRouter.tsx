@@ -6,6 +6,7 @@ import { ThemeProvider } from "../context/ThemeContext";
 import ErrorBoundary from "../components/ErrorBoundary";
 import SEOHead from "../components/seo/SEOHead";
 import { useTranslation } from "react-i18next";
+import { usePageTracking } from "../hooks/usePageTracking";
 
 const ConsumerLayout = lazy(() => import("../components/layout/consumer/ConsumerLayout"));
 const StylistLayout = lazy(() => import("../components/layout/stylist/StylistLayout"));
@@ -122,6 +123,7 @@ function BeautyRedirect() {
 function AppRoutes() {
   const { i18n } = useTranslation();
   const locale = i18n.language;
+  usePageTracking();
 
   return (
     <Routes>

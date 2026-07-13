@@ -10,6 +10,8 @@ import * as authApi from "../api/auth";
 import { setAccessToken, API_SERVER_URL } from "../api/axios";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { getFirebaseAuth, getGoogleProvider, getGithubProvider, getAppleProvider } from "../config/firebase";
+import { identifyUser, resetAnalytics, trackEvent } from "../services/analytics";
+import { AnalyticsEvents } from "../services/analytics/events";
 
 interface AuthState {
   user: User | null;
@@ -50,12 +52,18 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
     case "SET_LOADING":
       return { ...state, isLoading: action.payload };
     case "LOGIN_SUCCESS":
+      identifyUser({
+        id: action.payload.user.id,
+        role: action.payload.user.role,
+        accountType: action.payload.user.role,
+      });
       return {
         user: action.payload.user,
         isLoading: false,
         isAuthenticated: true,
       };
     case "LOGOUT":
+      resetAnalytics();
       return {
         user: null,
         isLoading: false,
@@ -123,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const { accessToken, user } = res.data;
       setAccessToken(accessToken);
       dispatch({ type: "LOGIN_SUCCESS", payload: { user } });
+      trackEvent(AnalyticsEvents.USER_LOGGED_IN);
       return user;
     } catch (err: any) {
       dispatch({ type: "SET_LOADING", payload: false });
@@ -138,6 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         const { accessToken, user } = res.data;
         setAccessToken(accessToken);
         dispatch({ type: "LOGIN_SUCCESS", payload: { user } });
+        trackEvent(AnalyticsEvents.USER_REGISTERED);
         return user;
       } catch (err: any) {
         dispatch({ type: "SET_LOADING", payload: false });
@@ -172,6 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         setAccessToken(accessToken);
         dispatch({ type: "LOGIN_SUCCESS", payload: { user } });
+        trackEvent(AnalyticsEvents.USER_LOGGED_IN, { method: "social" });
         return user;
       } catch (err: any) {
         dispatch({ type: "SET_LOADING", payload: false });
@@ -182,6 +193,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const logout = useCallback(async () => {
+    trackEvent(AnalyticsEvents.USER_LOGGED_OUT);
     try {
       await authApi.logout();
     } catch {

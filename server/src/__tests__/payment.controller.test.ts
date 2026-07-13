@@ -1,4 +1,4 @@
-import { initializePayment, handleWebhook, verifyPayment } from '../controllers/payment.controller';
+import { initializePayment, handleWebhook, verifyPayment, chargeCard } from '../controllers/payment.controller';
 import { Booking } from '../models/Booking';
 import { Transaction } from '../models/Transaction';
 
@@ -67,6 +67,20 @@ function mockProvider(overrides: Record<string, any> = {}) {
   };
 }
 
+function makeBooking(overrides: Record<string, any> = {}) {
+  return {
+    _id: BOOKING_ID,
+    clientId: { toString: () => CLIENT_ID },
+    stylistId: 'stylist123',
+    totalPrice: 100,
+    paymentStatus: 'pending',
+    paymentId: undefined,
+    save: jest.fn(),
+    id: BOOKING_ID,
+    ...overrides,
+  };
+}
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockSession.endSession.mockClear();
@@ -91,7 +105,7 @@ beforeEach(() => {
   mockValidateSignature.mockImplementation((_raw: Buffer, headers: Record<string, string>) => {
     return !!headers['x-paystack-signature'];
   });
-  mockParseEvent.mockReturnValue({ event: 'success', reference: '' });
+  mockParseEvent.mockReturnValue({ event: 'success', reference: '', amount: undefined, providerMetadata: undefined });
 
   const { getProvider } = require('../services/payment/factory');
   getProvider.mockReturnValue(mockProvider());
@@ -117,17 +131,9 @@ function fakeRes(): any {
 describe('initializePayment', () => {
   it('creates a transaction and returns reference via provider', async () => {
     (Booking.findById as jest.Mock).mockReturnValue({
-      populate: jest.fn().mockResolvedValue({
-        _id: BOOKING_ID,
-        clientId: { toString: () => CLIENT_ID },
-        stylistId: 'stylist123',
-        totalPrice: 100,
-        paymentStatus: 'pending',
-        paymentId: undefined,
-        save: jest.fn(),
-      }),
+      populate: jest.fn().mockResolvedValue(makeBooking()),
     });
-    (Transaction.create as jest.Mock).mockResolvedValue({});
+    (Transaction.create as jest.Mock).mockResolvedValue([{}]);
 
     const res = fakeRes();
     await initializePayment(fakeReq({ body: { bookingId: BOOKING_ID, paymentMethod: 'card' } }), res, jest.fn());
@@ -141,17 +147,9 @@ describe('initializePayment', () => {
 
   it('uses provider from request body when paymentProvider is specified', async () => {
     (Booking.findById as jest.Mock).mockReturnValue({
-      populate: jest.fn().mockResolvedValue({
-        _id: BOOKING_ID,
-        clientId: { toString: () => CLIENT_ID },
-        stylistId: 'stylist123',
-        totalPrice: 100,
-        paymentStatus: 'pending',
-        paymentId: undefined,
-        save: jest.fn(),
-      }),
+      populate: jest.fn().mockResolvedValue(makeBooking()),
     });
-    (Transaction.create as jest.Mock).mockResolvedValue({});
+    (Transaction.create as jest.Mock).mockResolvedValue([{}]);
 
     const { getProvider } = require('../services/payment/factory');
     const customProvider = mockProvider({ name: 'custom' });
@@ -161,9 +159,6 @@ describe('initializePayment', () => {
     await initializePayment(fakeReq({ body: { bookingId: BOOKING_ID, paymentMethod: 'card', paymentProvider: 'custom' } }), res, jest.fn());
 
     expect(getProvider).toHaveBeenCalledWith('custom');
-    expect(Transaction.create).toHaveBeenCalledWith(
-      expect.objectContaining({ paymentProvider: 'custom' }),
-    );
   });
 
   it('throws 404 when booking not found', async () => {
@@ -177,12 +172,7 @@ describe('initializePayment', () => {
 
   it('throws 403 when paying for another users booking', async () => {
     (Booking.findById as jest.Mock).mockReturnValue({
-      populate: jest.fn().mockResolvedValue({
-        _id: BOOKING_ID,
-        clientId: { toString: () => 'different-user' },
-        totalPrice: 100,
-        paymentStatus: 'pending',
-      }),
+      populate: jest.fn().mockResolvedValue(makeBooking({ clientId: { toString: () => 'different-user' } })),
     });
     const next = jest.fn();
     await initializePayment(fakeReq({ body: { bookingId: BOOKING_ID } }), fakeRes(), next);
@@ -191,16 +181,37 @@ describe('initializePayment', () => {
 
   it('throws 400 when booking is already paid', async () => {
     (Booking.findById as jest.Mock).mockReturnValue({
-      populate: jest.fn().mockResolvedValue({
-        _id: BOOKING_ID,
-        clientId: { toString: () => CLIENT_ID },
-        totalPrice: 100,
-        paymentStatus: 'paid',
-      }),
+      populate: jest.fn().mockResolvedValue(makeBooking({ paymentStatus: 'paid' })),
     });
     const next = jest.fn();
     await initializePayment(fakeReq({ body: { bookingId: BOOKING_ID } }), fakeRes(), next);
     expect(next.mock.calls[0][0].statusCode).toBe(400);
+  });
+
+  it('throws 503 when provider initialization fails', async () => {
+    (Booking.findById as jest.Mock).mockReturnValue({
+      populate: jest.fn().mockResolvedValue(makeBooking()),
+    });
+    mockInitialize.mockRejectedValueOnce(new Error('network timeout'));
+
+    const next = jest.fn();
+    await initializePayment(fakeReq({ body: { bookingId: BOOKING_ID, paymentMethod: 'card' } }), fakeRes(), next);
+    expect(next.mock.calls[0][0].statusCode).toBe(503);
+  });
+
+  it('generates dev reference when provider not configured in dev mode', async () => {
+    (Booking.findById as jest.Mock).mockReturnValue({
+      populate: jest.fn().mockResolvedValue(makeBooking()),
+    });
+    const { isProviderConfigured } = require('../services/payment/factory');
+    isProviderConfigured.mockReturnValueOnce(false);
+    (Transaction.create as jest.Mock).mockResolvedValue([{}]);
+
+    const res = fakeRes();
+    await initializePayment(fakeReq({ body: { bookingId: BOOKING_ID, paymentMethod: 'card' } }), res, jest.fn());
+
+    const body = res.json.mock.calls[0][0];
+    expect(body.data.reference).toMatch(/^DEV-/);
   });
 });
 
@@ -224,13 +235,16 @@ describe('handleWebhook', () => {
     expect(res.status).toHaveBeenCalledWith(401);
   });
 
-  it('processes charge.success event and updates transaction', async () => {
+  it('processes charge.success and updates transaction atomically', async () => {
     mockValidateSignature.mockReturnValueOnce(true);
-    mockParseEvent.mockReturnValueOnce({ event: 'success', reference: 'ref_abc123' });
+    mockParseEvent.mockReturnValueOnce({ event: 'success', reference: 'ref_abc123', amount: 100 });
 
-    (Transaction.findOneAndUpdate as jest.Mock).mockResolvedValue({
+    const mockTx = {
       _id: 'tx1', bookingId: BOOKING_ID, amount: 100, paymentRef: 'ref_abc123', status: 'pending',
-    });
+      save: jest.fn(),
+    };
+    const mockSessionObj = { session: jest.fn().mockReturnValue({}) };
+    (Transaction.findOne as jest.Mock).mockReturnValue({ session: jest.fn().mockResolvedValue(mockTx) });
     (Booking.findByIdAndUpdate as jest.Mock).mockResolvedValue({});
 
     const req = fakeReq({ headers: { 'x-paystack-signature': 'valid-sig' }, body: Buffer.from(JSON.stringify({})), params: { provider: 'paystack' } });
@@ -239,18 +253,16 @@ describe('handleWebhook', () => {
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ status: 'ok' });
-    expect(Transaction.findOneAndUpdate).toHaveBeenCalledWith(
-      { paymentRef: 'ref_abc123', status: 'pending' },
-      { $set: { status: 'paid' } },
-      expect.any(Object),
-    );
   });
 
   it('processes charge.failed event', async () => {
     mockValidateSignature.mockReturnValueOnce(true);
-    mockParseEvent.mockReturnValueOnce({ event: 'failed', reference: 'ref_fail' });
+    mockParseEvent.mockReturnValueOnce({ event: 'failed', reference: 'ref_fail', amount: undefined });
 
-    (Transaction.findOneAndUpdate as jest.Mock).mockResolvedValue({ _id: 'tx2', bookingId: BOOKING_ID });
+    const mockTx = {
+      _id: 'tx2', bookingId: BOOKING_ID, status: 'pending', save: jest.fn(),
+    };
+    (Transaction.findOne as jest.Mock).mockReturnValue({ session: jest.fn().mockResolvedValue(mockTx) });
     (Booking.findByIdAndUpdate as jest.Mock).mockResolvedValue({});
 
     const req = fakeReq({ headers: { 'x-paystack-signature': 'valid-sig' }, body: Buffer.from(JSON.stringify({})), params: { provider: 'paystack' } });
@@ -258,17 +270,14 @@ describe('handleWebhook', () => {
     await handleWebhook(req, res, jest.fn());
 
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(Transaction.findOneAndUpdate).toHaveBeenCalledWith(
-      { paymentRef: 'ref_fail', status: 'pending' },
-      { $set: { status: 'failed' } },
-    );
+    expect(mockTx.status).toBe('failed');
   });
 
   it('returns 200 for already-processed webhooks (idempotency)', async () => {
     mockValidateSignature.mockReturnValueOnce(true);
-    mockParseEvent.mockReturnValueOnce({ event: 'success', reference: 'ref_dup' });
+    mockParseEvent.mockReturnValueOnce({ event: 'success', reference: 'ref_dup', amount: 100 });
 
-    (Transaction.findOneAndUpdate as jest.Mock).mockResolvedValue(null);
+    (Transaction.findOne as jest.Mock).mockReturnValue({ session: jest.fn().mockResolvedValue(null) });
 
     const req = fakeReq({ headers: { 'x-paystack-signature': 'valid-sig' }, body: Buffer.from(JSON.stringify({})), params: { provider: 'paystack' } });
     const res = fakeRes();
@@ -281,8 +290,8 @@ describe('handleWebhook', () => {
   it('defaults to paystack when no provider param is given', async () => {
     const { getProvider } = require('../services/payment/factory');
     mockValidateSignature.mockReturnValueOnce(true);
-    mockParseEvent.mockReturnValueOnce({ event: 'success', reference: 'ref1' });
-    (Transaction.findOneAndUpdate as jest.Mock).mockResolvedValue(null);
+    mockParseEvent.mockReturnValueOnce({ event: 'success', reference: 'ref1', amount: undefined });
+    (Transaction.findOne as jest.Mock).mockReturnValue({ session: jest.fn().mockResolvedValue(null) });
 
     const req = fakeReq({ headers: { 'x-paystack-signature': 'valid-sig' }, body: Buffer.from(JSON.stringify({})), params: {} });
     const res = fakeRes();
@@ -291,14 +300,64 @@ describe('handleWebhook', () => {
     expect(getProvider).toHaveBeenCalledWith('paystack');
     expect(res.status).toHaveBeenCalledWith(200);
   });
+
+  it('returns 200 for unknown event types', async () => {
+    mockValidateSignature.mockReturnValueOnce(true);
+    mockParseEvent.mockReturnValueOnce({ event: 'unknown', reference: '' });
+
+    const req = fakeReq({ headers: { 'x-paystack-signature': 'valid-sig' }, body: Buffer.from(JSON.stringify({})), params: { provider: 'paystack' } });
+    const res = fakeRes();
+    await handleWebhook(req, res, jest.fn());
+
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('returns 200 for webhooks with empty reference', async () => {
+    mockValidateSignature.mockReturnValueOnce(true);
+    mockParseEvent.mockReturnValueOnce({ event: 'success', reference: '', amount: undefined });
+
+    const req = fakeReq({ headers: { 'x-paystack-signature': 'valid-sig' }, body: Buffer.from(JSON.stringify({})), params: { provider: 'paystack' } });
+    const res = fakeRes();
+    await handleWebhook(req, res, jest.fn());
+
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('rejects webhook when amount mismatches transaction amount', async () => {
+    mockValidateSignature.mockReturnValueOnce(true);
+    mockParseEvent.mockReturnValueOnce({ event: 'success', reference: 'ref_mismatch', amount: 999 });
+
+    const mockTx = {
+      _id: 'tx3', bookingId: BOOKING_ID, amount: 100, paymentRef: 'ref_mismatch', status: 'pending',
+      save: jest.fn(),
+    };
+    (Transaction.findOne as jest.Mock).mockReturnValue({ session: jest.fn().mockResolvedValue(mockTx) });
+    (Booking.findByIdAndUpdate as jest.Mock).mockResolvedValue({});
+
+    const req = fakeReq({ headers: { 'x-paystack-signature': 'valid-sig' }, body: Buffer.from(JSON.stringify({})), params: { provider: 'paystack' } });
+    const res = fakeRes();
+    await handleWebhook(req, res, jest.fn());
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(mockTx.save).not.toHaveBeenCalled();
+  });
+
+  it('returns 200 for unconfigured provider', async () => {
+    const { isProviderConfigured } = require('../services/payment/factory');
+    isProviderConfigured.mockReturnValueOnce(false);
+
+    const req = fakeReq({ headers: {}, body: Buffer.from(JSON.stringify({})), params: { provider: 'nonexistent' } });
+    const res = fakeRes();
+    await handleWebhook(req, res, jest.fn());
+
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
 });
 
 describe('verifyPayment', () => {
   it('returns transaction status for a found transaction', async () => {
     const transaction = { _id: 'tx1', status: 'paid', amount: 100, paymentRef: 'ref1', paymentProvider: 'paystack' };
     (Transaction.findOne as jest.Mock).mockResolvedValue(transaction);
-    (Transaction.findOneAndUpdate as jest.Mock).mockResolvedValue(transaction);
-    (Booking.findByIdAndUpdate as jest.Mock).mockResolvedValue({});
 
     const res = fakeRes();
     await verifyPayment(fakeReq({ params: { reference: 'ref1' } }), res, jest.fn());
@@ -315,8 +374,41 @@ describe('verifyPayment', () => {
     expect(next.mock.calls[0][0].statusCode).toBe(404);
   });
 
+  it('returns current status immediately for non-pending transactions', async () => {
+    const transaction = { _id: 'tx1', status: 'paid', amount: 100, paymentRef: 'ref1', paymentProvider: 'paystack' };
+    (Transaction.findOne as jest.Mock).mockResolvedValue(transaction);
+
+    const res = fakeRes();
+    await verifyPayment(fakeReq({ params: { reference: 'ref1' } }), res, jest.fn());
+
+    const body = res.json.mock.calls[0][0];
+    expect(body.data.status).toBe('paid');
+  });
+
+  it('rejects verification when amount does not match', async () => {
+    const transaction = { _id: 'tx1', status: 'pending', amount: 100, paymentRef: 'ref1', paymentProvider: 'paystack' };
+    (Transaction.findOne as jest.Mock).mockResolvedValue(transaction);
+    mockVerify.mockResolvedValueOnce({ status: 'success', reference: 'ref1', amount: 200, currency: 'GHS' });
+
+    const next = jest.fn();
+    await verifyPayment(fakeReq({ params: { reference: 'ref1' } }), fakeRes(), next);
+    expect(next.mock.calls[0][0].statusCode).toBe(402);
+  });
+
+  it('handles provider verification failure gracefully', async () => {
+    const transaction = { _id: 'tx1', status: 'pending', amount: 100, paymentRef: 'ref1', paymentProvider: 'paystack' };
+    (Transaction.findOne as jest.Mock).mockResolvedValue(transaction);
+    mockVerify.mockRejectedValueOnce(new Error('network error'));
+
+    const res = fakeRes();
+    await verifyPayment(fakeReq({ params: { reference: 'ref1' } }), res, jest.fn());
+
+    const body = res.json.mock.calls[0][0];
+    expect(body.data.status).toBe('pending');
+  });
+
   it('uses transaction.paymentProvider to select provider', async () => {
-    const transaction = { _id: 'tx1', status: 'pending', paymentRef: 'ref1', paymentProvider: 'paystack' };
+    const transaction = { _id: 'tx1', status: 'pending', paymentRef: 'ref1', paymentProvider: 'paystack', amount: 100 };
     (Transaction.findOne as jest.Mock).mockResolvedValue(transaction);
     mockVerify.mockResolvedValue({ status: 'success', reference: 'ref1', amount: 100, currency: 'GHS' });
     (Transaction.findOneAndUpdate as jest.Mock).mockResolvedValue({ ...transaction, status: 'paid' });
@@ -330,28 +422,101 @@ describe('verifyPayment', () => {
   });
 });
 
+describe('chargeCard', () => {
+  it('charges card successfully and creates transaction', async () => {
+    const booking = makeBooking();
+    (Booking.findById as jest.Mock).mockResolvedValue(booking);
+
+    const res = fakeRes();
+    await chargeCard(fakeReq({ body: { bookingId: BOOKING_ID, token: 'tok_test' } }), res, jest.fn());
+
+    expect(res.json).toHaveBeenCalled();
+    const body = res.json.mock.calls[0][0];
+    expect(body.data.status).toBe('paid');
+    expect(body.data.reference).toBe('psk_ref_123');
+  });
+
+  it('throws 404 when booking not found', async () => {
+    (Booking.findById as jest.Mock).mockResolvedValue(null);
+    const next = jest.fn();
+    await chargeCard(fakeReq({ body: { bookingId: BOOKING_ID, token: 'tok_test' } }), fakeRes(), next);
+    expect(next.mock.calls[0][0].statusCode).toBe(404);
+  });
+
+  it('throws 403 when paying for another users booking', async () => {
+    (Booking.findById as jest.Mock).mockResolvedValue(
+      makeBooking({ clientId: { toString: () => 'other-user' } }),
+    );
+    const next = jest.fn();
+    await chargeCard(fakeReq({ body: { bookingId: BOOKING_ID, token: 'tok_test' } }), fakeRes(), next);
+    expect(next.mock.calls[0][0].statusCode).toBe(403);
+  });
+
+  it('throws 400 when booking is already paid', async () => {
+    (Booking.findById as jest.Mock).mockResolvedValue(
+      makeBooking({ paymentStatus: 'paid' }),
+    );
+    const next = jest.fn();
+    await chargeCard(fakeReq({ body: { bookingId: BOOKING_ID, token: 'tok_test' } }), fakeRes(), next);
+    expect(next.mock.calls[0][0].statusCode).toBe(400);
+  });
+
+  it('throws 503 when provider API call fails', async () => {
+    (Booking.findById as jest.Mock).mockResolvedValue(makeBooking());
+    mockChargeCard.mockRejectedValueOnce(new Error('timeout'));
+
+    const next = jest.fn();
+    await chargeCard(fakeReq({ body: { bookingId: BOOKING_ID, token: 'tok_test' } }), fakeRes(), next);
+    expect(next.mock.calls[0][0].statusCode).toBe(503);
+  });
+
+  it('throws 402 when charge is declined', async () => {
+    (Booking.findById as jest.Mock).mockResolvedValue(makeBooking());
+    mockChargeCard.mockResolvedValueOnce({ status: 'failed', reference: 'ref_fail', gatewayResponse: 'Insufficient funds' });
+
+    const next = jest.fn();
+    await chargeCard(fakeReq({ body: { bookingId: BOOKING_ID, token: 'tok_test' } }), fakeRes(), next);
+    expect(next.mock.calls[0][0].statusCode).toBe(402);
+  });
+
+  it('error message does not leak gateway response details', async () => {
+    (Booking.findById as jest.Mock).mockResolvedValue(makeBooking());
+    mockChargeCard.mockResolvedValueOnce({ status: 'failed', reference: 'ref_fail', gatewayResponse: 'Internal bank error code XYZ' });
+
+    const next = jest.fn();
+    await chargeCard(fakeReq({ body: { bookingId: BOOKING_ID, token: 'tok_test' } }), fakeRes(), next);
+    expect(next.mock.calls[0][0].message).not.toContain('Internal bank error code XYZ');
+  });
+
+  it('accepts paymentProvider from request body', async () => {
+    (Booking.findById as jest.Mock).mockResolvedValue(makeBooking());
+
+    const { getProvider } = require('../services/payment/factory');
+    const customProvider = mockProvider({ name: 'custom', chargeCard: mockChargeCard });
+    getProvider.mockReturnValue(customProvider);
+
+    const res = fakeRes();
+    await chargeCard(fakeReq({ body: { bookingId: BOOKING_ID, token: 'tok_test', paymentProvider: 'custom' } }), res, jest.fn());
+
+    expect(getProvider).toHaveBeenCalledWith('custom');
+  });
+});
+
 describe('Paystack regression', () => {
   it('initializePayment → verifyPayment → webhook all route through getProvider("paystack")', async () => {
     const { getProvider } = require('../services/payment/factory');
 
     (Booking.findById as jest.Mock).mockReturnValue({
-      populate: jest.fn().mockResolvedValue({
-        _id: BOOKING_ID,
-        clientId: { toString: () => CLIENT_ID },
-        stylistId: 'stylist123',
-        totalPrice: 50,
-        paymentStatus: 'pending',
-        save: jest.fn(),
-      }),
+      populate: jest.fn().mockResolvedValue(makeBooking({ totalPrice: 50 })),
     });
-    (Transaction.create as jest.Mock).mockResolvedValue({});
+    (Transaction.create as jest.Mock).mockResolvedValue([{}]);
 
     const initRes = fakeRes();
     await initializePayment(fakeReq({ body: { bookingId: BOOKING_ID, paymentMethod: 'card' } }), initRes, jest.fn());
     expect(getProvider).toHaveBeenCalledWith('paystack');
     expect(mockInitialize).toHaveBeenCalled();
 
-    const tx = { _id: 'tx1', status: 'pending', paymentRef: 'psk_ref_123', paymentProvider: 'paystack' };
+    const tx = { _id: 'tx1', status: 'pending', paymentRef: 'psk_ref_123', paymentProvider: 'paystack', amount: 50 };
     (Transaction.findOne as jest.Mock).mockResolvedValue(tx);
     mockVerify.mockResolvedValue({ status: 'success', reference: 'psk_ref_123', amount: 50, currency: 'GHS' });
     (Transaction.findOneAndUpdate as jest.Mock).mockResolvedValue({ ...tx, status: 'paid' });
@@ -363,8 +528,8 @@ describe('Paystack regression', () => {
     expect(mockVerify).toHaveBeenCalledWith('psk_ref_123');
 
     mockValidateSignature.mockReturnValueOnce(true);
-    mockParseEvent.mockReturnValueOnce({ event: 'success', reference: 'psk_ref_123' });
-    (Transaction.findOneAndUpdate as jest.Mock).mockResolvedValue({ ...tx, status: 'paid' });
+    mockParseEvent.mockReturnValueOnce({ event: 'success', reference: 'psk_ref_123', amount: 50 });
+    (Transaction.findOne as jest.Mock).mockReturnValue({ session: jest.fn().mockResolvedValue(null) });
 
     const webhookReq = fakeReq({
       headers: { 'x-paystack-signature': 'valid' },

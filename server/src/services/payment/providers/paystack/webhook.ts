@@ -41,6 +41,14 @@ export const parsePaystackEvent = (rawBody: Buffer): WebhookResult => {
   return {
     event: eventType,
     reference: payload.data?.reference || '',
-    providerMetadata: payload,
+    amount: payload.data?.amount ? payload.data.amount / 100 : undefined,
+    providerMetadata: payload.data
+      ? {
+          channel: payload.data.channel,
+          gateway_response: payload.data.gateway_response,
+          paid_at: payload.data.paid_at,
+          created_at: payload.data.created_at,
+        }
+      : undefined,
   };
 };

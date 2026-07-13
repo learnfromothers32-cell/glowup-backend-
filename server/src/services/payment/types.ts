@@ -36,6 +36,7 @@ export interface PaymentChargeResult {
 export interface WebhookResult {
   event: 'success' | 'failed' | 'unknown';
   reference: string;
+  amount?: number;
   providerMetadata?: Record<string, unknown>;
 }
 

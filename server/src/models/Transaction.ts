@@ -12,10 +12,8 @@ export interface ITransaction extends Document {
   status: 'pending' | 'paid' | 'failed' | 'refunded';
   paymentProvider: 'paystack' | 'mtn-momo' | 'stripe' | 'mpesa';
   paymentRef: string;
-  providerReference?: string;
   providerMetadata?: Record<string, any>;
   paymentMethod: 'card' | 'mobile-money' | 'cash';
-  metadata: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -52,19 +50,18 @@ const transactionSchema = new Schema<ITransaction>(
     },
     paymentProvider: { type: String, enum: ['paystack', 'mtn-momo', 'stripe', 'mpesa'], default: 'paystack' },
     paymentRef: { type: String, required: true },
-    providerReference: { type: String },
     providerMetadata: { type: Schema.Types.Mixed, default: {} },
     paymentMethod: {
       type: String,
       enum: ['card', 'mobile-money', 'cash'],
       default: 'card'
     },
-    metadata: { type: Schema.Types.Mixed, default: {} }
   },
   { timestamps: true }
 );
 
 transactionSchema.index({ paymentRef: 1 }, { unique: true });
-transactionSchema.index({ providerReference: 1 }, { sparse: true });
+transactionSchema.index({ bookingId: 1, createdAt: -1 });
+transactionSchema.index({ paymentRef: 1, status: 1 });
 
 export const Transaction = model<ITransaction>('Transaction', transactionSchema);

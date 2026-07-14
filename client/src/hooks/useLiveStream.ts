@@ -36,6 +36,7 @@ export function useLiveStream() {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [stylistId, setStylistId] = useState<string | null>(null);
   const stylistIdRef = useRef<string | null>(null);
+  const joinedRef = useRef(false);
 
   useEffect(() => {
     stylistIdRef.current = stylistId;
@@ -85,27 +86,30 @@ export function useLiveStream() {
     });
 
     s.on("connect", () => {
-      const id = stylistIdRef.current;
-      if (id) {
-        s.emit("live:join-room", { stylistId: id });
-      }
+      joinedRef.current = false;
     });
 
     return () => {
-      const id = stylistIdRef.current;
-      if (id && s.connected) {
+      if (s.connected) {
         s.emit("live:leave-room");
       }
       s.removeAllListeners();
-      if (s.connected) {
-        s.disconnect();
-      }
+      s.disconnect();
+      joinedRef.current = false;
     };
   }, []);
 
+  // Join room AFTER stylistId is set and socket is connected.
+  // Uses queueMicrotask so the parent component's WebRTC effects
+  // (which register live:user-joined handlers) run first.
   useEffect(() => {
-    if (!socket || !stylistId) return;
-    socket.emit("live:join-room", { stylistId });
+    if (!socket || !stylistId || !socket.connected || joinedRef.current) return;
+    queueMicrotask(() => {
+      if (socket.connected) {
+        socket.emit("live:join-room", { stylistId });
+        joinedRef.current = true;
+      }
+    });
   }, [socket, stylistId]);
 
   const goLive = useCallback(async (title?: string, category?: string, privacy?: string): Promise<boolean> => {
@@ -142,6 +146,7 @@ export function useLiveStream() {
     setIsLive(false);
     setSession(null);
     setStylistId(null);
+    joinedRef.current = false;
     setViewerCount(0);
     setTotalLikes(0);
     setTotalGifts(0);

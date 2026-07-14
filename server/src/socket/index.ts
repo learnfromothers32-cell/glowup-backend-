@@ -536,6 +536,24 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
 
       const viewerId = userId || `anon_${socket.id.slice(-6)}`;
       liveNsp.to(currentRoom).emit('live:user-joined', { userId: viewerId, userRole, socketId: socket.id });
+
+      // When a stylist joins, send them all existing consumers in the room
+      // so they can establish WebRTC with each one.
+      if (userRole === 'stylist') {
+        const roomMembers = liveNsp.adapter.rooms.get(currentRoom);
+        if (roomMembers) {
+          for (const memberId of roomMembers) {
+            if (memberId === socket.id) continue;
+            const memberSocket = liveNsp.sockets.get(memberId);
+            if (!memberSocket) continue;
+            const memberUser = (memberSocket as any).user;
+            if (memberUser?.role !== 'stylist') {
+              const memberUserId = memberUser?.id || `anon_${memberId.slice(-6)}`;
+              socket.emit('live:user-joined', { userId: memberUserId, userRole: memberUser?.role || 'client', socketId: memberId });
+            }
+          }
+        }
+      }
     });
 
     socket.on('live:leave-room', async () => {

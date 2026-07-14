@@ -57,7 +57,7 @@ export default function LiveRoom() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const { connected, on, off, emit, sendMessage, sendLike } = useLiveSocket(stylistId);
+  const { connected, on, off, emit, sendMessage, sendLike, rejoinRoom } = useLiveSocket(stylistId);
 
   // Load stylist data
   useEffect(() => {
@@ -77,10 +77,14 @@ export default function LiveRoom() {
         if (data.session) {
           setViewerCount(data.session.viewerCount || 0);
           setStreamTitle(data.session.title || "");
-          setIsLive(data.session.isLive);
+          setIsLive(true);
+          setStreamEnded(false);
         } else {
-          setStreamEnded(true);
+          // Session doesn't exist yet — stylist may go live while we're
+          // on this page. Don't show "ended"; just mark as not live and
+          // wait for the live:stylist-online socket event.
           setIsLive(false);
+          setStreamEnded(false);
         }
       })
       .catch(() => { setStreamEnded(true); setIsLive(false); })
@@ -106,6 +110,35 @@ export default function LiveRoom() {
     on("live:stream-ended", () => {
       setStreamEnded(true);
       setIsLive(false);
+    });
+
+    on("live:stylist-online", () => {
+      // Stylist just went live while we were on this page — re-fetch session
+      // and re-join the room to establish WebRTC.
+      if (stylistId) {
+        getLiveSession(stylistId)
+          .then((data) => {
+            if (data.session) {
+              setStreamEnded(false);
+              setIsLive(true);
+              setViewerCount(data.session.viewerCount || 0);
+              setStreamTitle(data.session.title || "");
+              rejoinRoom();
+            }
+          })
+          .catch(() => {});
+      }
+    });
+
+    on("live:stylist-offline", () => {
+      setStreamEnded(true);
+      setIsLive(false);
+    });
+
+    on("live:error", (data: { message: string }) => {
+      // Server rejected the join (e.g. stream not found) — retry after a
+      // short delay in case the stylist is starting up.
+      logger.warn("[live] server error:", data.message);
     });
 
     on("live:like-update", (data: { totalLikes: number }) => {
@@ -149,11 +182,14 @@ export default function LiveRoom() {
     return () => {
       off("live:viewer-count");
       off("live:stream-ended");
+      off("live:stylist-online");
+      off("live:stylist-offline");
+      off("live:error");
       off("live:like-update");
       off("live:gift-received");
       off("live:reaction-update");
     };
-  }, [stylistId, connected, on, off, user]);
+  }, [stylistId, connected, on, off, user, rejoinRoom]);
 
   // WebRTC subscriber
   useEffect(() => {

@@ -74,6 +74,18 @@ export function useLiveSocket(stylistId?: string) {
     });
   }, [connected, stylistId]);
 
+  const rejoinRoom = useCallback(() => {
+    const socket = socketRef.current;
+    if (!socket || !stylistId) return;
+    joinedRef.current = false;
+    queueMicrotask(() => {
+      if (socket.connected) {
+        socket.emit("live:join-room", { stylistId });
+        joinedRef.current = true;
+      }
+    });
+  }, [stylistId]);
+
   const on = useCallback(
     (event: string, handler: (...args: any[]) => void) => {
       listenersRef.current.set(event, handler);
@@ -108,5 +120,5 @@ export function useLiveSocket(stylistId?: string) {
     socketRef.current?.emit("live:like", { stylistId });
   }, [stylistId]);
 
-  return { connected, on, off, emit, sendMessage, sendLike };
+  return { connected, on, off, emit, sendMessage, sendLike, rejoinRoom };
 }

@@ -484,56 +484,58 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
     const userRole = user?.role;
     let currentRoom: string | null = null;
     let hasLeftRoom = false;
+    const viewerCountedBy = new Set<string>();
 
     socket.on('live:join-room', async (data: { stylistId: string }) => {
       const { stylistId } = data;
       const MAX_VIEWERS = 50;
 
-      if (userRole !== 'stylist') {
-        try {
-          const session = await LiveSession.findOne({ stylistId, isLive: true });
-          if (!session) {
-            socket.emit('live:error', { message: 'Stream not found.' });
-            return;
-          }
-          if (session.viewerCount >= MAX_VIEWERS) {
-            socket.emit('live:error', { message: 'Stream is full. Try again later.' });
-            return;
-          }
-        } catch (err) {
-          logger.error('[live:join-room] validation error:', { error: (err as Error).message });
-        }
-      }
-
       currentRoom = `live:${stylistId}`;
       hasLeftRoom = false;
       socket.join(currentRoom);
 
+      // Only check session and increment viewer count if a live session
+      // already exists.  Consumers are allowed to join the room *before*
+      // the stylist starts so they can receive WebRTC offers immediately.
       if (userRole !== 'stylist') {
         try {
-          const updatedSession = await LiveSession.findOneAndUpdate(
-            { stylistId, isLive: true },
-            [
-              {
-                $set: {
-                  viewerCount: { $add: ['$viewerCount', 1] },
-                  peakViewers: {
-                    $max: ['$peakViewers', { $add: ['$viewerCount', 1] }],
+          const session = await LiveSession.findOne({ stylistId, isLive: true });
+          if (session) {
+            if (session.viewerCount >= MAX_VIEWERS) {
+              socket.emit('live:error', { message: 'Stream is full. Try again later.' });
+              socket.leave(currentRoom);
+              currentRoom = null;
+              return;
+            }
+            // Only increment if this socket hasn't already been counted
+            if (!viewerCountedBy.has(socket.id)) {
+              viewerCountedBy.add(socket.id);
+              const updatedSession = await LiveSession.findOneAndUpdate(
+                { stylistId, isLive: true },
+                [
+                  {
+                    $set: {
+                      viewerCount: { $add: ['$viewerCount', 1] },
+                      peakViewers: {
+                        $max: ['$peakViewers', { $add: ['$viewerCount', 1] }],
+                      },
+                    },
                   },
-                },
-              },
-            ],
-            { new: true }
-          );
-          if (updatedSession) {
-            await Stylist.findByIdAndUpdate(stylistId, { viewerCount: updatedSession.viewerCount });
-            liveNsp.to(currentRoom).emit('live:viewer-count', { viewerCount: updatedSession.viewerCount });
+                ],
+                { new: true }
+              );
+              if (updatedSession) {
+                await Stylist.findByIdAndUpdate(stylistId, { viewerCount: updatedSession.viewerCount });
+                liveNsp.to(currentRoom).emit('live:viewer-count', { viewerCount: updatedSession.viewerCount });
+              }
+            }
           }
         } catch (err) {
           logger.error('[live:join-room] error:', { error: (err as Error).message });
         }
       }
 
+      if (!currentRoom) return;
       const viewerId = userId || `anon_${socket.id.slice(-6)}`;
       liveNsp.to(currentRoom).emit('live:user-joined', { userId: viewerId, userRole, socketId: socket.id });
 
@@ -560,6 +562,7 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
       if (!currentRoom) return;
       if (hasLeftRoom) return;
       hasLeftRoom = true;
+      viewerCountedBy.delete(socket.id);
       const stylistId = currentRoom.replace('live:', '');
 
       if (userRole !== 'stylist') {
@@ -836,6 +839,14 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
       socket.to(data.targetSocketId).emit('live:webrtc-ice-candidate', {
         candidate: data.candidate,
         senderSocketId: socket.id,
+      });
+    });
+
+    socket.on('live:request-stream', (data: { stylistId: string }) => {
+      if (!currentRoom) return;
+      liveNsp.to(currentRoom).emit('live:request-stream', {
+        userId: userId || `anon_${socket.id.slice(-6)}`,
+        socketId: socket.id,
       });
     });
 

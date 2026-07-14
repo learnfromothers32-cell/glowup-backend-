@@ -167,16 +167,66 @@ export default function StylistLive() {
       }
     };
 
+    const handleRequestStream = async (data: { userId: string; socketId: string }) => {
+      if (pcs.size >= MAX_VIEWERS) return;
+
+      // Close any existing PC for this consumer so we can renegotiate
+      const existing = pcs.get(data.socketId);
+      if (existing) {
+        existing.close();
+        pcs.delete(data.socketId);
+      }
+
+      const stream = await getStream();
+      const pc = new RTCPeerConnection(ICE_SERVERS);
+      pcs.set(data.socketId, pc);
+
+      stream.getTracks().forEach(track => pc.addTrack(track, stream));
+
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit('live:webrtc-ice-candidate', {
+            stylistId, candidate: event.candidate.toJSON(), targetSocketId: data.socketId,
+          });
+        }
+      };
+
+      pc.oniceconnectionstatechange = () => {
+        if (pc.iceConnectionState === 'connected') {
+          setWebrtcConnected(true);
+        }
+        if (pc.iceConnectionState === 'failed') {
+          logger.warn('[WebRTC] Connection failed for viewer:', data.socketId);
+          pc.close();
+          pcs.delete(data.socketId);
+        }
+      };
+
+      try {
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        socket.emit('live:webrtc-offer', {
+          stylistId, offer: pc.localDescription, targetSocketId: data.socketId,
+        });
+      } catch (err) {
+        logger.error('[WebRTC] createOffer error:', err);
+        pc.close();
+        pcs.delete(data.socketId);
+      }
+    };
+
     socket.on('live:user-joined', handleUserJoined);
     socket.on('live:user-left', handleUserLeft);
     socket.on('live:webrtc-answer', handleAnswer);
     socket.on('live:webrtc-ice-candidate', handleIceCandidate);
+    socket.on('live:request-stream', handleRequestStream);
 
     return () => {
       socket.off('live:user-joined', handleUserJoined);
       socket.off('live:user-left', handleUserLeft);
       socket.off('live:webrtc-answer', handleAnswer);
       socket.off('live:webrtc-ice-candidate', handleIceCandidate);
+      socket.off('live:request-stream', handleRequestStream);
       pcs.forEach(pc => pc.close());
       pcs.clear();
       setWebrtcConnected(false);

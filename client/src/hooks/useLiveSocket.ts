@@ -120,5 +120,10 @@ export function useLiveSocket(stylistId?: string) {
     socketRef.current?.emit("live:like", { stylistId });
   }, [stylistId]);
 
-  return { connected, on, off, emit, sendMessage, sendLike, rejoinRoom };
+  const requestStream = useCallback(() => {
+    if (!stylistId) return;
+    socketRef.current?.emit("live:request-stream", { stylistId });
+  }, [stylistId]);
+
+  return { connected, on, off, emit, sendMessage, sendLike, rejoinRoom, requestStream };
 }

@@ -57,7 +57,7 @@ export default function LiveRoom() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const { connected, on, off, emit, sendMessage, sendLike, rejoinRoom } = useLiveSocket(stylistId);
+  const { connected, on, off, emit, sendMessage, sendLike, rejoinRoom, requestStream } = useLiveSocket(stylistId);
 
   // Load stylist data
   useEffect(() => {
@@ -288,6 +288,27 @@ export default function LiveRoom() {
       }
     };
   }, [stylistId, streamEnded, connected, on, off, emit]);
+
+  // Retry: if no remote stream within 5s of connecting, request one from
+  // the stylist.  Retries every 5s until the stream arrives or the page
+  // is left.
+  useEffect(() => {
+    if (!connected || streamEnded || !isLive) return;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+
+    const scheduleRetry = (delay: number) => {
+      const t = setTimeout(() => {
+        if (!remoteStream && connected && !streamEnded && isLive) {
+          requestStream();
+          scheduleRetry(5000);
+        }
+      }, delay);
+      timers.push(t);
+    };
+
+    scheduleRetry(5000);
+    return () => timers.forEach(clearTimeout);
+  }, [connected, streamEnded, isLive, remoteStream, requestStream]);
 
   const handleClose = useCallback(() => {
     if (window.history.length > 1) {

@@ -15,6 +15,14 @@ import { toPublicQueue } from '../utils/queue';
 
 let io: Server;
 
+function sanitizeMessage(text: string): string {
+  return text
+    .replace(/[<>]/g, '')
+    .replace(/javascript:/gi, '')
+    .trim()
+    .slice(0, 500);
+}
+
 // ── In-memory user socket map ──
 const userSockets = new Map<string, Set<string>>();
 
@@ -23,11 +31,14 @@ class RoomState {
   private redis: Redis | null;
   private prefix: string;
   private fallback: Map<string, Set<string>>;
+  private lastAccessed: Map<string, number>;
+  private static readonly ROOM_TTL = 30 * 60 * 1000;
 
   constructor(redis: Redis | null, prefix: string) {
     this.redis = redis;
     this.prefix = prefix;
     this.fallback = new Map();
+    this.lastAccessed = new Map();
   }
 
   async add(room: string, member: string): Promise<void> {
@@ -37,6 +48,7 @@ class RoomState {
     } else {
       if (!this.fallback.has(room)) this.fallback.set(room, new Set());
       this.fallback.get(room)!.add(member);
+      this.lastAccessed.set(room, Date.now());
     }
   }
 
@@ -44,6 +56,7 @@ class RoomState {
     if (this.redis) {
       return (await this.redis.sismember(`${this.prefix}:${room}`, member)) === 1;
     }
+    this.lastAccessed.set(room, Date.now());
     return this.fallback.get(room)?.has(member) ?? false;
   }
 
@@ -52,6 +65,7 @@ class RoomState {
       await this.redis.srem(`${this.prefix}:${room}`, member);
     } else {
       this.fallback.get(room)?.delete(member);
+      this.lastAccessed.set(room, Date.now());
     }
   }
 
@@ -60,6 +74,7 @@ class RoomState {
       await this.redis.del(`${this.prefix}:${room}`);
     } else {
       this.fallback.delete(room);
+      this.lastAccessed.delete(room);
     }
   }
 
@@ -68,6 +83,18 @@ class RoomState {
       return await this.redis.scard(`${this.prefix}:${room}`);
     }
     return this.fallback.get(room)?.size ?? 0;
+  }
+
+  cleanup(): void {
+    if (this.redis) return;
+    const now = Date.now();
+    for (const [room, members] of this.fallback) {
+      const lastAccess = this.lastAccessed.get(room) ?? 0;
+      if (members.size === 0 || now - lastAccess > RoomState.ROOM_TTL) {
+        this.fallback.delete(room);
+        this.lastAccessed.delete(room);
+      }
+    }
   }
 }
 
@@ -86,6 +113,28 @@ function checkRateLimit(key: string): boolean {
   bucket.count += 1;
   return bucket.count <= RATE_LIMIT_MAX;
 }
+
+function cleanupRateLimitBuckets() {
+  const now = Date.now();
+  for (const [key, bucket] of rateLimitBuckets) {
+    if (now > bucket.resetAt) rateLimitBuckets.delete(key);
+  }
+  for (const [key, bucket] of queueRateLimitBuckets) {
+    if (now > bucket.resetAt) queueRateLimitBuckets.delete(key);
+  }
+}
+
+setInterval(cleanupRateLimitBuckets, 60_000);
+
+// ── Room state cleanup (every 5 minutes) ──
+const roomStateInstances: RoomState[] = [];
+function registerRoomState(rs: RoomState) { roomStateInstances.push(rs); }
+function cleanupAllRoomStates() {
+  for (const rs of roomStateInstances) rs.cleanup();
+}
+const roomCleanupInterval = setInterval(cleanupAllRoomStates, 5 * 60 * 1000);
+process.on('SIGTERM', () => { clearInterval(roomCleanupInterval); cleanupAllRoomStates(); });
+process.on('SIGINT', () => { clearInterval(roomCleanupInterval); cleanupAllRoomStates(); });
 
 // ── Queue namespace rate limiting ──
 const queueRateLimitBuckets = new Map<string, { count: number; resetAt: number }>();
@@ -122,6 +171,7 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
     },
     pingInterval: 25000,
     pingTimeout: 20000,
+    connectTimeout: 10000,
   });
 
   // ── Redis adapter for multi-instance support ──
@@ -144,6 +194,9 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
   const roomMutedUsers = new RoomState(redisPub, 'live:muted');
   const roomBlockedUsers = new RoomState(redisPub, 'live:blocked');
   const sessionLikers = new RoomState(redisPub, 'live:likers');
+  registerRoomState(roomMutedUsers);
+  registerRoomState(roomBlockedUsers);
+  registerRoomState(sessionLikers);
 
   io.use(async (socket, next) => {
     const token = socket.handshake.auth?.token || socket.handshake.query?.token;
@@ -430,23 +483,51 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
     const userId = user?.id;
     const userRole = user?.role;
     let currentRoom: string | null = null;
+    let hasLeftRoom = false;
 
     socket.on('live:join-room', async (data: { stylistId: string }) => {
       const { stylistId } = data;
-      currentRoom = `live:${stylistId}`;
-      socket.join(currentRoom);
+      const MAX_VIEWERS = 50;
 
       if (userRole !== 'stylist') {
         try {
           const session = await LiveSession.findOne({ stylistId, isLive: true });
-          if (session) {
-            session.viewerCount += 1;
-            if (session.viewerCount > session.peakViewers) {
-              session.peakViewers = session.viewerCount;
-            }
-            await session.save();
-            await Stylist.findByIdAndUpdate(stylistId, { viewerCount: session.viewerCount });
-            liveNsp.to(currentRoom).emit('live:viewer-count', { viewerCount: session.viewerCount });
+          if (!session) {
+            socket.emit('live:error', { message: 'Stream not found.' });
+            return;
+          }
+          if (session.viewerCount >= MAX_VIEWERS) {
+            socket.emit('live:error', { message: 'Stream is full. Try again later.' });
+            return;
+          }
+        } catch (err) {
+          logger.error('[live:join-room] validation error:', { error: (err as Error).message });
+        }
+      }
+
+      currentRoom = `live:${stylistId}`;
+      hasLeftRoom = false;
+      socket.join(currentRoom);
+
+      if (userRole !== 'stylist') {
+        try {
+          const updatedSession = await LiveSession.findOneAndUpdate(
+            { stylistId, isLive: true },
+            [
+              {
+                $set: {
+                  viewerCount: { $add: ['$viewerCount', 1] },
+                  peakViewers: {
+                    $max: ['$peakViewers', { $add: ['$viewerCount', 1] }],
+                  },
+                },
+              },
+            ],
+            { new: true }
+          );
+          if (updatedSession) {
+            await Stylist.findByIdAndUpdate(stylistId, { viewerCount: updatedSession.viewerCount });
+            liveNsp.to(currentRoom).emit('live:viewer-count', { viewerCount: updatedSession.viewerCount });
           }
         } catch (err) {
           logger.error('[live:join-room] error:', { error: (err as Error).message });
@@ -459,16 +540,20 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
 
     socket.on('live:leave-room', async () => {
       if (!currentRoom) return;
+      if (hasLeftRoom) return;
+      hasLeftRoom = true;
       const stylistId = currentRoom.replace('live:', '');
 
       if (userRole !== 'stylist') {
         try {
-          const session = await LiveSession.findOne({ stylistId, isLive: true });
-          if (session && session.viewerCount > 0) {
-            session.viewerCount -= 1;
-            await session.save();
-            await Stylist.findByIdAndUpdate(stylistId, { viewerCount: session.viewerCount });
-            liveNsp.to(currentRoom).emit('live:viewer-count', { viewerCount: session.viewerCount });
+          const updatedSession = await LiveSession.findOneAndUpdate(
+            { stylistId, isLive: true, viewerCount: { $gt: 0 } },
+            { $inc: { viewerCount: -1 } },
+            { new: true }
+          );
+          if (updatedSession) {
+            await Stylist.findByIdAndUpdate(stylistId, { viewerCount: updatedSession.viewerCount });
+            liveNsp.to(currentRoom).emit('live:viewer-count', { viewerCount: updatedSession.viewerCount });
           }
         } catch (err) {
           logger.error('[live:leave-room] error:', { error: (err as Error).message });
@@ -509,7 +594,7 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
           userId: senderId,
           userName,
           userRole: role,
-          message: data.message.trim()
+          message: sanitizeMessage(data.message)
         };
         if (data.parentId) {
           msgData.parentId = data.parentId;
@@ -522,7 +607,7 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
           userId: senderId,
           userName,
           userRole: role,
-          message: data.message.trim(),
+          message: sanitizeMessage(data.message),
           parentId: data.parentId,
           createdAt: msg.createdAt
         });
@@ -532,21 +617,20 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
     });
 
     socket.on('live:like', async (data: { stylistId: string }) => {
-      const room = `live:${data.stylistId}`;
       const likerId = userId || socket.id;
       const alreadyLiked = await sessionLikers.has(data.stylistId, likerId);
       if (alreadyLiked) return;
       await sessionLikers.add(data.stylistId, likerId);
       try {
-        const session = await LiveSession.findOne({ stylistId: data.stylistId, isLive: true });
-        if (session) {
-          session.reactionCounts.like = await sessionLikers.size(data.stylistId);
-          await session.save();
-          liveNsp.to(room).emit('live:like-update', {
-            totalLikes: await sessionLikers.size(data.stylistId),
-            userId: likerId,
-          });
-        }
+        const totalLikes = await sessionLikers.size(data.stylistId);
+        await LiveSession.findOneAndUpdate(
+          { stylistId: data.stylistId, isLive: true },
+          { $set: { 'reactionCounts.like': totalLikes } }
+        );
+        liveNsp.to(`live:${data.stylistId}`).emit('live:like-update', {
+          totalLikes,
+          userId: likerId,
+        });
       } catch (err) {
         logger.error('[live:like] error:', { error: (err as Error).message });
       }
@@ -559,13 +643,11 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
       const rateKey = `reaction:${userId || socket.id}`;
       if (!checkRateLimit(rateKey)) return;
       try {
-        const session = await LiveSession.findOne({ stylistId: data.stylistId, isLive: true });
-        if (session) {
-          const key = `reactionCounts.${data.reaction}` as const;
-          (session as any)[key] = ((session as any)[key] || 0) + 1;
-          session.peakViewers = Math.max(session.peakViewers, session.viewerCount);
-          await session.save();
-        }
+        const key = `reactionCounts.${data.reaction}`;
+        await LiveSession.findOneAndUpdate(
+          { stylistId: data.stylistId, isLive: true },
+          { $inc: { [key]: 1 } }
+        );
       } catch (err) {
         logger.error('[live:reaction] error:', { error: (err as Error).message });
       }
@@ -640,15 +722,35 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
       const room = `live:${data.stylistId}`;
       const rateKey = `gift:${userId || socket.id}`;
       if (!checkRateLimit(rateKey)) return;
+
+      if (!socket.rooms.has(room)) return;
+
+      if (!userId || userRole === 'stylist') {
+        socket.emit('live:error', { message: 'Only authenticated viewers can send gifts.' });
+        return;
+      }
+
+      if (!data.coinAmount || data.coinAmount <= 0 || data.coinAmount > 10000) return;
+
       try {
+        const { User: UserModel } = await import('../models/User');
+        const updatedUser = await UserModel.findOneAndUpdate(
+          { _id: userId, points: { $gte: data.coinAmount } },
+          { $inc: { points: -data.coinAmount } },
+          { new: true }
+        );
+        if (!updatedUser) {
+          socket.emit('live:error', { message: 'Insufficient coin balance.' });
+          return;
+        }
+
         const session = await LiveSession.findOne({ stylistId: data.stylistId, isLive: true });
         if (session) {
-          const senderId = userId || `anon_${socket.id.slice(-6)}`;
-          const senderName = userRole === 'stylist' ? 'Stylist' : (userId ? `Viewer_${userId.slice(-4)}` : `Guest_${socket.id.slice(-4)}`);
+          const senderName = `Viewer_${userId.slice(-4)}`;
 
           await GiftTransaction.create({
             sessionId: session._id,
-            fromUserId: senderId,
+            fromUserId: userId,
             fromUserName: senderName,
             toStylistId: data.stylistId,
             giftId: data.giftId,
@@ -662,24 +764,40 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
           session.totalCoins = (session.totalCoins || 0) + data.coinAmount;
           await session.save();
         }
+
+        liveNsp.to(room).emit('live:gift-received', {
+          userId: userId,
+          userName: `Viewer_${userId.slice(-4)}`,
+          giftId: data.giftId,
+          giftName: data.giftName,
+          giftIcon: data.giftIcon,
+          coinAmount: data.coinAmount,
+          animation: data.animation,
+        });
       } catch (err) {
         logger.error('[live:send-gift] error:', { error: (err as Error).message });
       }
-      liveNsp.to(room).emit('live:gift-received', {
-        userId: userId || socket.id,
-        userName: userRole === 'stylist' ? 'Stylist' : (userId ? `Viewer_${userId.slice(-4)}` : `Guest_${socket.id.slice(-4)}`),
-        giftId: data.giftId,
-        giftName: data.giftName,
-        giftIcon: data.giftIcon,
-        coinAmount: data.coinAmount,
-        animation: data.animation,
-      });
     });
 
     socket.on('live:stream-end', async (data: { stylistId: string }) => {
       if (userRole !== 'stylist') return;
+      try {
+        const session = await LiveSession.findOne({ stylistId: data.stylistId, isLive: true });
+        if (!session) return;
+        const stylist = await Stylist.findOne({ userId });
+        if (!stylist || stylist.id.toString() !== session.stylistId.toString()) {
+          socket.emit('live:error', { message: 'You do not own this stream.' });
+          return;
+        }
+      } catch (err) {
+        logger.error('[live:stream-end] ownership check error:', { error: (err as Error).message });
+        return;
+      }
       const room = `live:${data.stylistId}`;
       liveNsp.to(room).emit('live:stream-ended', { stylistId: data.stylistId });
+      roomMutedUsers.removeRoom(room).catch(() => {});
+      roomBlockedUsers.removeRoom(room).catch(() => {});
+      sessionLikers.removeRoom(room).catch(() => {});
     });
 
     socket.on('live:webrtc-offer', (data: { stylistId: string; offer: any; targetSocketId: string }) => {
@@ -704,15 +822,18 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
     });
 
     socket.on('disconnect', async () => {
-      if (currentRoom && userRole !== 'stylist') {
+      if (currentRoom && userRole !== 'stylist' && !hasLeftRoom) {
+        hasLeftRoom = true;
         const stylistId = currentRoom.replace('live:', '');
         try {
-          const session = await LiveSession.findOne({ stylistId, isLive: true });
-          if (session && session.viewerCount > 0) {
-            session.viewerCount -= 1;
-            await session.save();
-            await Stylist.findByIdAndUpdate(stylistId, { viewerCount: session.viewerCount });
-            liveNsp.to(currentRoom).emit('live:viewer-count', { viewerCount: session.viewerCount });
+          const updatedSession = await LiveSession.findOneAndUpdate(
+            { stylistId, isLive: true, viewerCount: { $gt: 0 } },
+            { $inc: { viewerCount: -1 } },
+            { new: true }
+          );
+          if (updatedSession) {
+            await Stylist.findByIdAndUpdate(stylistId, { viewerCount: updatedSession.viewerCount });
+            liveNsp.to(currentRoom).emit('live:viewer-count', { viewerCount: updatedSession.viewerCount });
           }
         } catch (err) {
           logger.error('[live:disconnect] viewer decrement error:', { error: (err as Error).message });
@@ -738,6 +859,10 @@ export const initSocket = async (server: HttpServer): Promise<Server> => {
             await stylist.save();
             liveNsp.emit('live:stylist-offline', { stylistId: stylist.id });
             io.emit('live:stylist-offline', { stylistId: stylist.id });
+            const cleanupRoom = `live:${stylist.id}`;
+            roomMutedUsers.removeRoom(cleanupRoom).catch(() => {});
+            roomBlockedUsers.removeRoom(cleanupRoom).catch(() => {});
+            sessionLikers.removeRoom(cleanupRoom).catch(() => {});
           }
         } catch (err) {
           logger.error('[live:disconnect] stylist cleanup error:', { error: (err as Error).message });

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { logger } from "../../utils/logger";
 import { getStylistById } from "../../api/stylists";
 import { getLiveSession } from "../../api/live";
+import { getMyCredits } from "../../api/credits";
 import type { Stylist } from "@/domain/stylist/stylist.types";
 import { useLiveSocket } from "../../hooks/useLiveSocket";
 import { LivePlayerScreen } from "../../features/live/components/LivePlayerScreen";
@@ -52,6 +53,7 @@ export default function LiveRoom() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingStylist, setPendingStylist] = useState<Stylist | null>(null);
   const [giftToast, setGiftToast] = useState<string | null>(null);
+  const [giftBalance, setGiftBalance] = useState(0);
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -84,6 +86,14 @@ export default function LiveRoom() {
       .catch(() => { setStreamEnded(true); setIsLive(false); })
       .finally(() => setSessionLoading(false));
   }, [stylistId]);
+
+  // Load coin balance
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    getMyCredits()
+      .then((data) => setGiftBalance(data.balance || 0))
+      .catch(() => setGiftBalance(0));
+  }, [isAuthenticated]);
 
   // Socket event handlers
   useEffect(() => {
@@ -150,7 +160,21 @@ export default function LiveRoom() {
     if (!stylistId || streamEnded || !connected) return;
 
     const pcRefLocal = { current: null as RTCPeerConnection | null };
-    const ICE_SERVERS = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+    const ICE_SERVERS = {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        ...(import.meta.env.VITE_TURN_URL
+          ? [{
+              urls: import.meta.env.VITE_TURN_URL,
+              username: import.meta.env.VITE_TURN_USERNAME || '',
+              credential: import.meta.env.VITE_TURN_CREDENTIAL || '',
+            }]
+          : []),
+      ],
+    };
 
     const handleOffer = async (data: { offer: RTCSessionDescriptionInit; senderSocketId: string }) => {
       if (pcRefLocal.current) pcRefLocal.current.close();
@@ -178,7 +202,17 @@ export default function LiveRoom() {
       };
 
       pc.oniceconnectionstatechange = () => {
-        if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
+        if (pc.iceConnectionState === 'disconnected') {
+          logger.warn('[WebRTC] Connection lost, attempting recovery...');
+          setTimeout(() => {
+            if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
+              pc.close();
+              pcRefLocal.current = null;
+            }
+          }, 10000);
+        }
+        if (pc.iceConnectionState === 'failed') {
+          logger.error('[WebRTC] Connection failed');
           pc.close();
           pcRefLocal.current = null;
         }
@@ -271,7 +305,7 @@ export default function LiveRoom() {
   }, [stylistId, navigate]);
 
   const handleReaction = useCallback((type: string) => {
-    if (!stylistId || hasLiked || likeCooldown) return;
+    if (!stylistId || likeCooldown) return;
     emit('live:reaction', { stylistId, reaction: type });
     sendLike();
     setTotalLikes((prev) => prev + 1);
@@ -279,7 +313,7 @@ export default function LiveRoom() {
     setLikeCooldown(true);
     if (likeCoolRef.current) clearTimeout(likeCoolRef.current);
     likeCoolRef.current = setTimeout(() => setLikeCooldown(false), 2500);
-  }, [stylistId, emit, sendLike, hasLiked, likeCooldown]);
+  }, [stylistId, emit, sendLike, likeCooldown]);
 
   const handleBookClick = () => {
     if (!stylist) return;
@@ -344,7 +378,7 @@ export default function LiveRoom() {
         onSendGift={handleSendGift}
         onShare={handleShare}
         onReport={handleReport}
-        giftBalance={100}
+        giftBalance={giftBalance}
         giftAnimations={giftAnimations}
         onGiftAnimComplete={(id) => setGiftAnimations((prev) => prev.filter((g) => g.id !== id))}
         totalLikes={totalLikes}

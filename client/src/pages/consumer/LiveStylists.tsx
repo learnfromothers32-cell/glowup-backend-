@@ -5,6 +5,16 @@ import { getStylists } from "../../api/stylists";
 import type { Stylist } from "@/domain/stylist/stylist.types";
 import { Eye, Radio, X } from "lucide-react";
 
+function getInitials(name: string): string {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
 function formatViewers(n: number): string {
   if (n >= 10000) return `${(n / 1000).toFixed(1)}k`;
   if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
@@ -107,7 +117,7 @@ export default function LiveStylists() {
                       </span>
                       <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] text-white/80"
                         style={{ background: "rgba(0,0,0,0.5)" }}>
-                        <Eye size={9} /> {formatViewers(stylist.viewerCount || Math.floor(Math.random() * 87 + 5))}
+                        <Eye size={9} /> {formatViewers(stylist.viewerCount || 0)}
                       </span>
                     </div>
 

@@ -203,7 +203,7 @@ export default function LiveStrip({ liveStylists }: LiveStripProps) {
               >
                 <LiveAvatar
                   stylist={stylist}
-                  viewers={stylist.viewerCount || (Math.floor(Math.random() * 84) + 3)}
+                  viewers={stylist.viewerCount || 0}
                   onClick={() => handleSelect(stylist.id)}
                 />
               </motion.div>

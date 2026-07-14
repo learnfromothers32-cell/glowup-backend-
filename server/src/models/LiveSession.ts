@@ -71,8 +71,8 @@ const liveSessionSchema = new Schema<ILiveSession>(
     description: { type: String, default: '', maxlength: 500 },
     category: {
       type: String,
-      enum: ['fitness', 'startup', 'career', 'productivity', 'wellness', 'business', 'financial-literacy', 'community'],
-      default: 'wellness',
+      enum: ['hairstyling', 'makeup', 'skincare', 'nail-art', 'braids-weaves', 'barbering', 'waxing-threading', 'beauty-tips'],
+      default: 'hairstyling',
       index: true,
     },
     privacy: { type: String, enum: ['public', 'followers', 'private'], default: 'public' },
@@ -104,8 +104,8 @@ const liveScheduleSchema = new Schema<ILiveSchedule>(
     description: { type: String, default: '', maxlength: 500 },
     category: {
       type: String,
-      enum: ['fitness', 'startup', 'career', 'productivity', 'wellness', 'business', 'financial-literacy', 'community'],
-      default: 'wellness',
+      enum: ['hairstyling', 'makeup', 'skincare', 'nail-art', 'braids-weaves', 'barbering', 'waxing-threading', 'beauty-tips'],
+      default: 'hairstyling',
     },
     scheduledAt: { type: Date, required: true },
     durationMinutes: { type: Number, default: 30 },

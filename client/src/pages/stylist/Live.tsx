@@ -66,7 +66,22 @@ export default function StylistLive() {
     if (!isLive || !socket || !stylistId) return;
 
     const pcs = new Map<string, RTCPeerConnection>();
-    const ICE_SERVERS = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+    const MAX_VIEWERS = 50;
+    const ICE_SERVERS = {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' },
+        ...(import.meta.env.VITE_TURN_URL
+          ? [{
+              urls: import.meta.env.VITE_TURN_URL,
+              username: import.meta.env.VITE_TURN_USERNAME || '',
+              credential: import.meta.env.VITE_TURN_CREDENTIAL || '',
+            }]
+          : []),
+      ],
+    };
 
     const getStream = async () => {
       while (!streamRef.current) {
@@ -78,6 +93,7 @@ export default function StylistLive() {
     const handleUserJoined = async (data: { userId: string; userRole: string; socketId: string }) => {
       if (data.userRole === 'stylist') return;
       if (pcs.has(data.socketId)) return;
+      if (pcs.size >= MAX_VIEWERS) return;
 
       setActiveViewers(prev => new Set(prev).add(data.userId));
 
@@ -99,10 +115,20 @@ export default function StylistLive() {
         if (pc.iceConnectionState === 'connected') {
           setWebrtcConnected(true);
         }
-        if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
+        if (pc.iceConnectionState === 'failed') {
+          logger.warn('[WebRTC] Connection failed for viewer:', data.socketId);
           pc.close();
           pcs.delete(data.socketId);
           setActiveViewers(prev => { const n = new Set(prev); n.delete(data.userId); return n; });
+        }
+        if (pc.iceConnectionState === 'disconnected') {
+          setTimeout(() => {
+            if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
+              pc.close();
+              pcs.delete(data.socketId);
+              setActiveViewers(prev => { const n = new Set(prev); n.delete(data.userId); return n; });
+            }
+          }, 10000);
         }
       };
 
@@ -181,7 +207,7 @@ export default function StylistLive() {
       setGoLiveError("Camera access is required to go live.");
       return;
     }
-    const ok = await goLive(title);
+    const ok = await goLive(title, streamCategory, "public");
     if (!ok) {
       setGoLiveError("Failed to start the stream. Check your connection and try again.");
     }

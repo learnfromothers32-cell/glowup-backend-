@@ -435,7 +435,7 @@ export default function BrowseStylists() {
               {category !== "all"
                 ? `No stylists available in ${categoryName} right now. Try another category.`
                 : "No stylists are available yet. Check back soon."}
-            </p>
+            </p> 
             <Button
               onClick={() => navigate("/app")}
               variant="primary"

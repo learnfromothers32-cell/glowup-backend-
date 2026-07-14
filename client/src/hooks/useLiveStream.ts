@@ -108,10 +108,10 @@ export function useLiveStream() {
     socket.emit("live:join-room", { stylistId });
   }, [socket, stylistId]);
 
-  const goLive = useCallback(async (title?: string): Promise<boolean> => {
+  const goLive = useCallback(async (title?: string, category?: string, privacy?: string): Promise<boolean> => {
     setLoading(true);
     try {
-      const sess = await startLive(title);
+      const sess = await startLive(title, category, privacy);
       setSession(sess);
       setIsLive(true);
       setViewerCount(sess.viewerCount || 0);

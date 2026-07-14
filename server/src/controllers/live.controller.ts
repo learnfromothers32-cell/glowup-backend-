@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { LiveSession, LiveChatMessage, LiveSchedule, ILiveSession } from '../models/LiveSession';
 import { LiveReport } from '../models/LiveReport';
+import { GiftTransaction } from '../models/LiveGift';
 import { Stylist } from '../models/Stylist';
 import { User } from '../models/User';
 import { Notification } from '../models/Notification';
@@ -17,18 +18,34 @@ export const startLive = asyncHandler(async (req: Request, res: Response) => {
   const stylist = await Stylist.findOne({ userId });
   if (!stylist) throw new ApiError(404, 'Stylist profile not found');
 
-  let session = await LiveSession.findOne({ stylistId: stylist.id, isLive: true });
+  const staleThreshold = new Date(Date.now() - 2 * 60 * 60 * 1000);
+
+  let session = await LiveSession.findOne({
+    stylistId: stylist.id,
+    isLive: true,
+    startedAt: { $gte: staleThreshold },
+  });
   if (session) {
     return sendSuccess(res, { session: toPublicSession(session) }, 'Already live');
   }
 
-  await LiveSession.deleteOne({ stylistId: stylist.id });
+  const staleSessions = await LiveSession.find({
+    stylistId: stylist.id,
+    isLive: true,
+    startedAt: { $lt: staleThreshold },
+  });
+  if (staleSessions.length > 0) {
+    const staleIds = staleSessions.map((s) => s._id);
+    await LiveChatMessage.deleteMany({ sessionId: { $in: staleIds } });
+    await GiftTransaction.deleteMany({ sessionId: { $in: staleIds } });
+    await LiveSession.deleteMany({ _id: { $in: staleIds } });
+  }
 
   session = await LiveSession.create({
     stylistId: stylist.id,
     title: title || 'Live Session',
     description: description || '',
-    category: category || 'wellness',
+    category: category || 'hairstyling',
     privacy: privacy || 'public',
     isLive: true,
     startedAt: new Date(),
@@ -111,10 +128,28 @@ export const stopLive = asyncHandler(async (req: Request, res: Response) => {
 
 export const getLiveSession = asyncHandler(async (req: Request, res: Response) => {
   const { stylistId } = req.params;
+  const userId = req.user?.id;
 
   const session = await LiveSession.findOne({ stylistId, isLive: true });
   if (!session) {
     return sendSuccess(res, { session: null }, 'No active session');
+  }
+
+  if (session.privacy === 'private') {
+    if (!userId) throw new ApiError(403, 'This is a private stream');
+    const stylist = await Stylist.findById(stylistId).select('userId');
+    if (stylist?.userId?.toString() !== userId) {
+      throw new ApiError(403, 'This is a private stream');
+    }
+  }
+
+  if (session.privacy === 'followers') {
+    if (!userId) throw new ApiError(403, 'This stream is for followers only');
+    const user = await User.findById(userId).select('favorites');
+    const isFollower = user?.favorites?.some((f) => f.toString() === stylistId);
+    if (!isFollower) {
+      throw new ApiError(403, 'This stream is for followers only');
+    }
   }
 
   const recentMessages = await LiveChatMessage.find({ sessionId: session._id })
@@ -145,6 +180,7 @@ export const getLiveMessages = asyncHandler(async (req: Request, res: Response) 
 
 export const getTrendingStreams = asyncHandler(async (req: Request, res: Response) => {
   const { category, limit = '20' } = req.query;
+  const userId = req.user?.id;
 
   const filter: any = { isLive: true };
   if (category && category !== 'all') {
@@ -156,8 +192,17 @@ export const getTrendingStreams = asyncHandler(async (req: Request, res: Respons
     .limit(parseInt(limit as string, 10))
     .populate('stylistId', 'name image category location isVerified');
 
+  let followedIds = new Set<string>();
+  if (userId) {
+    const user = await User.findById(userId).select('favorites');
+    if (user?.favorites) {
+      followedIds = new Set(user.favorites.map((f) => f.toString()));
+    }
+  }
+
   const streams = await Promise.all(sessions.map(async (s) => {
     const stylist = s.stylistId as any;
+    const stylistIdStr = (stylist?._id || s.stylistId).toString();
     return {
       id: s._id,
       stylistId: stylist?._id || s.stylistId,
@@ -166,7 +211,7 @@ export const getTrendingStreams = asyncHandler(async (req: Request, res: Respons
         name: stylist?.name || 'Unknown',
         image: stylist?.image,
         isVerified: stylist?.isVerified || false,
-        isFollowing: false,
+        isFollowing: followedIds.has(stylistIdStr),
         role: 'stylist',
       },
       title: s.title,
@@ -250,8 +295,17 @@ export const getLiveFeed = asyncHandler(async (req: Request, res: Response) => {
     LiveSession.countDocuments(query),
   ]);
 
+  let followedIds = new Set<string>();
+  if (userId) {
+    const user = await User.findById(userId).select('favorites');
+    if (user?.favorites) {
+      followedIds = new Set(user.favorites.map((f) => f.toString()));
+    }
+  }
+
   const streams = sessions.map((s) => {
     const stylist = s.stylistId as any;
+    const stylistIdStr = (stylist?._id || s.stylistId).toString();
     return {
       id: s._id,
       stylistId: stylist?._id || s.stylistId,
@@ -260,7 +314,7 @@ export const getLiveFeed = asyncHandler(async (req: Request, res: Response) => {
         name: stylist?.name || 'Unknown',
         image: stylist?.image,
         isVerified: stylist?.isVerified || false,
-        isFollowing: false,
+        isFollowing: followedIds.has(stylistIdStr),
         role: 'stylist',
       },
       title: s.title,
@@ -297,7 +351,7 @@ export const scheduleLive = asyncHandler(async (req: Request, res: Response) => 
     stylistId: stylist.id,
     title,
     description: description || '',
-    category: category || 'wellness',
+    category: category || 'hairstyling',
     scheduledAt: new Date(scheduledAt),
     durationMinutes: durationMinutes || 30,
   });

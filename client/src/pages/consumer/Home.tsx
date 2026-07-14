@@ -203,7 +203,12 @@ export default function Home() {
         : prev
       );
     });
-    return () => { socket.removeAllListeners(); if (socket.connected) socket.disconnect(); };
+    return () => {
+      socket.off("live:stylist-online", refresh);
+      socket.off("live:stylist-offline", refresh);
+      socket.off("stylist:location-updated");
+      if (socket.connected) socket.disconnect();
+    };
   }, []);
 
   const filteredStylists = useMemo(() => {

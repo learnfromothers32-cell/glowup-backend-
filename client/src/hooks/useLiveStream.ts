@@ -34,6 +34,7 @@ export function useLiveStream() {
   const [loading, setLoading] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [connected, setConnected] = useState(false);
   const [stylistId, setStylistId] = useState<string | null>(null);
   const stylistIdRef = useRef<string | null>(null);
   const joinedRef = useRef(false);
@@ -88,10 +89,13 @@ export function useLiveStream() {
     s.on("connect", () => {
       console.log(`[LIVE-DEBUG] stylist socket connected: id=${s.id}`);
       joinedRef.current = false;
+      setConnected(true);
     });
 
     s.on("disconnect", (reason) => {
       console.log(`[LIVE-DEBUG] stylist socket disconnected: reason=${reason}`);
+      setConnected(false);
+      joinedRef.current = false;
     });
 
     return () => {
@@ -100,6 +104,7 @@ export function useLiveStream() {
       }
       s.removeAllListeners();
       s.disconnect();
+      setConnected(false);
       joinedRef.current = false;
     };
   }, []);
@@ -108,7 +113,7 @@ export function useLiveStream() {
   // Uses queueMicrotask so the parent component's WebRTC effects
   // (which register live:user-joined handlers) run first.
   useEffect(() => {
-    if (!socket || !stylistId || !socket.connected || joinedRef.current) return;
+    if (!socket || !stylistId || !connected || joinedRef.current) return;
     queueMicrotask(() => {
       if (socket.connected) {
         console.log(`[LIVE-DEBUG] stylist emitting join-room: stylistId=${stylistId} socketId=${socket.id}`);
@@ -116,7 +121,7 @@ export function useLiveStream() {
         joinedRef.current = true;
       }
     });
-  }, [socket, stylistId]);
+  }, [connected, stylistId]);
 
   const goLive = useCallback(async (title?: string, category?: string, privacy?: string): Promise<boolean> => {
     setLoading(true);

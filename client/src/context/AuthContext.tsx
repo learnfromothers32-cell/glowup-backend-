@@ -4,10 +4,9 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import axios from "axios";
 import type { UserRole, User } from "../types/auth";
 import * as authApi from "../api/auth";
-import { setAccessToken, API_SERVER_URL } from "../api/axios";
+import { setAccessToken } from "../api/axios";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { getFirebaseAuth, getGoogleProvider, getGithubProvider, getAppleProvider } from "../config/firebase";
 import { identifyUser, resetAnalytics, trackEvent } from "../services/analytics";
@@ -100,23 +99,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     isAuthenticated: false,
   });
 
-  // Restore session on mount: quick health check to wake server, then validate
+  // Restore session on mount — call getMe directly; the 401 interceptor
+  // will attempt a silent refresh before rejecting. Wrapped in a 15s
+  // timeout so cold Render servers don't block the UI for minutes.
   useEffect(() => {
     let cancelled = false;
     const restore = async () => {
       try {
-        await axios.get(`${API_SERVER_URL}/api/hello`, { timeout: 8000 });
-      } catch {
-        // Server might be cold — don't wait, show login immediately
-        if (!cancelled) dispatch({ type: "LOGOUT" });
-        return;
-      }
-      if (cancelled) return;
-      try {
-        const res = await authApi.getMe();
+        const res = await Promise.race([
+          authApi.getMe(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("Session restore timed out")), 15000),
+          ),
+        ]);
         if (!cancelled) dispatch({ type: "SESSION_VALIDATED", payload: { user: res.data.user } });
-      } catch (err) {
-        console.error("[Auth] getMe failed on mount:", err);
+      } catch {
         if (!cancelled) dispatch({ type: "LOGOUT" });
       }
     };

@@ -96,7 +96,7 @@ export default function LiveRoomPage() {
   const isHost = useMemo(() => {
     if (!session || !user) return false;
     const hostUserId =
-      typeof session.stylistId === "object"
+      session.stylistId && typeof session.stylistId === "object"
         ? session.stylistId._id
         : session.hostUserId;
     return hostUserId === user.id || session.hostUserId === user.id;
@@ -104,13 +104,13 @@ export default function LiveRoomPage() {
 
   const stylistId = useMemo(() => {
     if (!session) return null;
-    return typeof session.stylistId === "object"
+    return session.stylistId && typeof session.stylistId === "object"
       ? session.stylistId._id
       : session.hostUserId;
   }, [session]);
 
   const stylist =
-    session && typeof session.stylistId === "object" ? session.stylistId : null;
+    session?.stylistId && typeof session.stylistId === "object" ? session.stylistId : null;
 
   // Load services + stylist profile
   useEffect(() => {

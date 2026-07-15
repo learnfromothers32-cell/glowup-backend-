@@ -17,9 +17,6 @@ export const IMAGES = {
   ],
   stylistAvatars: [PROFILE, PROFILE, PROFILE],
 
-  liveStream: "https://res.cloudinary.com/dbeasyror/image/upload/v1782491163/image-asset_dedfju.webp",
-  liveStreamerAvatar: PROFILE,
-
   trendingMain: "https://res.cloudinary.com/dbeasyror/image/upload/v1782491164/inspiresalon-june2023-255_zuik8l.jpg",
   trendingCreatorAvatar: PROFILE,
   trendingList: [

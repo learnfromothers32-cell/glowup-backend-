@@ -4,16 +4,15 @@ import { IStylist, Stylist } from '../models/Stylist';
 export interface StylistFilters {
   category?: string;
   search?: string;
-  isLive?: boolean;
   isVerified?: boolean;
   area?: string;
 }
 
 const SORT_MAP: Record<string, Record<string, 1 | -1>> = {
-  recommended: { isLive: -1, isVerified: -1, rating: -1, createdAt: -1, _id: 1 },
-  rating: { rating: -1, isLive: -1, isVerified: -1, createdAt: -1, _id: 1 },
-  price: { price: 1, isLive: -1, isVerified: -1, rating: -1, createdAt: -1, _id: 1 },
-  reviews: { reviewCount: -1, isLive: -1, isVerified: -1, rating: -1, createdAt: -1, _id: 1 },
+  recommended: { isVerified: -1, rating: -1, createdAt: -1, _id: 1 },
+  rating: { rating: -1, isVerified: -1, createdAt: -1, _id: 1 },
+  price: { price: 1, isVerified: -1, rating: -1, createdAt: -1, _id: 1 },
+  reviews: { reviewCount: -1, isVerified: -1, createdAt: -1, _id: 1 },
 };
 
 const formatPrice = (price: number) => `$${price}`;
@@ -62,9 +61,6 @@ export const toPublicStylist = (stylist: IStylist, services: IService[] = []) =>
   location: stylist.location,
   rating: stylist.rating,
   reviewCount: stylist.reviewCount,
-  isLive: stylist.isLive,
-  liveTitle: stylist.liveTitle,
-  viewerCount: stylist.viewerCount,
   isVerified: stylist.isVerified,
   createdAt: stylist.createdAt,
   image: stylist.image,
@@ -85,10 +81,6 @@ export const buildStylistFilter = (filters: StylistFilters) => {
 
   if (filters.category) {
     query.category = new RegExp(`^${filters.category}$`, 'i');
-  }
-
-  if (typeof filters.isLive === 'boolean') {
-    query.isLive = filters.isLive;
   }
 
   if (typeof filters.isVerified === 'boolean') {

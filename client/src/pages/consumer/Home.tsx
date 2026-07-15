@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react
 import { Link, useNavigate } from "react-router-dom";
 import { logger } from "../../utils/logger";
 import IntentBar from "../../features/consumer/components/IntentBar";
-import LiveStrip from "../../features/consumer/components/LiveStrip";
 import RecommendedSection from "../../features/consumer/components/RecommendedSection";
 import BookingModal from "../../features/consumer/components/BookingModal";
 import FilterBar, { type Filters } from "../../features/consumer/components/FilterBar";
@@ -13,14 +12,11 @@ import BeautyTips from "../../features/consumer/components/BeautyTips";
 import { getStylists } from "../../api/stylists";
 import { getMyBookings } from "../../api/bookings";
 import { getQueueStatus } from "../../api/queue";
-import { getLiveFeed } from "../../api/live";
 import type { Stylist } from "@/domain/stylist/stylist.types";
 import { useRecentlyViewed } from "../../hooks/useRecentlyViewed";
 import { useFavorites } from "../../hooks/useFavorites";
 import { useAuth } from "../../context/authUtils";
 import AuthModal from "../../features/consumer/components/AuthModal";
-import { io } from "socket.io-client";
-import { getSocketUrl } from "../../services/socket";
 import { haversineDistance } from "../../utils/distance";
 import { Clock, Sparkles, MapPin, ArrowRight, Zap, Hourglass, MoveRight, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -49,13 +45,12 @@ export default function Home() {
   const [allStylists, setAllStylists] = useState<Stylist[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Filters>({
-    search: "", priceMax: 500, distanceMax: 0, ratingMin: 0, liveOnly: false, sortBy: "rating",
+    search: "", priceMax: 500, distanceMax: 0, ratingMin: 0, sortBy: "rating",
   });
   const [bookingStylist, setBookingStylist] = useState<Stylist | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingStylist, setPendingStylist] = useState<Stylist | null>(null);
   const [nextBooking, setNextBooking] = useState<UpcomingBooking | null>(null);
-  const [liveSessionStylists, setLiveSessionStylists] = useState<Stylist[]>([]);
   const [activeCategory, setActiveCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -71,24 +66,6 @@ export default function Home() {
     try {
       const { stylists } = await getStylists();
       setAllStylists(stylists);
-      try {
-        const liveFeed = await getLiveFeed({ limit: 50 });
-        const mapped = (liveFeed.streams || []).map((s: any) => ({
-          id: s.stylistId,
-          name: s.stylist?.name || "Unknown Host",
-          image: s.stylist?.image || "",
-          viewerCount: s.viewerCount || 0,
-          isLive: true,
-          bio: "",
-          category: "",
-          location: { area: "", lat: 0, lng: 0 },
-          rating: 0,
-          reviewCount: 0,
-          isVerified: false,
-          createdAt: "",
-        })) as Stylist[];
-        setLiveSessionStylists(mapped);
-      } catch {}
       if (isAuthenticated) {
         const bookings = await getMyBookings();
         const upcoming = bookings.find((b: any) => b.status === 'confirmed' || b.status === 'pending');
@@ -134,22 +111,6 @@ export default function Home() {
         try {
           const { stylists } = await getStylists();
           setAllStylists(stylists);
-          const liveFeed = await getLiveFeed({ limit: 50 });
-          const mapped = (liveFeed.streams || []).map((s: any) => ({
-            id: s.stylistId,
-            name: s.stylist?.name || "Unknown Host",
-            image: s.stylist?.image || "",
-            viewerCount: s.viewerCount || 0,
-            isLive: true,
-            bio: "",
-            category: "",
-            location: { area: "", lat: 0, lng: 0 },
-            rating: 0,
-            reviewCount: 0,
-            isVerified: false,
-            createdAt: "",
-          })) as Stylist[];
-          setLiveSessionStylists(mapped);
         } catch {}
       }, 30000);
     };
@@ -177,26 +138,8 @@ export default function Home() {
         const { stylists } = await getStylists();
         setAllStylists(stylists);
         setLoading(false);
-        const liveFeed = await getLiveFeed({ limit: 50 });
-        const mapped = (liveFeed.streams || []).map((s: any) => ({
-          id: s.stylistId,
-          name: s.stylist?.name || "Unknown Host",
-          image: s.stylist?.image || "",
-          viewerCount: s.viewerCount || 0,
-          isLive: true,
-          bio: "",
-          category: "",
-          location: { area: "", lat: 0, lng: 0 },
-          rating: 0,
-          reviewCount: 0,
-          isVerified: false,
-          createdAt: "",
-        })) as Stylist[];
-        setLiveSessionStylists(mapped);
       } catch {}
     };
-    socket.on("live:stylist-online", refresh);
-    socket.on("live:stylist-offline", refresh);
     socket.on("stylist:location-updated", (data: { stylistId: string; location: { area: string; lat: number; lng: number } }) => {
       setAllStylists(prev => prev.some(s => s.id === data.stylistId)
         ? prev.map(s => s.id === data.stylistId ? { ...s, location: data.location } : s)
@@ -204,8 +147,6 @@ export default function Home() {
       );
     });
     return () => {
-      socket.off("live:stylist-online", refresh);
-      socket.off("live:stylist-offline", refresh);
       socket.off("stylist:location-updated");
       if (socket.connected) socket.disconnect();
     };
@@ -250,7 +191,6 @@ export default function Home() {
       });
     }
     result = result.filter(s => (s.rating ?? 0) >= filters.ratingMin);
-    if (filters.liveOnly) result = result.filter(s => s.isLive);
     switch (filters.sortBy) {
       case "rating": result.sort((a, b) => (b.rating || 0) - (a.rating || 0)); break;
       case "distance":
@@ -283,13 +223,6 @@ export default function Home() {
   const handleSelectStylistFromMap = (stylist: Stylist) => { addToRecentlyViewed(stylist); handleBook(stylist); };
   const handleBookFromRecommendation = (stylist: Stylist) => { addToRecentlyViewed(stylist); handleBook(stylist); };
   const handleFavoriteStylistClick = (stylist: Stylist) => { handleBook(stylist); };
-
-  const liveStylists = useMemo(() => {
-    const fromProfile = filteredStylists.filter(s => s.isLive);
-    const seen = new Set(fromProfile.map(s => s.id));
-    const fromSessions = liveSessionStylists.filter(s => !seen.has(s.id));
-    return [...fromProfile, ...fromSessions];
-  }, [filteredStylists, liveSessionStylists]);
 
   const handleSearchSubmit = () => {
     if (searchQuery.trim()) navigate(`/app/search?q=${encodeURIComponent(searchQuery.trim())}`);
@@ -330,8 +263,6 @@ export default function Home() {
           <ConsumerMap stylists={filteredStylists} onSelectStylist={handleSelectStylistFromMap} />
         </Suspense>
       </div>
-
-      <LiveStrip liveStylists={liveStylists} />
 
       {nextBooking && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>

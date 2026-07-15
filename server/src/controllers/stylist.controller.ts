@@ -52,7 +52,6 @@ export const getStylists = asyncHandler(async (req: Request, res: Response) => {
   const result = await getStylistsWithServices({
     category: typeof req.query.category === 'string' ? req.query.category : undefined,
     search: typeof req.query.search === 'string' ? req.query.search : undefined,
-    isLive: parseBoolean(req.query.isLive),
     isVerified: parseBoolean(req.query.isVerified),
     area: typeof req.query.area === 'string' ? req.query.area : undefined,
   }, page, limit, sort);
@@ -260,7 +259,6 @@ export const updateMyProfile = asyncHandler(async (req: Request, res: Response) 
       };
       try {
         getIO().emit('stylist:location-updated', payload);
-        getIO().of('/live').emit('stylist:location-updated', payload);
       } catch { }
     }
   }

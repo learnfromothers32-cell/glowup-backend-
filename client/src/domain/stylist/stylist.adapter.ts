@@ -34,9 +34,6 @@ export function mapToUIStylist(stylist: any): Stylist {
       typeof stylist.reviewCount === "number"
         ? stylist.reviewCount
         : reviews.length,
-    isLive: Boolean(stylist.isLive),
-    liveTitle: stylist.liveTitle,
-    viewerCount: Number(stylist.viewerCount || 0),
     isVerified: Boolean(stylist.isVerified),
     phone: stylist.phone,
     instagram: stylist.instagram,

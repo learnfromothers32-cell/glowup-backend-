@@ -19,11 +19,7 @@ export default function StylistCard({ stylist, onBook }: StylistCardProps) {
   const { addPoints, incrementAction } = useGamification();
 
   const handleCardClick = () => {
-    if (stylist.isLive) {
-      navigate(`/app/live/${stylist.id}`);
-    } else {
-      navigate(`/app/stylist/${stylist.id}`);
-    }
+    navigate(`/app/stylist/${stylist.id}`);
   };
 
   const handleBookClick = (e: React.MouseEvent) => {
@@ -66,15 +62,6 @@ export default function StylistCard({ stylist, onBook }: StylistCardProps) {
             <Star size={11} className="text-amber-500 fill-amber-500" />
             {stylist.rating}
           </span>
-          {stylist.isLive && (
-            <span className="flex items-center gap-1 bg-red-500 text-white px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-sm">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white" />
-              </span>
-              Live
-            </span>
-          )}
         </div>
 
         {/* Favorite heart button */}

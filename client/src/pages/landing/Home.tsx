@@ -13,7 +13,6 @@ import QueueFeature from "../../components/sections/QueueFeature";
 import BookingFeature from "../../components/sections/BookingFeature";
 import PortfolioFeature from "../../components/sections/PortfolioFeature";
 import StylistFeature from "../../components/sections/StylistFeature";
-import LiveFeature from "../../components/sections/LiveFeature";
 import TrendingFeature from "../../components/sections/TrendingFeature";
 import PricingFeature from "../../components/sections/PricingFeature";
 import ReviewsFeature from "../../components/sections/ReviewsFeature";
@@ -76,7 +75,6 @@ export default function Home() {
         <motion.div id="booking" {...fadeUp}><BookingFeature /></motion.div>
         <motion.div id="portfolio" {...fadeUp}><PortfolioFeature /></motion.div>
         <motion.div {...fadeUp}><StylistFeature /></motion.div>
-        <motion.div id="live" {...fadeUp}><LiveFeature /></motion.div>
         <motion.div id="trending" {...fadeUp}><TrendingFeature /></motion.div>
         <motion.div {...fadeUp}><StatsSection /></motion.div>
         <motion.div {...fadeUp}><PricingFeature /></motion.div>

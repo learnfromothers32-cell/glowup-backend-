@@ -5,10 +5,10 @@ import ConsumerFooter from "./ConsumerFooter";
 import { fadeSlideUp, pageTransition, useReducedMotion } from "../../../utils/animations";
 
 const CONSUMER_SINGLE_SEGMENT_ROUTES = new Set([
-  'live', 'trending', 'hairstyle-studio', 'vibe-match', 'ai-vibe-match',
+  'trending', 'hairstyle-studio', 'vibe-match', 'ai-vibe-match',
   'rewards', 'queue', 'messages', 'notifications', 'payment-history',
   'my-bookings', 'profile', 'favorites', 'waitlist', 'settings',
-  'browse', 'live-stylists', 'search',
+  'browse', 'search',
 ]);
 
 export default function ConsumerLayout() {

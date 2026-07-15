@@ -206,12 +206,6 @@ export default function SearchResultsPage() {
                           .toUpperCase()}
                       </div>
                     )}
-                    {stylist.isLive && (
-                      <span className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500 text-white text-[10px] font-bold">
-                        <span className="w-1 h-1 rounded-full bg-white animate-pulse" />{" "}
-                        LIVE
-                      </span>
-                    )}
                     <div className="absolute bottom-2 left-2 flex items-center gap-1">
                       <Star size={10} fill="#fbbf24" stroke="#fbbf24" />
                       <span className="text-xs font-bold text-white">

@@ -13,7 +13,7 @@ import { Avatar } from "../../components/ui/Avatar";
 import { Skeleton } from "../../components/ui/Skeleton";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import {
-  Calendar, DollarSign, Users, Star, Plus, Image, Radio, Settings,
+  Calendar, DollarSign, Users, Star, Plus, Image, Settings,
   ChevronRight, BadgeCheck, Loader2, Clock, AlertCircle, RefreshCw,
   BarChart3, Scissors, Package, TrendingUp, CheckCircle2, XCircle,
   RefreshCcw, CalendarDays, Activity, MessageSquare, Sparkles,
@@ -246,10 +246,6 @@ export default function StylistDashboard() {
             <RefreshCcw size={14} className={refreshing ? "animate-spin" : ""} />
             {refreshing ? "Refreshing..." : "Refresh"}
           </Button>
-          <Button size="sm" onClick={() => navigate("/stylist/live")}>
-            <Radio size={14} className="animate-pulse" />
-            Go Live
-          </Button>
           <Button variant="ghost" size="sm" icon onClick={() => navigate("/stylist/settings")}>
             <Settings size={16} />
           </Button>
@@ -350,7 +346,6 @@ export default function StylistDashboard() {
                   { label: "Services", icon: Package, to: "/stylist/services", color: "bg-stylist-600" },
                   { label: "Portfolio", icon: Image, to: "/stylist/portfolio", color: "bg-stylist-500" },
                   { label: "Analytics", icon: BarChart3, to: "/stylist/analytics", color: "bg-stylist-400" },
-                  { label: "Live", icon: Radio, to: "/stylist/live", color: "bg-stylist-500" },
                   { label: "Profile", icon: Activity, to: "/stylist/profile", color: "bg-gray-500" },
                 ].map(({ label, icon: Icon, to, color }) => (
                   <Link key={label} to={to} className="flex flex-col items-center gap-2 p-4 rounded-2xl border border-gray-100 dark:border-gray-700/40 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-surface-dark-tertiary transition-all group">

@@ -34,8 +34,6 @@ const mockStylist = (overrides = {}) => ({
   location: { area: "Lagos" },
   rating: 4.5,
   reviewCount: 120,
-  isLive: false,
-  viewerCount: 50,
   createdAt: new Date("2025-01-01"),
   beforeAfter: [
     {

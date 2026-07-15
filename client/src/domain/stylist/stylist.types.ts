@@ -33,9 +33,6 @@ export interface Stylist {
   };
   rating: number;
   reviewCount: number;
-  isLive: boolean;
-  liveTitle?: string;
-  viewerCount?: number;
   isVerified: boolean;
   phone?: string;
   instagram?: string;

@@ -6,7 +6,6 @@ import {
   Star,
   MapPin,
   ArrowUpDown,
-  Zap,
   ChevronDown,
   Check,
   FilterX,
@@ -19,7 +18,6 @@ export type Filters = {
   priceMax: number;
   distanceMax: number;
   ratingMin: number;
-  liveOnly: boolean;
   sortBy: "rating" | "distance" | "priceAsc" | "priceDesc";
 };
 
@@ -35,7 +33,6 @@ const DEFAULT_FILTERS: Filters = {
   priceMax: 500,
   distanceMax: 0,
   ratingMin: 0,
-  liveOnly: false,
   sortBy: "rating",
 };
 
@@ -46,7 +43,6 @@ function activeFilterCount(filters: Filters): number {
     filters.priceMax < DEFAULT_FILTERS.priceMax,
     filters.distanceMax > 0,
     filters.ratingMin > 0,
-    filters.liveOnly,
     filters.sortBy !== DEFAULT_FILTERS.sortBy,
   ].filter(Boolean).length;
 }
@@ -255,7 +251,6 @@ function ActiveTags({
     filters.priceMax < 500 && { key: "priceMax" as keyof Filters, label: `Max ₵${filters.priceMax}` },
     filters.distanceMax > 0 && { key: "distanceMax" as keyof Filters, label: `≤ ${filters.distanceMax}km` },
     filters.ratingMin > 0 && { key: "ratingMin" as keyof Filters, label: `${filters.ratingMin}+ ★` },
-    filters.liveOnly && { key: "liveOnly" as keyof Filters, label: "Live now" },
     filters.sortBy !== "rating" && { key: "sortBy" as keyof Filters, label: ({
       distance: "Nearest",
       priceAsc: "Price ↑",
@@ -320,7 +315,6 @@ export default function FilterBar({
       priceMax: DEFAULT_FILTERS.priceMax,
       distanceMax: DEFAULT_FILTERS.distanceMax,
       ratingMin: DEFAULT_FILTERS.ratingMin,
-      liveOnly: DEFAULT_FILTERS.liveOnly,
       sortBy: DEFAULT_FILTERS.sortBy,
       search: DEFAULT_FILTERS.search,
     };
@@ -416,12 +410,6 @@ export default function FilterBar({
 
       {/* Quick Filters Row */}
       <div className="flex gap-1.5 px-3 pb-3 overflow-x-auto scrollbar-hide">
-        <Chip
-          label="Live now"
-          selected={filters.liveOnly}
-          onClick={() => updateFilters({ liveOnly: !filters.liveOnly })}
-          icon={<Zap size={10} />}
-        />
         {ratingOptions.slice(1).map((opt) => (
           <Chip
             key={opt.value}
@@ -510,24 +498,6 @@ export default function FilterBar({
                 options={sortOptions}
                 onChange={(v) => updateFilters({ sortBy: v as Filters["sortBy"] })}
                 icon={<ArrowUpDown size={12} />}
-              />
-            </div>
-          </div>
-
-          <div className="p-3 rounded-2xl bg-gray-50 dark:bg-surface-dark-tertiary border border-gray-100 dark:border-gray-700/40">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="m-0 text-[13px] font-bold text-text-primary dark:text-text-dark-primary">
-                  Live availability only
-                </p>
-                <p className="mt-0.5 text-xs text-text-muted dark:text-text-dark-muted">
-                  Show stylists currently accepting walk-ins
-                </p>
-              </div>
-              <Toggle
-                checked={filters.liveOnly}
-                onChange={(v) => updateFilters({ liveOnly: v })}
-                label=""
               />
             </div>
           </div>

@@ -97,14 +97,6 @@ function FavoriteCard({
           </div>
 
           {/* Availability indicator */}
-          {stylist.isLive && (
-            <div className="absolute top-2 right-2">
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500 text-white text-[9px] font-bold shadow-md">
-                <span className="w-1 h-1 rounded-full bg-white animate-pulse" />
-                Available
-              </div>
-            </div>
-          )}
 
           {/* Bottom gradient overlay */}
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />

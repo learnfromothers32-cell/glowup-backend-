@@ -316,12 +316,6 @@ function StylistPopup({
             className="w-full h-full object-cover"
           />
         )}
-        {stylist.isLive && (
-          <span className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500 text-white text-[10px] font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-            LIVE
-          </span>
-        )}
       </div>
 
       {/* Info */}

@@ -149,7 +149,7 @@ export const getTrendingTransformations = async (
   const stylists = await Stylist.find({
     "beforeAfter.0": { $exists: true },
   })
-    .sort({ rating: -1, reviewCount: -1, isLive: -1, createdAt: -1 })
+    .sort({ rating: -1, reviewCount: -1, createdAt: -1 })
     .lean();
 
   const transformations: TrendingTransformation[] = [];

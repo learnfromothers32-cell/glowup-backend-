@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, CalendarDays, BookOpen, Users, Scissors,
-  Wallet, Image, Radio, Settings, MessageSquare, BarChart3,
+  Wallet, Image, Settings, MessageSquare, BarChart3,
   Clock, User, LogOut, Sparkles, Package, Crown, Percent,
   ShoppingCart, Timer, FileText, Star, Box, LayoutGrid,
 } from "lucide-react";
@@ -64,9 +64,7 @@ const navSections: NavSection[] = [
   },
   {
     title: "Growth",
-    items: [
-      { path: "/stylist/live", label: "Go Live", icon: Radio, badge: "LIVE" },
-    ],
+    items: [],
   },
   {
     title: "Account",

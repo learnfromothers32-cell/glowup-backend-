@@ -37,8 +37,7 @@ const TrendingFeed = lazy(() => import("../pages/consumer/TrendingFeed"));
 const AiVibeMatchPage = lazy(() => import("../pages/consumer/AiVibeMatchPage"));
 const Rewards = lazy(() => import("../pages/consumer/Rewards"));
 const MyBookings = lazy(() => import("../pages/consumer/MyBookings"));
-const LiveRoom = lazy(() => import("../pages/consumer/LiveRoom"));
-const Live = lazy(() => import("../pages/consumer/Live"));
+
 const StylistDetail = lazy(() => import("../pages/consumer/StylistDetail"));
 const ServicePage = lazy(() => import("../pages/consumer/ServicePage"));
 const ConsumerProfile = lazy(() => import("../pages/consumer/Profile"));
@@ -47,7 +46,7 @@ const ConsumerNotifications = lazy(() => import("../pages/consumer/Notifications
 const Favorites = lazy(() => import("../pages/consumer/Favorites"));
 const ConsumerWaitlist = lazy(() => import("../pages/consumer/Waitlist"));
 const Settings = lazy(() => import("../pages/consumer/Settings"));
-const LiveStylists = lazy(() => import("../pages/consumer/LiveStylists"));
+
 const ServiceDetailPage = lazy(() => import("../pages/consumer/ServiceDetailPage"));
 const SearchResultsPage = lazy(() => import("../pages/consumer/SearchResultsPage"));
 const BrowseStylists = lazy(() => import("../pages/consumer/BrowseStylists"));
@@ -58,7 +57,7 @@ const PaymentHistory = lazy(() => import("../pages/consumer/PaymentHistory"));
 const StylistDashboard = lazy(() => import("../pages/stylist/Dashboard"));
 const StylistServices = lazy(() => import("../pages/stylist/Services"));
 const StylistPortfolio = lazy(() => import("../pages/stylist/Portfolio"));
-const StylistLive = lazy(() => import("../pages/stylist/Live"));
+
 const StylistProfile = lazy(() => import("../pages/stylist/Profile"));
 const StylistCalendar = lazy(() => import("../pages/stylist/Calendar"));
 const StylistBookings = lazy(() => import("../pages/stylist/Bookings"));
@@ -80,7 +79,7 @@ const StylistConsultationForms = lazy(() => import("../pages/stylist/Consultatio
 const StylistQueue = lazy(() => import("../pages/stylist/QueueManagement"));
 const StylistArticles = lazy(() => import("../pages/stylist/Articles"));
 
-const PUBLIC_LIVE_PATHS = ["live/", "live-stylists", "blog/beauty"];
+const PUBLIC_LIVE_PATHS = ["blog/beauty"];
 
 const ProtectedRoute: React.FC<{
   children: React.ReactNode;
@@ -161,7 +160,6 @@ function AppRoutes() {
       }>
         <Route index element={<ConsumerHome />} />
         <Route path="hairstyle-studio" element={<HairstyleStudioPage />} />
-        <Route path="live" element={<Live />} />
         <Route path="trending" element={<TrendingFeed />} />
         <Route path="vibe-match" element={
           <>
@@ -196,8 +194,6 @@ function AppRoutes() {
         <Route path="stylist/:id" element={<StylistDetail />} />
         <Route path="stylist/:stylistId/service/:serviceId" element={<ServiceDetailPage />} />
         <Route path="browse" element={<BrowseStylists />} />
-        <Route path="live-stylists" element={<LiveStylists />} />
-        <Route path="live/:stylistId" element={<LiveRoom />} />
         <Route path="search" element={<SearchResultsPage />} />
         <Route path="blog/beauty" element={<BeautyTipsPage />} />
         <Route path="blog/beauty/:slug" element={<BeautyArticle />} />
@@ -237,7 +233,6 @@ function AppRoutes() {
         <Route path="dashboard" element={<StylistDashboard />} />
         <Route path="services" element={<StylistServices />} />
         <Route path="portfolio" element={<StylistPortfolio />} />
-        <Route path="live" element={<StylistLive />} />
         <Route path="profile" element={<StylistProfile />} />
         <Route path="calendar" element={<StylistCalendar />} />
         <Route path="bookings" element={<StylistBookings />} />

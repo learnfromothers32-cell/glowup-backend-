@@ -33,9 +33,6 @@ export interface IStylist extends Document {
   };
   rating: number;
   reviewCount: number;
-  isLive: boolean;
-  liveTitle?: string;
-  viewerCount?: number;
   isVerified: boolean;
   image?: string;
   price?: string;
@@ -118,13 +115,6 @@ const stylistSchema = new Schema<IStylist>(
       type: Number,
       default: 0
     },
-    isLive: {
-      type: Boolean,
-      default: false,
-      index: true
-    },
-    liveTitle: { type: String, trim: true, maxlength: 100 },
-    viewerCount: { type: Number, default: 0 },
     isVerified: {
       type: Boolean,
       default: false
@@ -161,7 +151,7 @@ const stylistSchema = new Schema<IStylist>(
 );
 
 stylistSchema.index({ name: 'text', bio: 'text', category: 'text', 'location.area': 'text' });
-stylistSchema.index({ isLive: -1, isVerified: -1, rating: -1, createdAt: -1, _id: 1 });
+stylistSchema.index({ isVerified: -1, rating: -1, createdAt: -1, _id: 1 });
 
 
 export const Stylist = model<IStylist>('Stylist', stylistSchema);

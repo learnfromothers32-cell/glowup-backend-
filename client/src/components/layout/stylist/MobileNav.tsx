@@ -4,7 +4,6 @@ import {
   CalendarDays,
   BookOpen,
   Wallet,
-  Radio,
   Menu,
   MessageSquare,
   Users,
@@ -17,7 +16,6 @@ const navItems = [
   { path: "/stylist/messages", label: "Messages", icon: MessageSquare },
   { path: "/stylist/clients", label: "Clients", icon: Users },
   { path: "/stylist/earnings", label: "Earnings", icon: Wallet },
-  { path: "/stylist/live", label: "Live", icon: Radio },
 ];
 
 interface MobileNavProps {

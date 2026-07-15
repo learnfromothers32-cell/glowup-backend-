@@ -114,11 +114,6 @@ export default function Favorites() {
                 >
                   <Heart size={16} className="fill-red-500 text-red-500" />
                 </button>
-                {stylist.isLive && (
-                  <div className="absolute bottom-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    LIVE
-                  </div>
-                )}
               </div>
 
               <div className="p-3">

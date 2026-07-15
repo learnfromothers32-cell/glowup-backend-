@@ -16,7 +16,6 @@ import {
   Users,
   SlidersHorizontal,
   BadgeCheck,
-  Wifi,
 } from "lucide-react";
 import type { Stylist } from "@/domain/stylist/stylist.types";
 
@@ -215,7 +214,6 @@ function CompactRow({
   const [liked, setLiked] = useState(() => isFavorited(stylist.id));
 
   const distanceNum = getDistanceNum(stylist);
-  const isLive = Boolean((stylist as unknown as Record<string, unknown>).isLive);
   const isVerified = Boolean((stylist as unknown as Record<string, unknown>).isVerified);
   const priceRange = (stylist as unknown as Record<string, unknown>).priceRange as string | undefined;
   const reviewCount = (stylist as unknown as Record<string, unknown>).reviewCount as number | undefined;
@@ -255,12 +253,6 @@ function CompactRow({
             />
           )}
         </div>
-
-        {isLive && (
-          <div className="absolute -bottom-0.5 -right-0.5">
-            <div className="w-3 h-3 rounded-full bg-green-500 border-[1.5px] border-white dark:border-surface-dark-secondary" />
-          </div>
-        )}
       </div>
 
       {/* Info */}
@@ -270,12 +262,6 @@ function CompactRow({
             {stylist.name}
           </p>
           {isVerified && <BadgeCheck size={13} className="text-blue-500 shrink-0" />}
-          {isLive && (
-            <span className="flex items-center gap-0.5 text-[9px] font-bold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-1.5 py-0.5 rounded-full">
-              <Wifi size={8} />
-              Live
-            </span>
-          )}
         </div>
 
         <div className="flex items-center gap-1.5 text-[11px] text-text-muted dark:text-text-dark-muted">
@@ -399,7 +385,6 @@ function GridCard({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [liked, setLiked] = useState(() => isFavorited(stylist.id));
 
-  const isLive = Boolean((stylist as unknown as Record<string, unknown>).isLive);
   const isVerified = Boolean((stylist as unknown as Record<string, unknown>).isVerified);
   const priceRange = (stylist as unknown as Record<string, unknown>).priceRange as string | undefined;
   const reviewCount = (stylist as unknown as Record<string, unknown>).reviewCount as number | undefined;
@@ -440,12 +425,6 @@ function GridCard({
 
         {/* Top badges */}
         <div className="absolute top-2.5 inset-x-2.5 flex items-start justify-between">
-          {isLive && (
-            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500 text-white text-[9px] font-bold shadow-md">
-              <span className="w-1 h-1 rounded-full bg-white animate-pulse" />
-              LIVE
-            </span>
-          )}
           <div className="ml-auto">
             <button
               onClick={(e) => {
@@ -615,8 +594,7 @@ export default function RecommendedSection({
   }, [stylists, category, sortBy]);
 
   const getStylistPath = (stylist: Stylist) => {
-    const isLive = Boolean((stylist as unknown as Record<string, unknown>).isLive);
-    return isLive ? `/app/live/${stylist.id}` : `/app/stylist/${stylist.id}`;
+    return `/app/stylist/${stylist.id}`;
   };
 
   return (

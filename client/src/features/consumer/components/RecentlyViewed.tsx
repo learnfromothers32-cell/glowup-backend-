@@ -262,9 +262,7 @@ export default function RecentlyViewed({
                   return;
                 }
 
-                const path = stylist.isLive
-                  ? `/app/${stylist.id}`
-                  : `/app/stylist/${stylist.id}`;
+                const path = `/app/stylist/${stylist.id}`;
                 navigate(path);
               }}
             />

@@ -15,7 +15,6 @@ import DateStep from "./DateStep";
 import TimeStep from "./TimeStep";
 import PaymentStep from "./PaymentStep";
 import SuccessView from "./SuccessView";
-import LiveSummary from "./LiveSummary";
 import PaymentFormModal from "../PaymentFormModal";
 import { connectQueue, subscribeToQueue } from "@/services/socket";
 
@@ -534,7 +533,6 @@ export default function BookingModal({
                 {/* Desktop sidebar */}
                 <div className="hidden lg:block w-72 shrink-0 p-5 border-r border-gray-100 dark:border-gray-700/20 bg-gray-50/30 dark:bg-surface-dark-tertiary/20">
                   <div className="sticky top-0">
-                    <LiveSummary stylist={stylist} state={state} />
                   </div>
                 </div>
 

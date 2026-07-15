@@ -1111,11 +1111,6 @@ function BookingCard({
               </div>
             )}
           </div>
-          {stylist.isLive && (
-            <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white bg-red-500">
-              <span className="animate-ping absolute inset-0 rounded-full bg-red-500 opacity-75" />
-            </span>
-          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">

@@ -10,7 +10,6 @@ import { fadeSlideUp, pageTransition, useReducedMotion } from "../../../utils/an
 export default function StylistLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
-  const isLivePage = location.pathname === "/stylist/live";
   const reduced = useReducedMotion();
 
   const closeSidebar = () => setSidebarOpen(false);
@@ -18,14 +17,12 @@ export default function StylistLayout() {
   return (
     <div className="min-h-screen bg-surface-secondary dark:bg-surface-dark flex overflow-x-hidden">
       {/* ── Desktop Sidebar (always visible on lg screens) ── */}
-      {!isLivePage && (
-        <div className="hidden lg:block">
-          <Sidebar />
-        </div>
-      )}
+      <div className="hidden lg:block">
+        <Sidebar />
+      </div>
 
       {/* ── Mobile Sidebar Drawer (overlay) ── */}
-      {sidebarOpen && !isLivePage && (
+      {sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           {/* backdrop */}
           <div
@@ -41,19 +38,10 @@ export default function StylistLayout() {
 
       {/* ── Main Content Area ── */}
       <div className="flex-1 flex flex-col min-h-screen">
-        {/* Top navbar (hidden on live page - it has its own UI) */}
-        {!isLivePage && (
-          <StylistNavbar onMenuToggle={() => setSidebarOpen(true)} />
-        )}
+        <StylistNavbar onMenuToggle={() => setSidebarOpen(true)} />
 
-        {/* Page content - no padding on live page */}
-        <main
-          className={
-            isLivePage
-              ? "flex-1 flex flex-col overflow-hidden"
-              : "flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:pb-6"
-          }
-        >
+        {/* Page content */}
+        <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 lg:pb-6">
           <motion.div
             key={reduced ? undefined : location.pathname}
             initial={reduced ? false : "hidden"}
@@ -65,12 +53,10 @@ export default function StylistLayout() {
           </motion.div>
         </main>
 
-        {/* Mobile bottom navigation (hidden on live page - it has its own controls) */}
-        {!isLivePage && (
-          <div className="lg:hidden">
-            <MobileNav onOpenMenu={() => setSidebarOpen(true)} />
-          </div>
-        )}
+        {/* Mobile bottom navigation */}
+        <div className="lg:hidden">
+          <MobileNav onOpenMenu={() => setSidebarOpen(true)} />
+        </div>
       </div>
     </div>
   );

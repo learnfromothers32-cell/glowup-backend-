@@ -66,6 +66,7 @@ export interface DiscoverSessionsParams {
   sort?: "trending" | "newest" | "popular";
   cursor?: string;
   limit?: number;
+  stylistId?: string;
 }
 
 export interface DiscoverSessionsResponse {

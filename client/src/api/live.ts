@@ -17,6 +17,7 @@ export async function getLiveSessions(params?: DiscoverSessionsParams) {
   if (params?.sort) query.set("sort", params.sort);
   if (params?.cursor) query.set("cursor", params.cursor);
   if (params?.limit) query.set("limit", String(params.limit));
+  if (params?.stylistId) query.set("stylistId", params.stylistId);
   const qs = query.toString();
   const { data } = await api.get(`/live${qs ? `?${qs}` : ""}`);
   return data.data as DiscoverSessionsResponse;

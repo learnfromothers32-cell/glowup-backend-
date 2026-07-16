@@ -428,7 +428,7 @@ export class LiveSessionService {
   async discoverSessions(filters: LiveSessionQueryFilters): Promise<ILiveSession[]> {
     return liveSessionRepository.findSessions({
       ...filters,
-      status: 'live',
+      status: filters.stylistId ? filters.status : 'live',
     });
   }
 

@@ -303,7 +303,7 @@ describe('LiveSessionService', () => {
 
   describe('leaveSession', () => {
     it('should leave a session', async () => {
-      const mockSession = { _id: 'session123', status: 'live' };
+      const mockSession = { _id: 'session123', status: 'live', hostUserId: { toString: () => 'host123' } };
 
       (liveSessionRepository.findById as jest.Mock).mockResolvedValue(mockSession);
       (liveParticipantRepository.isUserInSession as jest.Mock).mockResolvedValue(true);

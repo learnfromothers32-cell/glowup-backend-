@@ -70,7 +70,9 @@ export default function GoLivePage() {
     async (sessionId: string) => {
       try {
         const result = await startMutation.mutateAsync(sessionId);
-        navigate(`/app/live/${sessionId}`);
+        navigate(`/app/live/${sessionId}`, {
+          state: { token: result.token, liveKitUrl: result.liveKitUrl, isHost: true },
+        });
       } catch {}
     },
     [startMutation, navigate],

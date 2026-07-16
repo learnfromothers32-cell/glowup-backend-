@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useMemo, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Share2, ShoppingBag, ChevronUp, ChevronDown } from "lucide-react";
 import { useLiveSession, useSessionStatus, useJoinLiveSession } from "../../domain/live/live.hooks";
 import { useLiveSocket } from "../../features/live/hooks/useLiveSocket";
@@ -68,7 +68,10 @@ import {
 export default function LiveRoomPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
+
+  const hostState = (location.state as { token?: string; liveKitUrl?: string; isHost?: boolean }) | null;
 
   const { data, isLoading } = useLiveSession(id!);
   const { data: statusData } = useSessionStatus(id!, !!id);
@@ -268,7 +271,20 @@ export default function LiveRoomPage() {
     // Join socket room
     join(id, isHost ? "host" : "viewer", user?.name || "Guest");
 
-    // Join session via API to get LiveKit token
+    // If host token was passed via navigation state, use it directly
+    if (hostState?.token && hostState?.liveKitUrl) {
+      connectMedia(hostState.liveKitUrl, hostState.token).catch(() => {});
+      return () => {
+        disconnectMedia();
+        disconnect();
+        resetCommerce();
+        useModerationStore.getState().reset();
+        useGuestRequestStore.getState().reset();
+        useReactionStore.getState().reset();
+      };
+    }
+
+    // Otherwise join via API to get a viewer token
     joinMutation.mutate(id, {
       onSuccess: (result) => {
         if (result.liveKitUrl) {

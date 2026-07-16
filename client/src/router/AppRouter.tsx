@@ -158,7 +158,7 @@ function AppRoutes() {
       <Route path="/verify-email" element={<VerifyEmailPage />} />
 
       <Route path="/app" element={
-        <ProtectedRoute allowedRole="client">
+        <ProtectedRoute>
           <ConsumerLayout />
         </ProtectedRoute>
       }>

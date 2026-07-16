@@ -16,19 +16,18 @@ export function LivePlayer({ room, isHost, className }: LivePlayerProps) {
   useEffect(() => {
     if (!room || !videoRef.current) return;
 
-    const handleSubscribed = (trackPublication: TrackPublication, participant: Participant) => {
-      if (trackPublication.source === Track.Source.Camera && trackPublication.track && !isHost) {
-        const el = videoRef.current;
-        if (el) {
-          trackPublication.track.attach(el);
-        }
+    const attachRemoteTrack = (trackPublication: TrackPublication) => {
+      if (!trackPublication.track || isHost) return;
+      if (trackPublication.source === Track.Source.Camera) {
+        trackPublication.track.attach(videoRef.current!);
       }
-      if (trackPublication.source === Track.Source.Microphone && trackPublication.track && !isHost) {
-        const el = audioRef.current;
-        if (el) {
-          trackPublication.track.attach(el);
-        }
+      if (trackPublication.source === Track.Source.Microphone) {
+        trackPublication.track.attach(audioRef.current!);
       }
+    };
+
+    const handleSubscribed = (trackPublication: TrackPublication, _participant: Participant) => {
+      attachRemoteTrack(trackPublication);
     };
 
     const handleUnsubscribed = (trackPublication: TrackPublication) => {
@@ -40,16 +39,10 @@ export function LivePlayer({ room, isHost, className }: LivePlayerProps) {
     room.on(RoomEvent.TrackSubscribed, handleSubscribed);
     room.on(RoomEvent.TrackUnsubscribed, handleUnsubscribed);
 
+    // Attach tracks from already-connected remote participants
     room.participants?.forEach((p) => {
-      p.tracks?.forEach((pub) => {
-        if (pub.track) {
-          if (pub.source === Track.Source.Camera && !isHost) {
-            pub.track.attach(videoRef.current!);
-          }
-          if (pub.source === Track.Source.Microphone && !isHost) {
-            pub.track.attach(audioRef.current!);
-          }
-        }
+      p.trackPublications?.forEach((pub) => {
+        if (pub.track) attachRemoteTrack(pub);
       });
     });
 
@@ -85,7 +78,7 @@ export function LivePlayer({ room, isHost, className }: LivePlayerProps) {
       <audio ref={audioRef} autoPlay aria-hidden="true" />
 
       {isHost && hostTracks && (
-        <LocalPreview participant={hostTracks} />
+        <LocalPreview participant={hostTracks} room={room} />
       )}
 
       {!room && (
@@ -111,35 +104,52 @@ export function LivePlayer({ room, isHost, className }: LivePlayerProps) {
   );
 }
 
-function LocalPreview({ participant }: { participant: Participant }) {
+function LocalPreview({ participant, room }: { participant: Participant; room: LiveKitRoom | null }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     if (!participant || !videoRef.current) return;
 
-    const handleSubscribed = (pub: TrackPublication) => {
-      if (pub.source === Track.Source.Camera && pub.track) {
-        pub.track.attach(videoRef.current!);
+    const attachLocalTrack = (pub: TrackPublication) => {
+      if (!pub.track) return;
+      if (pub.source === Track.Source.Camera && videoRef.current) {
+        pub.track.attach(videoRef.current);
       }
-      if (pub.source === Track.Source.Microphone && pub.track) {
-        pub.track.attach(audioRef.current!);
+      if (pub.source === Track.Source.Microphone && audioRef.current) {
+        pub.track.attach(audioRef.current);
       }
     };
 
-    participant.tracks?.forEach((pub) => {
-      if (pub.track) handleSubscribed(pub);
+    // Attach any already-published tracks
+    participant.trackPublications?.forEach((pub) => {
+      attachLocalTrack(pub);
     });
 
-    participant.on("trackPublished", handleSubscribed);
+    // Direct lookup as fallback
+    const camPub = participant.getTrackPublication?.(Track.Source.Camera);
+    if (camPub) attachLocalTrack(camPub);
+    const micPub = participant.getTrackPublication?.(Track.Source.Microphone);
+    if (micPub) attachLocalTrack(micPub);
+
+    // Listen for new local tracks published after initial render
+    const handleLocalTrackPublished = (pub: TrackPublication) => {
+      attachLocalTrack(pub);
+    };
+
+    if (room) {
+      room.on(RoomEvent.LocalTrackPublished, handleLocalTrackPublished);
+    }
 
     return () => {
-      participant.off("trackPublished", handleSubscribed);
-      participant.tracks?.forEach((pub) => {
+      if (room) {
+        room.off(RoomEvent.LocalTrackPublished, handleLocalTrackPublished);
+      }
+      participant.trackPublications?.forEach((pub) => {
         if (pub.track) pub.track.detach();
       });
     };
-  }, [participant]);
+  }, [participant, room]);
 
   return (
     <>

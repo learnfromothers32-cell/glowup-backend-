@@ -6,7 +6,7 @@ import { fadeSlideUp, pageTransition, useReducedMotion } from "../../../utils/an
 
 const CONSUMER_SINGLE_SEGMENT_ROUTES = new Set([
   'trending', 'hairstyle-studio', 'vibe-match', 'ai-vibe-match',
-  'rewards', 'queue', 'messages', 'notifications', 'payment-history',
+  'rewards', 'queue', 'live', 'messages', 'notifications', 'payment-history',
   'my-bookings', 'profile', 'favorites', 'waitlist', 'settings',
   'browse', 'search',
 ]);

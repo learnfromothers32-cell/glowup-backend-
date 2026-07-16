@@ -8,6 +8,7 @@ import FilterBar, { type Filters } from "../../features/consumer/components/Filt
 import RecentlyViewed from "../../features/consumer/components/RecentlyViewed";
 import FavoritesSection from "../../features/consumer/components/FavoritesSection";
 import TrendingPreview from "../../features/consumer/components/TrendingPreview";
+import LiveNowPreview from "../../features/consumer/components/LiveNowPreview";
 import BeautyTips from "../../features/consumer/components/BeautyTips";
 import { getStylists } from "../../api/stylists";
 import { getMyBookings } from "../../api/bookings";
@@ -258,6 +259,8 @@ export default function Home() {
       />
 
       <FilterBar onFilterChange={setFilters} initialFilters={filters} resultCount={filteredStylists.length} />
+
+      <LiveNowPreview />
 
       <div>
         <h2 className="text-h4 font-display text-text-primary mb-3">Nearby stylists</h2>

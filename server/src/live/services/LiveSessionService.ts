@@ -400,10 +400,13 @@ export class LiveSessionService {
     // Remove participant
     await liveParticipantRepository.removeParticipant(sessionId, userId);
 
-    // Decrement viewer count
-    await liveSessionRepository.decrementViewerCount(sessionId);
+    // Only decrement viewer count for non-host participants
+    const isHost = session.hostUserId.toString() === userId;
+    if (!isHost) {
+      await liveSessionRepository.decrementViewerCount(sessionId);
+    }
 
-    logger.info('Viewer left session', { sessionId, userId });
+    logger.info(isHost ? 'Host left session' : 'Viewer left session', { sessionId, userId });
   }
 
   /**
@@ -441,7 +444,7 @@ export class LiveSessionService {
   async discoverSessions(filters: LiveSessionQueryFilters): Promise<ILiveSession[]> {
     return liveSessionRepository.findSessions({
       ...filters,
-      status: filters.stylistId ? filters.status : 'live',
+      status: (filters.stylistId || filters.hostUserId) ? filters.status : 'live',
     });
   }
 

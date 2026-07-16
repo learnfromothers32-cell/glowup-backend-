@@ -37,7 +37,7 @@ export default function GoLivePage() {
   const [showSettings, setShowSettings] = useState(false);
 
   const { data, isLoading: sessionsLoading } = useLiveSessions({
-    stylistId: user?.id,
+    hostUserId: user?.id,
     sort: "newest",
     limit: 10,
   });
@@ -142,16 +142,15 @@ export default function GoLivePage() {
                 <Button
                   variant="primary"
                   size="sm"
-                  loading={joinMutation.isPending}
+                  loading={startMutation.isPending}
                   onClick={async () => {
                     try {
-                      const result = await joinMutation.mutateAsync(activeSession._id);
-                      navigate(`/app/live/${activeSession._id}`, {
+                      const result = await startMutation.mutateAsync(activeSession._id);
+                      navigate(`/stylist/live/${activeSession._id}`, {
                         state: { token: result.token, liveKitUrl: result.liveKitUrl, isHost: true },
                       });
-                    } catch {
-                      // Fallback: navigate without token (will use viewer join flow)
-                      navigate(`/app/live/${activeSession._id}`);
+                    } catch (error) {
+                      toast("error", "Failed to reconnect", error instanceof Error ? error.message : "Please try again");
                     }
                   }}
                 >

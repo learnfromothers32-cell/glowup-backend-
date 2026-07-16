@@ -67,6 +67,7 @@ export interface DiscoverSessionsParams {
   cursor?: string;
   limit?: number;
   stylistId?: string;
+  hostUserId?: string;
 }
 
 export interface DiscoverSessionsResponse {

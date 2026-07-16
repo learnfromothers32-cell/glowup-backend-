@@ -55,6 +55,7 @@ export const getSessions = asyncHandler(async (req: Request, res: Response) => {
     category: req.query.category as string,
     tag: req.query.tag as string,
     stylistId: req.query.stylistId as string,
+    hostUserId: req.query.hostUserId as string,
     sort: req.query.sort as 'trending' | 'newest' | 'popular',
     limit: parseInt(req.query.limit as string) || 20,
     cursor: req.query.cursor as string,

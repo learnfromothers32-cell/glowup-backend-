@@ -330,7 +330,7 @@ export default function LiveRoomPage() {
   const joinMutation = useJoinLiveSession();
   const joinedRef = useRef(false);
 
-  // Join session + connect WebRTC
+  // Join session + connect WebRTC (runs once when session loads)
   useEffect(() => {
     if (!id || !session || joinedRef.current) return;
     joinedRef.current = true;
@@ -344,11 +344,7 @@ export default function LiveRoomPage() {
         console.error("Failed to connect host media:", err);
         setConnectError("Failed to connect to live stream. Please try again.");
       });
-      return () => {
-        disconnectMedia();
-        disconnect();
-        resetAllStores();
-      };
+      return;
     }
 
     // Otherwise join via API to get a viewer token
@@ -368,13 +364,16 @@ export default function LiveRoomPage() {
         setConnectError("Could not join this session. It may have ended or you may not have access.");
       },
     });
+  }, [id, session, isHost, user?.name, hostState, connectMedia, join, joinMutation]);
 
+  // Cleanup ONLY on unmount (not on session refetch)
+  useEffect(() => {
     return () => {
       disconnectMedia();
       disconnect();
       resetAllStores();
     };
-  }, [id, session]);
+  }, []);
 
   function resetAllStores() {
     resetCommerce();
@@ -390,17 +389,17 @@ export default function LiveRoomPage() {
       await endLiveSession(id);
       disconnectMedia();
       disconnect();
-      navigate("/app/live");
+      navigate(isHost ? "/stylist/go-live" : "/app/live");
     } catch (err) {
       console.error("Failed to end stream:", err);
     }
-  }, [id, disconnectMedia, disconnect, navigate]);
+  }, [id, disconnectMedia, disconnect, navigate, isHost]);
 
   const handleLeave = useCallback(() => {
     disconnectMedia();
     disconnect();
-    navigate("/app/live");
-  }, [disconnectMedia, disconnect, navigate]);
+    navigate(isHost ? "/stylist/go-live" : "/app/live");
+  }, [disconnectMedia, disconnect, navigate, isHost]);
 
   const handleBookService = useCallback((service: any) => {
     setPreSelectedServiceId(service._id);

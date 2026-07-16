@@ -149,6 +149,10 @@ export class LiveSessionRepository {
       query.stylistId = new Types.ObjectId(filters.stylistId);
     }
 
+    if (filters.hostUserId) {
+      query.hostUserId = new Types.ObjectId(filters.hostUserId);
+    }
+
     const sort: Record<string, 1 | -1> = {};
     switch (filters.sort) {
       case 'trending':

@@ -94,6 +94,7 @@ export const discoverSessionsQuerySchema = z.object({
   sort: z.enum(['trending', 'newest', 'popular']).optional(),
   cursor: z.string().optional(),
   stylistId: z.string().optional(),
+  hostUserId: z.string().optional(),
   limit: z
     .string()
     .optional()

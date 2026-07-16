@@ -61,6 +61,7 @@ export interface LiveSessionQueryFilters {
   category?: string;
   tag?: string;
   stylistId?: string;
+  hostUserId?: string;
   sort?: 'trending' | 'newest' | 'popular';
   limit?: number;
   cursor?: string;

@@ -17,6 +17,9 @@ export function useLiveMedia() {
   const roomRef = useRef<LiveKitRoom | null>(null);
   const connectingRef = useRef(false);
   const intentionalDisconnectRef = useRef(false);
+  const connectedOnceRef = useRef(false);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingConnectRef = useRef<{ url: string; token: string; publishLocal: boolean } | null>(null);
   const [room, setRoom] = useState<LiveKitRoom | null>(null);
   const localTracksRef = useRef<{
     video?: LocalVideoTrack;
@@ -35,14 +38,11 @@ export function useLiveMedia() {
 
   const connect = useCallback(
     async (url: string, token: string, publishLocal = true) => {
-      console.trace("[LIVE-MEDIA] connect() CALLED, publishLocal=", publishLocal, "roomRef.exists=", !!roomRef.current, "connecting=", connectingRef.current);
       if (connectingRef.current) {
-        console.trace("[LIVE-MEDIA] connect() BLOCKED by connectingRef");
         return roomRef.current;
       }
 
       if (roomRef.current) {
-        console.trace("[LIVE-MEDIA] connect() DISCONNECTING EXISTING ROOM before reconnect");
         intentionalDisconnectRef.current = true;
         localTracksRef.current.video?.stop();
         localTracksRef.current.audio?.stop();
@@ -56,6 +56,7 @@ export function useLiveMedia() {
 
       connectingRef.current = true;
       intentionalDisconnectRef.current = false;
+      pendingConnectRef.current = { url, token, publishLocal };
 
       try {
         const r = new Room({
@@ -66,14 +67,23 @@ export function useLiveMedia() {
         });
 
         r.on(RoomEvent.Connected, () => {
+          connectedOnceRef.current = true;
           setMediaStatus("connected");
         });
 
         r.on(RoomEvent.Disconnected, () => {
-          console.trace("[LIVE-MEDIA] RoomEvent.Disconnected fired, intentionalDisconnect=", intentionalDisconnectRef.current);
-          if (!intentionalDisconnectRef.current) {
-            setMediaStatus("disconnected");
+          if (intentionalDisconnectRef.current) return;
+          if (!connectedOnceRef.current && pendingConnectRef.current) {
+            const { url: retryUrl, token: retryToken, publishLocal: retryPublish } = pendingConnectRef.current;
+            retryTimerRef.current = setTimeout(() => {
+              retryTimerRef.current = null;
+              pendingConnectRef.current = null;
+              connectingRef.current = false;
+              connect(retryUrl, retryToken, retryPublish);
+            }, 2000);
+            return;
           }
+          setMediaStatus("disconnected");
         });
 
         r.on(RoomEvent.ConnectionStateChanged, (state: ConnectionState) => {
@@ -120,9 +130,14 @@ export function useLiveMedia() {
   );
 
   const disconnect = useCallback(async () => {
+    if (retryTimerRef.current) {
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = null;
+    }
+    pendingConnectRef.current = null;
+    connectedOnceRef.current = false;
     const r = roomRef.current;
     if (r) {
-      console.trace("[LIVE-MEDIA] disconnect() CALLED");
       intentionalDisconnectRef.current = true;
       localTracksRef.current.video?.stop();
       localTracksRef.current.audio?.stop();
@@ -187,16 +202,17 @@ export function useLiveMedia() {
 
   useEffect(() => {
     return () => {
-      const r = roomRef.current;
-      if (r) {
-        console.trace("[LIVE-MEDIA] cleanup useEffect DISCONNECTING on unmount");
-        intentionalDisconnectRef.current = true;
-        localTracksRef.current.video?.stop();
-        localTracksRef.current.audio?.stop();
-        r.disconnect();
-        r.removeAllListeners();
-        roomRef.current = null;
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
       }
+      pendingConnectRef.current = null;
+      intentionalDisconnectRef.current = true;
+      localTracksRef.current.video?.stop();
+      localTracksRef.current.audio?.stop();
+      roomRef.current?.disconnect();
+      roomRef.current?.removeAllListeners();
+      roomRef.current = null;
     };
   }, []);
 

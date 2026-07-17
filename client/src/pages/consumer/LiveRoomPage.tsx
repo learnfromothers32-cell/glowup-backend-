@@ -284,7 +284,6 @@ export default function LiveRoomPage() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      console.trace("[LIVE-ROOM-PAGE] cleanup effect: disconnectMedia + disconnect on unmount");
       disconnectMedia();
       disconnect();
       resetAllStores();

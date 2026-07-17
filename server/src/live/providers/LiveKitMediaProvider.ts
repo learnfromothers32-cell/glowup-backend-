@@ -109,7 +109,7 @@ export class LiveKitMediaProvider implements LiveMediaProvider {
     userId: string,
     ttlSeconds: number = 3600
   ): Promise<TokenResult> {
-    return this.generateToken(roomName, userId, ttlSeconds, {
+    return this.generateToken(roomName, `${userId}:host`, ttlSeconds, {
       roomJoin: true,
       canPublish: true,
       canSubscribe: true,
@@ -123,7 +123,7 @@ export class LiveKitMediaProvider implements LiveMediaProvider {
     userId: string,
     ttlSeconds: number = 3600
   ): Promise<TokenResult> {
-    return this.generateToken(roomName, userId, ttlSeconds, {
+    return this.generateToken(roomName, `${userId}:viewer`, ttlSeconds, {
       roomJoin: true,
       canPublish: false,
       canSubscribe: true,
@@ -137,7 +137,7 @@ export class LiveKitMediaProvider implements LiveMediaProvider {
     guestId: string,
     ttlSeconds: number = 3600
   ): Promise<TokenResult> {
-    return this.generateToken(roomName, `guest_${guestId}`, ttlSeconds, {
+    return this.generateToken(roomName, `guest_${guestId}:viewer`, ttlSeconds, {
       roomJoin: true,
       canPublish: false,
       canSubscribe: true,
@@ -151,7 +151,7 @@ export class LiveKitMediaProvider implements LiveMediaProvider {
     userId: string,
     ttlSeconds: number = 3600
   ): Promise<TokenResult> {
-    return this.generateToken(roomName, userId, ttlSeconds, {
+    return this.generateToken(roomName, `${userId}:moderator`, ttlSeconds, {
       roomJoin: true,
       canPublish: true,
       canSubscribe: true,

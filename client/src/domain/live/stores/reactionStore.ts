@@ -20,7 +20,6 @@ export interface ReactionState {
 }
 
 const RATE_LIMIT_MS = 500;
-
 let reactionIdCounter = 0;
 
 export const useReactionStore = create<ReactionState>((set, get) => ({
@@ -37,10 +36,9 @@ export const useReactionStore = create<ReactionState>((set, get) => ({
         glow: counts.glow || 0,
       },
     }),
-  addReaction: (type, userId) => {
+  addReaction: (type, _userId) => {
     const id = `r_${++reactionIdCounter}`;
     const x = Math.random() * 80 + 10;
-
     set((state) => ({
       activeReactions: [
         ...state.activeReactions.slice(-15),
@@ -48,17 +46,13 @@ export const useReactionStore = create<ReactionState>((set, get) => ({
       ],
       myLastReactionTime: Date.now(),
     }));
-
-    // Auto-cleanup after animation
     setTimeout(() => {
       set((state) => ({
         activeReactions: state.activeReactions.filter((r) => r.id !== id),
       }));
     }, 3000);
   },
-  canSendReaction: () => {
-    return Date.now() - get().myLastReactionTime >= RATE_LIMIT_MS;
-  },
+  canSendReaction: () => Date.now() - get().myLastReactionTime >= RATE_LIMIT_MS,
   reset: () =>
     set({
       counts: { love: 0, fire: 0, clap: 0, wow: 0, glow: 0 },

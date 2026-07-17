@@ -14,22 +14,15 @@ export interface ViewerState {
 export const useViewerStore = create<ViewerState>((set) => ({
   viewerCount: 0,
   presence: [],
-
   setViewerCount: (count) => set({ viewerCount: count }),
   setPresence: (entries) => set({ presence: entries }),
-
   addPresence: (entry) =>
     set((s) => ({
-      presence: [
-        ...s.presence.filter((p) => p.socketId !== entry.socketId),
-        entry,
-      ],
+      presence: [...s.presence.filter((p) => p.socketId !== entry.socketId), entry],
     })),
-
   removePresence: (socketId) =>
     set((s) => ({
       presence: s.presence.filter((p) => p.socketId !== socketId),
     })),
-
   reset: () => set({ viewerCount: 0, presence: [] }),
 }));

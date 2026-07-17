@@ -21,11 +21,8 @@ export const useConnectionStore = create<ConnectionState>((set) => ({
   status: "disconnected",
   sessionId: null,
   error: null,
-
   setStatus: (status) => set({ status }),
   setSessionId: (sessionId) => set({ sessionId }),
   setError: (error) => set({ error }),
-
-  reset: () =>
-    set({ status: "disconnected", sessionId: null, error: null }),
+  reset: () => set({ status: "disconnected", sessionId: null, error: null }),
 }));

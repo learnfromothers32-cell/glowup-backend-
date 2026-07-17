@@ -7,8 +7,7 @@ export interface HostState {
   status: LiveSessionStatus;
   isHostOnline: boolean;
   token: string | null;
-
-  setHost: (isHost: boolean) => void,
+  setHost: (isHost: boolean) => void;
   setSessionId: (id: string | null) => void;
   setStatus: (status: LiveSessionStatus) => void;
   setHostOnline: (online: boolean) => void;
@@ -22,13 +21,11 @@ export const useHostStore = create<HostState>((set) => ({
   status: "scheduled",
   isHostOnline: false,
   token: null,
-
   setHost: (isHost) => set({ isHost }),
   setSessionId: (sessionId) => set({ sessionId }),
   setStatus: (status) => set({ status }),
   setHostOnline: (isHostOnline) => set({ isHostOnline }),
   setToken: (token) => set({ token }),
-
   reset: () =>
     set({
       isHost: false,

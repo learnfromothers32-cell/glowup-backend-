@@ -37,7 +37,6 @@ export interface CommerceState {
   shelfVisible: boolean;
   services: LiveService[];
   stylistProfile: LiveStylistProfile | null;
-
   setPinnedService: (service: PinnedServiceData | null) => void;
   setAvailability: (availability: LiveAvailability) => void;
   setShelfVisible: (visible: boolean) => void;
@@ -56,7 +55,6 @@ const initialState = {
 
 export const useCommerceStore = create<CommerceState>((set) => ({
   ...initialState,
-
   setPinnedService: (pinnedService) => set({ pinnedService }),
   setAvailability: (availability) => set({ availability }),
   setShelfVisible: (shelfVisible) => set({ shelfVisible }),

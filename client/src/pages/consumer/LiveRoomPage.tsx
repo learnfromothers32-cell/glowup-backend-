@@ -1,6 +1,21 @@
 import { useEffect, useCallback, useMemo, useState, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Share2, ShoppingBag, ChevronUp, ChevronDown, MessageCircle, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Share2,
+  ShoppingBag,
+  MessageCircle,
+  X,
+  Heart,
+  Calendar,
+  ChevronUp,
+  ChevronDown,
+  Star,
+  BadgeCheck,
+  Users,
+  Clock,
+  Zap,
+} from "lucide-react";
 import { useLiveSession, useSessionStatus, useJoinLiveSession } from "../../domain/live/live.hooks";
 import { useLiveSocket } from "../../features/live/hooks/useLiveSocket";
 import { useLiveMedia } from "../../features/live/hooks/useLiveMedia";
@@ -8,25 +23,22 @@ import { LivePlayer } from "../../features/live/components/LivePlayer";
 import { ChatPanel } from "../../features/live/components/ChatPanel";
 import { HostControls, ViewerControls } from "../../features/live/components/HostControls";
 import { ConnectionBanner } from "../../features/live/components/ConnectionBanner";
-import { StreamInfo, LiveBadge, ViewerCount } from "../../features/live/components/LiveBadge";
+import { LiveBadge, ViewerCount } from "../../features/live/components/LiveBadge";
 import { RoomSkeleton } from "../../features/live/components/LiveSkeleton";
-import { StylistInfoPanel } from "../../features/live/components/StylistInfoPanel";
 import { ServiceShowcase } from "../../features/live/components/ServiceCard";
 import { BookingOverlay } from "../../features/live/components/BookingOverlay";
-import { QueueWidget } from "../../features/live/components/QueueWidget";
 import { ProductShelf } from "../../features/live/components/LiveAvailability";
 import { HostCommerceControls } from "../../features/live/components/HostCommerceControls";
 import { ReactionOverlay, ReactionBar } from "../../features/live/components/ReactionOverlay";
 import { SafetyNotification } from "../../features/live/components/SafetyNotification";
 import { HostSafetyDashboard } from "../../features/live/components/HostSafetyDashboard";
 import { ViewerGuestRequestButton } from "../../features/live/components/GuestRequestPanel";
+import { LiveEndScreen } from "../../features/live/components/LiveEndScreen";
 import { useConnectionStore } from "../../domain/live/stores/connectionStore";
 import { useViewerStore } from "../../domain/live/stores/viewerStore";
 import { useCommerceStore } from "../../domain/live/stores/commerceStore";
 import { useModerationStore } from "../../domain/live/stores/moderationStore";
 import { useGuestRequestStore } from "../../domain/live/stores/guestRequestStore";
-import { useReactionStore } from "../../domain/live/stores/reactionStore";
-import { useChatStore } from "../../domain/live/stores/chatStore";
 import { useAuth } from "../../context/authUtils";
 import { Button } from "../../components/ui/Button";
 import { getStylistServices, getStylistById } from "../../api/stylists";
@@ -52,79 +64,6 @@ import {
   onGuestRequestStatus, offGuestRequestStatus,
   onModerationNotification, offModerationNotification,
 } from "../../services/liveSocket";
-
-// ── Shared commerce panel (avoids duplication between desktop & mobile) ──
-function CommercePanelContent({
-  stylistProfile,
-  availability,
-  services,
-  pinnedService,
-  shelfVisible,
-  stylistId,
-  isHost,
-  sessionId,
-  onBookFromPanel,
-  onBookService,
-  onFollow,
-  onPinService,
-  onUnpinService,
-  onToggleShelf,
-  onUpdateAvailability,
-}: {
-  stylistProfile: any;
-  availability: string;
-  services: any[];
-  pinnedService: any;
-  shelfVisible: boolean;
-  stylistId: string | null;
-  isHost: boolean;
-  sessionId: string;
-  onBookFromPanel: () => void;
-  onBookService: (s: any) => void;
-  onFollow: () => void;
-  onPinService: (id: string) => void;
-  onUnpinService: () => void;
-  onToggleShelf: (v: boolean) => void;
-  onUpdateAvailability: (a: string) => void;
-}) {
-  return (
-    <div className="p-3 space-y-3">
-      {stylistProfile && (
-        <StylistInfoPanel
-          profile={stylistProfile}
-          availability={availability}
-          onBook={onBookFromPanel}
-          onFollow={onFollow}
-        />
-      )}
-      {services.length > 0 && (
-        <ServiceShowcase
-          services={services}
-          pinnedServiceId={pinnedService?.serviceId}
-          onBookService={onBookService}
-        />
-      )}
-      {stylistId && <QueueWidget stylistId={stylistId} />}
-      {shelfVisible && <ProductShelf />}
-      {isHost && (
-        <>
-          <HostSafetyDashboard sessionId={sessionId} />
-          <HostCommerceControls
-            services={services}
-            pinnedServiceId={pinnedService?.serviceId ?? null}
-            shelfVisible={shelfVisible}
-            availability={availability}
-            onPinService={onPinService}
-            onUnpinService={onUnpinService}
-            onToggleShelf={onToggleShelf}
-            onUpdateAvailability={onUpdateAvailability}
-          />
-        </>
-      )}
-      {!isHost && <ViewerGuestRequestButton sessionId={sessionId} className="w-full" />}
-    </div>
-  );
-}
 
 export default function LiveRoomPage() {
   const { id } = useParams<{ id: string }>();
@@ -158,6 +97,7 @@ export default function LiveRoomPage() {
   const [showMobileCommerce, setShowMobileCommerce] = useState(false);
   const [showMobileChat, setShowMobileChat] = useState(false);
   const [connectError, setConnectError] = useState<string | null>(null);
+  const [showPinnedBanner, setShowPinnedBanner] = useState(false);
 
   const isHost = useMemo(() => {
     if (!session || !user) return false;
@@ -166,17 +106,12 @@ export default function LiveRoomPage() {
 
   const stylistId = useMemo(() => {
     if (!session) return null;
-    if (session.stylistId && typeof session.stylistId === "object") {
-      return session.stylistId._id;
-    }
-    if (typeof session.stylistId === "string") {
-      return session.stylistId;
-    }
+    if (session.stylistId && typeof session.stylistId === "object") return session.stylistId._id;
+    if (typeof session.stylistId === "string") return session.stylistId;
     return null;
   }, [session]);
 
-  const stylist =
-    session?.stylistId && typeof session.stylistId === "object" ? session.stylistId : null;
+  const stylist = session?.stylistId && typeof session.stylistId === "object" ? session.stylistId : null;
 
   // Load services + stylist profile
   useEffect(() => {
@@ -196,7 +131,6 @@ export default function LiveRoomPage() {
         );
       })
       .catch(() => {});
-
     getStylistById(stylistId)
       .then((data: any) => {
         const s = data?.stylist || data;
@@ -219,7 +153,11 @@ export default function LiveRoomPage() {
 
   // Commerce socket listeners
   useEffect(() => {
-    const handleServicePinned = (data: any) => setPinnedService(data.service);
+    const handleServicePinned = (data: any) => {
+      setPinnedService(data.service);
+      setShowPinnedBanner(true);
+      setTimeout(() => setShowPinnedBanner(false), 4000);
+    };
     const handleServiceUnpinned = () => setPinnedService(null);
     const handleAvailability = (data: any) => setAvailability(data.availability);
     const handleShelf = (data: any) => setShelfVisible(data.visible);
@@ -228,7 +166,6 @@ export default function LiveRoomPage() {
     onServiceUnpinned(handleServiceUnpinned);
     onAvailabilityUpdated(handleAvailability);
     onShelfUpdated(handleShelf);
-
     return () => {
       offServicePinned(handleServicePinned);
       offServiceUnpinned(handleServiceUnpinned);
@@ -240,13 +177,16 @@ export default function LiveRoomPage() {
   // Moderation socket listeners (host-side)
   useEffect(() => {
     if (!isHost || !id) return;
-
     const handleUserMuted = (data: { userId: string }) => useModerationStore.getState().addMutedUser(data.userId);
     const handleUserUnmuted = (data: { userId: string }) => useModerationStore.getState().removeMutedUser(data.userId);
     const handleUserBanned = (data: { userId: string }) => useModerationStore.getState().addBannedUser(data.userId);
     const handleUserUnbanned = (data: { userId: string }) => useModerationStore.getState().removeBannedUser(data.userId);
     const handleReportSubmitted = () => useModerationStore.getState().incrementPendingReports();
-    const handleMessageDeleted = (data: { messageId: string }) => useChatStore.getState().deleteMessage(data.messageId);
+    const handleMessageDeleted = (data: { messageId: string }) => {
+      // import from chatStore
+      const { useChatStore } = require("../../domain/live/stores/chatStore");
+      useChatStore.getState().deleteMessage(data.messageId);
+    };
 
     onUserMuted(handleUserMuted);
     onUserUnmuted(handleUserUnmuted);
@@ -254,7 +194,6 @@ export default function LiveRoomPage() {
     onUserUnbanned(handleUserUnbanned);
     onReportSubmitted(handleReportSubmitted);
     onMessageDeleted(handleMessageDeleted);
-
     return () => {
       offUserMuted(handleUserMuted);
       offUserUnmuted(handleUserUnmuted);
@@ -268,16 +207,10 @@ export default function LiveRoomPage() {
   // Guest request socket listeners (host-side)
   useEffect(() => {
     if (!isHost || !id) return;
-
     const handleRequestReceived = (data: { requestId: string; displayName: string; reason?: string }) => {
       useGuestRequestStore.getState().addPendingRequest({
-        id: data.requestId,
-        sessionId: id,
-        viewerId: "",
-        displayName: data.displayName,
-        status: "pending",
-        reason: data.reason,
-        createdAt: new Date().toISOString(),
+        id: data.requestId, sessionId: id, viewerId: "", displayName: data.displayName,
+        status: "pending", reason: data.reason, createdAt: new Date().toISOString(),
       });
     };
     const handleRequestAccepted = (data: { requestId: string }) => useGuestRequestStore.getState().removePendingRequest(data.requestId);
@@ -288,7 +221,6 @@ export default function LiveRoomPage() {
     onGuestRequestAccepted(handleRequestAccepted);
     onGuestRequestRejected(handleRequestRejected);
     onGuestRequestCancelled(handleRequestCancelled);
-
     return () => {
       offGuestRequestReceived(handleRequestReceived);
       offGuestRequestAccepted(handleRequestAccepted);
@@ -305,68 +237,54 @@ export default function LiveRoomPage() {
     return () => offGuestRequestStatus(handleStatus);
   }, [isHost, id]);
 
-  // Moderation notification listener (viewer-side: muted/banned notifications)
+  // Moderation notification listener (viewer-side)
   useEffect(() => {
     if (isHost || !id) return;
     const handleNotification = (data: { sessionId: string; type: string; message: string }) => {
-      if (data.type === 'muted') {
-        useModerationStore.getState().addMutedUser(user?.id || '');
-      } else if (data.type === 'banned') {
-        useModerationStore.getState().addBannedUser(user?.id || '');
-      }
+      if (data.type === "muted") useModerationStore.getState().addMutedUser(user?.id || "");
+      else if (data.type === "banned") useModerationStore.getState().addBannedUser(user?.id || "");
     };
     onModerationNotification(handleNotification);
     return () => offModerationNotification(handleNotification);
   }, [isHost, id, user?.id]);
 
-  // Reaction handler
   const handleSendReaction = useCallback((type: any) => {
     if (id) sendReaction(id, type);
   }, [id]);
 
-  // Connect to room
   const { join, disconnect, manualReconnect } = useLiveSocket();
   const { room, connect: connectMedia, disconnect: disconnectMedia, toggleCamera, toggleMic, localTracks } = useLiveMedia();
   const joinMutation = useJoinLiveSession();
   const joinedRef = useRef(false);
 
-  // Join session + connect WebRTC (runs once when session loads)
+  // Join session + connect WebRTC
   useEffect(() => {
     if (!id || !session || joinedRef.current) return;
     joinedRef.current = true;
-
-    // Join socket room
     join(id, isHost ? "host" : "viewer", user?.name || "Guest");
-
-    // If host token was passed via navigation state, use it directly
     if (hostState?.token && hostState?.liveKitUrl) {
-      connectMedia(hostState.liveKitUrl, hostState.token, isHost).catch((err) => {
-        console.error("Failed to connect host media:", err);
+      connectMedia(hostState.liveKitUrl, hostState.token, isHost).catch(() => {
         setConnectError("Failed to connect to live stream. Please try again.");
       });
       return;
     }
-
-    // Otherwise join via API (server detects host vs viewer by userId)
     joinMutation.mutate(id, {
       onSuccess: (result) => {
         if (result.liveKitUrl) {
-          connectMedia(result.liveKitUrl, result.token, isHost).catch((err) => {
-            console.error("Failed to connect media:", err);
+          connectMedia(result.liveKitUrl, result.token, isHost).catch(() => {
             setConnectError("Failed to connect to live stream. Please try again.");
           });
         } else {
-          setConnectError("Live streaming is not configured on this server. The host needs to set up LiveKit.");
+          setConnectError("Live streaming is not configured. The host needs to set up LiveKit.");
         }
       },
-      onError: (error) => {
-        console.error("Failed to join session:", error);
-        setConnectError("Could not join this session. It may have ended or you may not have access.");
+      onError: () => {
+        setConnectError("Could not join this session. It may have ended.");
       },
     });
   }, [id, session, isHost, user?.name, hostState, connectMedia, join, joinMutation]);
 
-  // Cleanup ONLY on unmount (not on session refetch)
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       disconnectMedia();
@@ -379,8 +297,12 @@ export default function LiveRoomPage() {
     resetCommerce();
     useModerationStore.getState().reset();
     useGuestRequestStore.getState().reset();
-    useReactionStore.getState().reset();
+    // Reset chat store
+    const { useChatStore } = require("../../domain/live/stores/chatStore");
     useChatStore.getState().reset();
+    // Reset reaction store
+    const { useReactionStore } = require("../../domain/live/stores/reactionStore");
+    useReactionStore.getState().reset();
   }
 
   const handleEndStream = useCallback(async () => {
@@ -390,9 +312,7 @@ export default function LiveRoomPage() {
       disconnectMedia();
       disconnect();
       navigate(isHost ? "/stylist/go-live" : "/app/live");
-    } catch (err) {
-      console.error("Failed to end stream:", err);
-    }
+    } catch {}
   }, [id, disconnectMedia, disconnect, navigate, isHost]);
 
   const handleLeave = useCallback(() => {
@@ -424,78 +344,92 @@ export default function LiveRoomPage() {
     } catch {}
   }, [stylistId, stylistProfile, setStylistProfile]);
 
-  const handlePinService = useCallback((serviceId: string) => {
-    if (id) pinService(id, serviceId);
-  }, [id]);
+  const handlePinService = useCallback((serviceId: string) => { if (id) pinService(id, serviceId); }, [id]);
+  const handleUnpinService = useCallback(() => { if (id) unpinService(id); }, [id]);
+  const handleToggleShelf = useCallback((visible: boolean) => { if (id) toggleShelf(id, visible); }, [id]);
+  const handleUpdateAvailability = useCallback((avail: string) => { if (id) updateAvailability(id, avail); }, [id]);
 
-  const handleUnpinService = useCallback(() => {
-    if (id) unpinService(id);
-  }, [id]);
-
-  const handleToggleShelf = useCallback((visible: boolean) => {
-    if (id) toggleShelf(id, visible);
-  }, [id]);
-
-  const handleUpdateAvailability = useCallback((avail: string) => {
-    if (id) updateAvailability(id, avail);
-  }, [id]);
-
-  if (isLoading) {
-    return <RoomSkeleton className="h-[calc(100vh-4rem)]" />;
-  }
+  if (isLoading) return <RoomSkeleton className="h-[calc(100vh-4rem)]" />;
 
   if (!session) {
     return (
       <div className="page-container py-16 text-center">
         <h2 className="text-h3 font-display text-text-primary">Session not found</h2>
-        <Button variant="secondary" className="mt-4" onClick={() => navigate("/app/live")}>
-          Back to Live
-        </Button>
+        <Button variant="secondary" className="mt-4" onClick={() => navigate("/app/live")}>Back to Live</Button>
       </div>
     );
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col bg-black">
+    <div className="h-[calc(100vh-4rem)] flex flex-col bg-black relative">
       {/* Global overlays */}
       <ReactionOverlay sessionId={id!} />
       <SafetyNotification />
 
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 sm:px-4 py-2 bg-gray-900 z-10 shrink-0">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <button
-            onClick={handleLeave}
-            className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all shrink-0"
-            aria-label="Leave stream"
-          >
-            <ArrowLeft size={18} />
-          </button>
-          <StreamInfo
-            title={session.title}
-            stylistName={stylist?.name || "Stylist"}
-            stylistAvatar={stylist?.image}
-            category={session.category}
-          />
+      {/* Pinned Service Toast */}
+      {showPinnedBanner && pinnedService && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 animate-slide-down">
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-brand-500 text-white shadow-2xl shadow-brand-500/30">
+            <Zap size={14} />
+            <span className="text-xs font-semibold">{pinnedService.name} — GHS {pinnedService.price.toLocaleString()}</span>
+            <span className="text-[10px] opacity-70">featured</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          {session.status === "live" && (
-            <>
-              <LiveBadge size="sm" />
-              <ViewerCount count={statusData?.viewerCount ?? viewerCount} />
-            </>
-          )}
-          <button className="p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all" aria-label="Share stream">
-            <Share2 size={16} />
-          </button>
+      )}
+
+      {/* Header - Minimal, overlaid on video */}
+      <div className="absolute top-0 left-0 right-0 z-20">
+        <div className="flex items-center justify-between px-3 sm:px-4 py-3 bg-gradient-to-b from-black/60 to-transparent">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <button
+              onClick={handleLeave}
+              className="p-2 rounded-full bg-black/30 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/50 transition-all shrink-0"
+              aria-label="Leave stream"
+            >
+              <ArrowLeft size={18} />
+            </button>
+            {/* Stylist info overlay */}
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/30 shrink-0">
+                {stylist?.image ? (
+                  <img src={stylist.image} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-white/20 flex items-center justify-center text-xs font-bold text-white">
+                    {stylist?.name?.[0] || "?"}
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <h2 className="text-sm font-bold text-white truncate">{stylist?.name || "Stylist"}</h2>
+                  {stylist?.isVerified && <BadgeCheck size={12} className="text-brand-400 shrink-0" />}
+                </div>
+                <p className="text-[11px] text-white/60 truncate">{session.title}</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {session.status === "live" && (
+              <>
+                <LiveBadge size="sm" />
+                <ViewerCount count={statusData?.viewerCount ?? viewerCount} />
+              </>
+            )}
+            <button
+              className="p-2 rounded-full bg-black/30 backdrop-blur-sm text-white/80 hover:text-white transition-all"
+              aria-label="Share stream"
+            >
+              <Share2 size={16} />
+            </button>
+          </div>
         </div>
       </div>
 
-      <ConnectionBanner className="mx-4 mt-2" onRetry={manualReconnect} />
+      <ConnectionBanner className="absolute top-14 left-3 right-3 z-20" onRetry={manualReconnect} />
 
       {/* Connection error overlay */}
       {connectError && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/80">
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/80 backdrop-blur-sm">
           <div className="text-center px-6 max-w-md">
             <div className="w-16 h-16 rounded-full bg-red-500/20 mx-auto mb-4 flex items-center justify-center">
               <span className="text-2xl">📡</span>
@@ -510,107 +444,241 @@ export default function LiveRoomPage() {
         </div>
       )}
 
+      {/* Session ended */}
+      {session.status === "ended" && (
+        <LiveEndScreen
+          session={session}
+          stylistName={stylist?.name || (typeof session.stylistId === "object" ? session.stylistId.name : "Stylist")}
+          stylistImage={stylist?.image}
+          isFollowing={stylistProfile?.isFollowing}
+          onRebook={handleBookFromPanel}
+          onFollow={!isHost ? handleFollow : undefined}
+        />
+      )}
+
       {/* ── DESKTOP (lg+): Side-by-side video + sidebar ── */}
+      {session.status !== "ended" && (<>
       <div className="hidden lg:flex flex-1 overflow-hidden">
-        {/* Video */}
+        {/* Video area */}
         <div className="flex-1 relative">
-          <LivePlayer room={room} isHost={isHost} localVideoTrack={localTracks.video} localAudioTrack={localTracks.audio} />
+           <LivePlayer
+             room={room}
+             isHost={isHost}
+             localVideoTrack={localTracks.video}
+             localAudioTrack={localTracks.audio}
+             viewerCount={statusData?.viewerCount ?? viewerCount}
+             onRetryConnect={() => {}}
+           />
+
+          {/* Floating bottom-left: Stylist info + Book CTA for viewers */}
+          {!isHost && (
+            <div className="absolute bottom-20 left-4 right-4 z-10 flex items-end justify-between">
+              <div className="max-w-md">
+                {/* Pinned service callout */}
+                {pinnedService && (
+                  <div className="mb-3 p-3 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Zap size={12} className="text-brand-400" />
+                      <span className="text-[10px] font-bold text-brand-400 uppercase">Featured Service</span>
+                    </div>
+                    <p className="text-sm font-bold text-white">{pinnedService.name}</p>
+                    <p className="text-xs text-white/60">{pinnedService.duration}min · GHS {pinnedService.price.toLocaleString()}</p>
+                    <button
+                      onClick={() => { setPreSelectedServiceId(pinnedService.serviceId); setShowBooking(true); }}
+                      className="mt-2 px-4 py-1.5 rounded-full bg-brand-500 text-white text-xs font-bold hover:bg-brand-600 transition-colors"
+                    >
+                      Book Now
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Floating bottom-right: Follow button */}
+          {!isHost && stylistProfile && (
+            <div className="absolute bottom-20 right-4 z-10">
+              <button
+                onClick={handleFollow}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-2 rounded-full backdrop-blur-md text-xs font-semibold transition-all",
+                  stylistProfile.isFollowing
+                    ? "bg-white/20 text-white border border-white/20"
+                    : "bg-brand-500 text-white shadow-lg shadow-brand-500/30"
+                )}
+              >
+                {stylistProfile.isFollowing ? (
+                  <><BadgeCheck size={12} /> Following</>
+                ) : (
+                  <><Heart size={12} /> Follow</>
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Sidebar: Commerce + Chat */}
-        <div className="w-[320px] flex flex-col border-l border-gray-800">
-          <div className="max-h-[40%] overflow-y-auto border-b border-gray-800">
-            <CommercePanelContent
-              stylistProfile={stylistProfile}
-              availability={availability}
-              services={services}
-              pinnedService={pinnedService}
-              shelfVisible={shelfVisible}
-              stylistId={stylistId}
-              isHost={isHost}
-              sessionId={id!}
-              onBookFromPanel={handleBookFromPanel}
-              onBookService={handleBookService}
-              onFollow={handleFollow}
-              onPinService={handlePinService}
-              onUnpinService={handleUnpinService}
-              onToggleShelf={handleToggleShelf}
-              onUpdateAvailability={handleUpdateAvailability}
-            />
+        <div className="w-[340px] flex flex-col border-l border-gray-800 bg-gray-900">
+          {/* Commerce panel - scrollable */}
+          <div className="max-h-[45%] overflow-y-auto border-b border-gray-800">
+            <div className="p-3 space-y-3">
+              {/* Stylist mini-profile */}
+              {stylistProfile && (
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
+                  <div className="w-10 h-10 rounded-full overflow-hidden shrink-0">
+                    {stylistProfile.image ? (
+                      <img src={stylistProfile.image} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/60">
+                        {stylistProfile.name?.[0]}
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-bold text-white truncate">{stylistProfile.name}</span>
+                      {stylistProfile.isVerified && <BadgeCheck size={12} className="text-brand-400" />}
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] text-white/50 mt-0.5">
+                      <span className="flex items-center gap-0.5"><Star size={9} className="text-amber-400 fill-amber-400" />{stylistProfile.rating > 0 ? stylistProfile.rating.toFixed(1) : "New"}</span>
+                      <span className="flex items-center gap-0.5"><Users size={9} />{stylistProfile.followerCount}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Book + Follow buttons */}
+              {!isHost && (
+                <div className="flex gap-2">
+                  <Button variant="primary" size="sm" className="flex-1" onClick={handleBookFromPanel}>
+                    <Calendar size={14} /> Book Appointment
+                  </Button>
+                  <button
+                    onClick={handleFollow}
+                    className={cn(
+                      "px-3 py-2 rounded-xl text-xs font-semibold transition-all",
+                      stylistProfile?.isFollowing
+                        ? "bg-white/10 text-white"
+                        : "bg-brand-500/20 text-brand-400 hover:bg-brand-500/30"
+                    )}
+                  >
+                    {stylistProfile?.isFollowing ? "Following" : "Follow"}
+                  </button>
+                </div>
+              )}
+
+              {/* Services */}
+              {services.length > 0 && (
+                <ServiceShowcase
+                  services={services}
+                  pinnedServiceId={pinnedService?.serviceId}
+                  onBookService={handleBookService}
+                />
+              )}
+
+              {/* Product shelf */}
+              {stylistId && <ProductShelf stylistId={stylistId} visible={shelfVisible} />}
+
+              {/* Host controls */}
+              {isHost && (
+                <>
+                  <HostSafetyDashboard sessionId={id!} />
+                  <HostCommerceControls
+                    services={services}
+                    pinnedServiceId={pinnedService?.serviceId ?? null}
+                    shelfVisible={shelfVisible}
+                    availability={availability}
+                    onPinService={handlePinService}
+                    onUnpinService={handleUnpinService}
+                    onToggleShelf={handleToggleShelf}
+                    onUpdateAvailability={handleUpdateAvailability}
+                  />
+                </>
+              )}
+
+              {!isHost && <ViewerGuestRequestButton sessionId={id!} className="w-full" />}
+            </div>
           </div>
+
+          {/* Chat */}
           <div className="flex-1 min-h-0">
-            <ChatPanel className="h-full" />
+            <ChatPanel className="h-full" onOpenBooking={handleBookFromPanel} />
           </div>
+
+          {/* Reaction bar */}
           <div className="px-3 py-2 border-t border-gray-800">
             <ReactionBar onSend={handleSendReaction} disabled={session.status !== "live"} />
           </div>
         </div>
       </div>
 
-      {/* ── TABLET (sm-lg): Video + collapsible chat ── */}
-      <div className="hidden sm:flex lg:hidden flex-1 overflow-hidden relative">
+      {/* ── MOBILE/TABLET: Full video + bottom controls ── */}
+      <div className="flex lg:hidden flex-1 flex-col overflow-hidden relative">
         <div className="flex-1 relative">
-          <LivePlayer room={room} isHost={isHost} localVideoTrack={localTracks.video} localAudioTrack={localTracks.audio} />
-        </div>
-        {/* Floating chat toggle */}
-        <button
-          onClick={() => setShowMobileChat(!showMobileChat)}
-          className="absolute bottom-4 right-4 z-10 p-3 rounded-full bg-brand-500 text-white shadow-lg"
-          aria-label="Toggle chat"
-        >
-          {showMobileChat ? <X size={20} /> : <MessageCircle size={20} />}
-        </button>
-        {/* Sliding chat panel */}
-        {showMobileChat && (
-          <div className="absolute right-0 top-0 bottom-0 w-[300px] bg-gray-900 border-l border-gray-800 flex flex-col z-10">
-            <div className="flex-1 min-h-0">
-              <ChatPanel className="h-full" />
-            </div>
-            <div className="px-3 py-2 border-t border-gray-800">
-              <ReactionBar onSend={handleSendReaction} disabled={session.status !== "live"} />
-            </div>
-          </div>
-        )}
-      </div>
+           <LivePlayer
+             room={room}
+             isHost={isHost}
+             localVideoTrack={localTracks.video}
+             localAudioTrack={localTracks.audio}
+             viewerCount={statusData?.viewerCount ?? viewerCount}
+             onRetryConnect={() => {}}
+           />
 
-      {/* ── MOBILE (<sm): Full video + bottom sheets for chat & commerce ── */}
-      <div className="flex sm:hidden flex-1 flex-col overflow-hidden relative">
-        {/* Video takes full remaining space */}
-        <div className="flex-1 relative">
-          <LivePlayer room={room} isHost={isHost} localVideoTrack={localTracks.video} localAudioTrack={localTracks.audio} />
-        </div>
-
-        {/* Bottom controls bar */}
-        <div className="shrink-0 bg-gray-900 border-t border-gray-800">
-          {/* Quick actions row */}
-          <div className="flex items-center justify-between px-3 py-2">
-            <div className="flex items-center gap-2">
-              {/* Chat toggle */}
+          {/* Floating viewer actions */}
+          {!isHost && (
+            <div className="absolute bottom-24 right-3 z-10 flex flex-col gap-2">
+              <button
+                onClick={handleFollow}
+                className={cn(
+                  "p-2.5 rounded-full backdrop-blur-md transition-all",
+                  stylistProfile?.isFollowing ? "bg-white/20 text-white" : "bg-brand-500 text-white shadow-lg"
+                )}
+                aria-label={stylistProfile?.isFollowing ? "Following" : "Follow"}
+              >
+                <Heart size={18} fill={stylistProfile?.isFollowing ? "currentColor" : "none"} />
+              </button>
               <button
                 onClick={() => { setShowMobileChat(!showMobileChat); setShowMobileCommerce(false); }}
-                className={`p-2 rounded-lg transition-all ${showMobileChat ? "bg-brand-500 text-white" : "text-white/60 hover:text-white hover:bg-white/10"}`}
+                className={cn(
+                  "p-2.5 rounded-full backdrop-blur-md transition-all",
+                  showMobileChat ? "bg-brand-500 text-white" : "bg-black/30 text-white"
+                )}
                 aria-label="Toggle chat"
               >
                 <MessageCircle size={18} />
               </button>
-              {/* Commerce toggle */}
               <button
                 onClick={() => { setShowMobileCommerce(!showMobileCommerce); setShowMobileChat(false); }}
-                className={`p-2 rounded-lg transition-all ${showMobileCommerce ? "bg-brand-500 text-white" : "text-white/60 hover:text-white hover:bg-white/10"}`}
+                className={cn(
+                  "p-2.5 rounded-full backdrop-blur-md transition-all",
+                  showMobileCommerce ? "bg-brand-500 text-white" : "bg-black/30 text-white"
+                )}
                 aria-label="Toggle services"
               >
                 <ShoppingBag size={18} />
               </button>
-              {pinnedService && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-medium">
-                  {pinnedService.name}
-                </span>
-              )}
             </div>
+          )}
+
+          {/* Floating pinned service for viewers */}
+          {!isHost && pinnedService && (
+            <div className="absolute bottom-24 left-3 z-10 max-w-[200px]">
+              <button
+                onClick={() => { setPreSelectedServiceId(pinnedService.serviceId); setShowBooking(true); }}
+                className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-brand-500 text-white shadow-xl shadow-brand-500/30 text-xs font-bold animate-pulse"
+              >
+                <Zap size={12} />
+                Book: {pinnedService.name}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom controls */}
+        <div className="shrink-0 bg-gray-900 border-t border-gray-800">
+          <div className="flex items-center justify-between px-3 py-2">
             <ReactionBar onSend={handleSendReaction} disabled={session.status !== "live"} />
           </div>
-
-          {/* Host/Viewer controls */}
           {isHost ? (
             <HostControls
               onToggleCamera={toggleCamera}
@@ -625,67 +693,92 @@ export default function LiveRoomPage() {
 
         {/* Mobile chat bottom sheet */}
         {showMobileChat && (
-          <div className="absolute bottom-0 left-0 right-0 z-20 h-[60vh] bg-gray-900 rounded-t-xl border-t border-gray-800 flex flex-col">
-            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-800">
-              <span className="text-xs font-semibold text-white">Chat</span>
+          <div className="absolute bottom-0 left-0 right-0 z-30 h-[65vh] bg-gray-900 rounded-t-2xl border-t border-gray-700 flex flex-col shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+              <span className="text-sm font-bold text-white">Chat</span>
               <button onClick={() => setShowMobileChat(false)} className="p-1 text-white/40 hover:text-white" aria-label="Close chat">
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
             <div className="flex-1 min-h-0">
-              <ChatPanel className="h-full" />
+              <ChatPanel className="h-full" onOpenBooking={handleBookFromPanel} />
             </div>
           </div>
         )}
 
         {/* Mobile commerce bottom sheet */}
         {showMobileCommerce && (
-          <div className="absolute bottom-0 left-0 right-0 z-20 h-[60vh] bg-gray-900 rounded-t-xl border-t border-gray-800 flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-800 shrink-0">
-              <span className="text-xs font-semibold text-white">Services & Info</span>
-              <button onClick={() => setShowMobileCommerce(false)} className="p-1 text-white/40 hover:text-white" aria-label="Close services">
-                <X size={16} />
+          <div className="absolute bottom-0 left-0 right-0 z-30 h-[65vh] bg-gray-900 rounded-t-2xl border-t border-gray-700 flex flex-col overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 shrink-0">
+              <span className="text-sm font-bold text-white">Services & Shop</span>
+              <button onClick={() => setShowMobileCommerce(false)} className="p-1 text-white/40 hover:text-white" aria-label="Close">
+                <X size={18} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto">
-              <CommercePanelContent
-                stylistProfile={stylistProfile}
-                availability={availability}
-                services={services}
-                pinnedService={pinnedService}
-                shelfVisible={shelfVisible}
-                stylistId={stylistId}
-                isHost={isHost}
-                sessionId={id!}
-                onBookFromPanel={handleBookFromPanel}
-                onBookService={handleBookService}
-                onFollow={handleFollow}
-                onPinService={handlePinService}
-                onUnpinService={handleUnpinService}
-                onToggleShelf={handleToggleShelf}
-                onUpdateAvailability={handleUpdateAvailability}
-              />
+            <div className="flex-1 overflow-y-auto p-3 space-y-3">
+              {/* Stylist info */}
+              {stylistProfile && (
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
+                  <div className="w-10 h-10 rounded-full overflow-hidden shrink-0">
+                    {stylistProfile.image ? (
+                      <img src={stylistProfile.image} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-white/10 flex items-center justify-center text-xs font-bold text-white/60">{stylistProfile.name?.[0]}</div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-bold text-white truncate">{stylistProfile.name}</span>
+                      {stylistProfile.isVerified && <BadgeCheck size={12} className="text-brand-400" />}
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] text-white/50 mt-0.5">
+                      <span className="flex items-center gap-0.5"><Star size={9} className="text-amber-400 fill-amber-400" />{stylistProfile.rating > 0 ? stylistProfile.rating.toFixed(1) : "New"}</span>
+                      <span className="flex items-center gap-0.5"><Users size={9} />{stylistProfile.followerCount}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Book button */}
+              {!isHost && (
+                <Button variant="primary" size="md" className="w-full" onClick={handleBookFromPanel}>
+                  <Calendar size={16} /> Book Appointment
+                </Button>
+              )}
+
+              {/* Services */}
+              {services.length > 0 && (
+                <ServiceShowcase
+                  services={services}
+                  pinnedServiceId={pinnedService?.serviceId}
+                  onBookService={handleBookService}
+                />
+              )}
+
+              {/* Product shelf */}
+              {stylistId && <ProductShelf stylistId={stylistId} visible={shelfVisible} />}
+
+              {/* Host controls in mobile */}
+              {isHost && (
+                <>
+                  <HostSafetyDashboard sessionId={id!} />
+                  <HostCommerceControls
+                    services={services}
+                    pinnedServiceId={pinnedService?.serviceId ?? null}
+                    shelfVisible={shelfVisible}
+                    availability={availability}
+                    onPinService={handlePinService}
+                    onUnpinService={handleUnpinService}
+                    onToggleShelf={handleToggleShelf}
+                    onUpdateAvailability={handleUpdateAvailability}
+                  />
+                </>
+              )}
             </div>
           </div>
         )}
       </div>
-
-      {/* ── DESKTOP controls bar ── */}
-      <div className="hidden lg:flex items-center bg-gray-900 px-4 shrink-0">
-        <div className="flex-1">
-          {isHost ? (
-            <HostControls
-              onToggleCamera={toggleCamera}
-              onToggleMic={toggleMic}
-              onEndStream={handleEndStream}
-              isStreaming={session.status === "live"}
-            />
-          ) : (
-            <ViewerControls onLeave={handleLeave} />
-          )}
-        </div>
-        <ReactionBar onSend={handleSendReaction} disabled={session.status !== "live"} />
-      </div>
+      </>)}
 
       {/* Booking Overlay */}
       {showBooking && stylistId && (

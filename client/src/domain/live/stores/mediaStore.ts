@@ -16,13 +16,10 @@ export const useMediaStore = create<MediaState>((set) => ({
   cameraEnabled: true,
   micEnabled: true,
   speaking: false,
-
   setCameraEnabled: (enabled) => set({ cameraEnabled: enabled }),
   setMicEnabled: (enabled) => set({ micEnabled: enabled }),
   setSpeaking: (speaking) => set({ speaking }),
-
   toggleCamera: () => set((s) => ({ cameraEnabled: !s.cameraEnabled })),
   toggleMic: () => set((s) => ({ micEnabled: !s.micEnabled })),
-
   reset: () => set({ cameraEnabled: true, micEnabled: true, speaking: false }),
 }));

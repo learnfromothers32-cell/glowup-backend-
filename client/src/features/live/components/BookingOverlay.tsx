@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { X, ArrowLeft, AlertCircle } from "lucide-react";
+import { X, ArrowLeft, AlertCircle, Check, Calendar, Clock, CreditCard } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/Button";
 import { getAvailableSlots } from "@/api/bookings";
@@ -48,14 +48,8 @@ export function BookingOverlay({
     if (!selectedService || phase !== "select-time") return;
     setLoadingSlots(true);
     setError(null);
-    getAvailableSlots({
-      stylistId,
-      date: selectedDate,
-      serviceId: selectedService._id,
-    })
-      .then((data) => {
-        setSlots(data.slots || []);
-      })
+    getAvailableSlots({ stylistId, date: selectedDate, serviceId: selectedService._id })
+      .then((data) => setSlots(data.slots || []))
       .catch(() => {
         setSlots([]);
         setError("Failed to load available times. Please try again.");
@@ -81,7 +75,7 @@ export function BookingOverlay({
       });
       setPhase("success");
       onSuccess();
-    } catch (err) {
+    } catch {
       setError("Booking failed. Please try again.");
     }
   }, [selectedService, selectedSlot, selectedDate, stylistId, createBooking, onSuccess]);
@@ -95,6 +89,13 @@ export function BookingOverlay({
     };
   });
 
+  const phaseLabels: Record<BookingPhase, { step: number; title: string }> = {
+    "select-service": { step: 1, title: "Select Service" },
+    "select-time": { step: 2, title: "Pick a Time" },
+    "confirm": { step: 3, title: "Confirm Booking" },
+    "success": { step: 4, title: "Booked!" },
+  };
+
   return (
     <div
       className={cn("fixed inset-0 z-50 flex items-end sm:items-center justify-center", className)}
@@ -103,52 +104,51 @@ export function BookingOverlay({
       aria-label={`Book appointment with ${stylistName}`}
     >
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
-      <div className="relative w-full sm:max-w-md bg-white dark:bg-surface-dark-secondary rounded-t-3xl sm:rounded-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700/40">
-          <div className="flex items-center gap-2">
-            {phase === "select-time" && (
-              <button
-                onClick={() => { setPhase("select-service"); setError(null); }}
-                className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                aria-label="Go back to service selection"
-              >
-                <ArrowLeft size={16} className="text-gray-500" aria-hidden="true" />
-              </button>
-            )}
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-              {phase === "select-service"
-                ? "Select Service"
-                : phase === "select-time"
-                  ? "Pick a Time"
-                  : phase === "confirm"
-                    ? "Confirm Booking"
-                    : "Booking Confirmed!"}
-            </h3>
+      <div className="relative w-full sm:max-w-md bg-white dark:bg-gray-900 rounded-t-3xl sm:rounded-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden">
+        {/* Header with progress */}
+        <div className="px-4 pt-4 pb-3 border-b border-gray-100 dark:border-gray-700/40">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              {phase === "select-time" && (
+                <button
+                  onClick={() => { setPhase("select-service"); setError(null); }}
+                  className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                  aria-label="Go back"
+                >
+                  <ArrowLeft size={16} className="text-gray-500" />
+                </button>
+              )}
+              <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                {phaseLabels[phase].title}
+              </h3>
+            </div>
+            <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Close">
+              <X size={16} className="text-gray-500" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-            aria-label="Close booking"
-          >
-            <X size={16} className="text-gray-500" aria-hidden="true" />
-          </button>
+          {/* Progress bar */}
+          <div className="flex gap-1">
+            {[1, 2, 3, 4].map((step) => (
+              <div
+                key={step}
+                className={cn(
+                  "h-1 flex-1 rounded-full transition-all",
+                  step <= phaseLabels[phase].step
+                    ? "bg-brand-500"
+                    : "bg-gray-100 dark:bg-gray-800"
+                )}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* Error Banner */}
+        {/* Error */}
         {error && (
-          <div
-            className="mx-4 mt-3 flex items-center gap-2 px-3 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-700 dark:text-red-300 text-xs"
-            role="alert"
-          >
-            <AlertCircle size={14} aria-hidden="true" />
+          <div className="mx-4 mt-3 flex items-center gap-2 px-3 py-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs" role="alert">
+            <AlertCircle size={14} />
             <span className="flex-1">{error}</span>
-            <button
-              onClick={() => setError(null)}
-              className="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30"
-              aria-label="Dismiss error"
-            >
-              <X size={12} aria-hidden="true" />
+            <button onClick={() => setError(null)} className="p-0.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30" aria-label="Dismiss">
+              <X size={12} />
             </button>
           </div>
         )}
@@ -163,28 +163,38 @@ export function BookingOverlay({
                   onClick={() => handleSelectService(service)}
                   role="option"
                   aria-selected={selectedService?._id === service._id}
-                  className="w-full text-left p-3 rounded-xl border border-gray-100 dark:border-gray-700/40 hover:border-brand-200 dark:hover:border-brand-800/40 hover:bg-brand-50/30 dark:hover:bg-brand-900/10 transition-all"
+                  className="w-full text-left p-4 rounded-xl border border-gray-100 dark:border-gray-700/40 hover:border-brand-200 dark:hover:border-brand-800/40 hover:bg-brand-50/30 dark:hover:bg-brand-900/10 transition-all group"
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{service.name}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{service.duration}min · {service.category}</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100 group-hover:text-brand-600 transition-colors">
+                        {service.name}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                        <span className="flex items-center gap-1"><Clock size={10} />{service.duration}min</span>
+                        {service.category && <span>· {service.category}</span>}
+                      </div>
                     </div>
-                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100">₦{service.price.toLocaleString()}</p>
+                    <p className="text-base font-bold text-gray-900 dark:text-gray-100">
+                      GHS {service.price.toLocaleString()}
+                    </p>
                   </div>
                 </button>
               ))}
               {services.length === 0 && (
-                <p className="text-xs text-gray-400 text-center py-6">No services available</p>
+                <div className="text-center py-8">
+                  <Calendar size={24} className="text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                  <p className="text-xs text-gray-400">No services available</p>
+                </div>
               )}
             </div>
           )}
 
           {phase === "select-time" && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <label className="text-xs font-semibold text-gray-500 mb-2 block">Date</label>
-                <div className="flex gap-1.5 overflow-x-auto pb-1" role="radiogroup" aria-label="Select date">
+                <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wide">Date</label>
+                <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide" role="radiogroup" aria-label="Select date">
                   {dates.map((d) => (
                     <button
                       key={d.value}
@@ -192,10 +202,10 @@ export function BookingOverlay({
                       role="radio"
                       aria-checked={selectedDate === d.value}
                       className={cn(
-                        "px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all",
+                        "px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all min-w-[60px] text-center",
                         selectedDate === d.value
-                          ? "bg-brand-500 text-white"
-                          : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
+                          ? "bg-brand-500 text-white shadow-sm"
+                          : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700",
                       )}
                     >
                       {d.label}
@@ -205,13 +215,14 @@ export function BookingOverlay({
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-500 mb-2 block">Available Times</label>
+                <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wide">Available Times</label>
                 {loadingSlots ? (
-                  <div className="text-center py-6 text-xs text-gray-400" role="status" aria-label="Loading available times">
-                    Loading...
+                  <div className="text-center py-8 text-xs text-gray-400" role="status">
+                    <div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                    Loading available times...
                   </div>
                 ) : (
-                  <div className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Select time slot">
+                  <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Select time slot">
                     {slots.map((slot) => (
                       <button
                         key={slot.time}
@@ -221,12 +232,12 @@ export function BookingOverlay({
                         aria-checked={selectedSlot === slot.time}
                         aria-disabled={!slot.available}
                         className={cn(
-                          "py-2 rounded-lg text-xs font-semibold transition-all",
+                          "py-2.5 rounded-xl text-xs font-semibold transition-all",
                           !slot.available
-                            ? "bg-gray-50 dark:bg-gray-800/50 text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                            ? "bg-gray-50 dark:bg-gray-800/50 text-gray-300 dark:text-gray-600 cursor-not-allowed line-through"
                             : selectedSlot === slot.time
-                              ? "bg-brand-500 text-white"
-                              : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-brand-900/20",
+                              ? "bg-brand-500 text-white shadow-sm"
+                              : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-brand-50 dark:hover:bg-brand-900/20 hover:border-brand-200",
                         )}
                       >
                         {slot.time}
@@ -235,7 +246,10 @@ export function BookingOverlay({
                   </div>
                 )}
                 {slots.length === 0 && !loadingSlots && !error && (
-                  <p className="text-xs text-gray-400 text-center py-4">No available slots for this date</p>
+                  <div className="text-center py-6">
+                    <Clock size={20} className="text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                    <p className="text-xs text-gray-400">No available slots for this date</p>
+                  </div>
                 )}
               </div>
             </div>
@@ -243,30 +257,32 @@ export function BookingOverlay({
 
           {phase === "confirm" && selectedService && selectedSlot && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Service</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{selectedService.name}</span>
+              <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">Service</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedService.name}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Stylist</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{stylistName}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">Stylist</span>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{stylistName}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Date</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{selectedDate}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">Date</span>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    {new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+                  </span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Time</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{selectedSlot}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">Time</span>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{selectedSlot}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Duration</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{selectedService.duration}min</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">Duration</span>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{selectedService.duration}min</span>
                 </div>
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-2 flex justify-between">
-                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Total</span>
-                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">₦{selectedService.price.toLocaleString()}</span>
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-3 flex justify-between items-center">
+                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">Total</span>
+                  <span className="text-lg font-bold text-brand-600 dark:text-brand-400">GHS {selectedService.price.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -274,13 +290,16 @@ export function BookingOverlay({
 
           {phase === "success" && (
             <div className="text-center py-8" role="status">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/20 mx-auto mb-4 flex items-center justify-center" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-emerald-500">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+              <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/20 mx-auto mb-4 flex items-center justify-center">
+                <Check size={32} className="text-emerald-500" strokeWidth={3} />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Booked!</h3>
-              <p className="text-sm text-gray-500 mt-1">Your appointment with {stylistName} is confirmed</p>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Booked!</h3>
+              <p className="text-sm text-gray-500 mt-2 max-w-xs mx-auto">
+                Your appointment with <span className="font-semibold text-gray-700 dark:text-gray-300">{stylistName}</span> has been confirmed
+              </p>
+              <p className="text-xs text-gray-400 mt-3 flex items-center justify-center gap-1">
+                <Calendar size={12} /> {new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })} at {selectedSlot}
+              </p>
             </div>
           )}
         </div>
@@ -290,17 +309,17 @@ export function BookingOverlay({
           {phase === "confirm" && (
             <Button
               variant="primary"
-              size="md"
+              size="lg"
               className="w-full"
               loading={createBooking.isPending}
               onClick={handleConfirm}
-              aria-label="Confirm booking"
             >
-              Confirm Booking
+              <CreditCard size={16} />
+              Confirm Booking — GHS {selectedService?.price.toLocaleString()}
             </Button>
           )}
           {phase === "success" && (
-            <Button variant="primary" size="md" className="w-full" onClick={onClose} aria-label="Close booking confirmation">
+            <Button variant="primary" size="lg" className="w-full" onClick={onClose}>
               Done
             </Button>
           )}

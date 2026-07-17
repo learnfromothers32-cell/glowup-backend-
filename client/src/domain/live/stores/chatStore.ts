@@ -9,7 +9,6 @@ export interface ChatState {
   isLoadingHistory: boolean;
   slowModeMs: number;
   pinnedMessageId: string | null;
-
   addMessage: (msg: ChatMessage) => void;
   addPendingMessage: (messageId: string) => void;
   confirmPendingMessage: (messageId: string, serverId: string) => void;
@@ -33,19 +32,16 @@ export const useChatStore = create<ChatState>((set) => ({
   isLoadingHistory: false,
   slowModeMs: 0,
   pinnedMessageId: null,
-
   addMessage: (msg) =>
     set((s) => ({
       messages: [...s.messages.slice(-MAX_MESSAGES + 1), msg],
     })),
-
   addPendingMessage: (messageId) =>
     set((s) => {
       const next = new Set(s.pendingMessageIds);
       next.add(messageId);
       return { pendingMessageIds: next };
     }),
-
   confirmPendingMessage: (messageId, serverId) =>
     set((s) => {
       const next = new Set(s.pendingMessageIds);
@@ -57,7 +53,6 @@ export const useChatStore = create<ChatState>((set) => ({
         ),
       };
     }),
-
   removePendingMessage: (messageId) =>
     set((s) => {
       const next = new Set(s.pendingMessageIds);
@@ -67,7 +62,6 @@ export const useChatStore = create<ChatState>((set) => ({
         messages: s.messages.filter((m) => m.messageId !== messageId),
       };
     }),
-
   setHistory: (messages, hasMore, cursor) =>
     set({
       messages,
@@ -75,7 +69,6 @@ export const useChatStore = create<ChatState>((set) => ({
       historyCursor: cursor ?? null,
       isLoadingHistory: false,
     }),
-
   prependHistory: (newMessages, hasMore, cursor) =>
     set((s) => ({
       messages: [...newMessages, ...s.messages],
@@ -83,18 +76,13 @@ export const useChatStore = create<ChatState>((set) => ({
       historyCursor: cursor ?? s.historyCursor,
       isLoadingHistory: false,
     })),
-
   setIsLoadingHistory: (loading) => set({ isLoadingHistory: loading }),
-
   deleteMessage: (messageId) =>
     set((s) => ({
       messages: s.messages.filter((m) => m.messageId !== messageId && m.id !== messageId),
     })),
-
   pinMessage: (messageId) => set({ pinnedMessageId: messageId }),
-
   setSlowModeMs: (ms) => set({ slowModeMs: ms }),
-
   reset: () =>
     set({
       messages: [],

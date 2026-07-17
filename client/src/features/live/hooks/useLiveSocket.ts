@@ -30,7 +30,7 @@ const MAX_RECONNECT_ATTEMPTS = 10;
 const HEARTBEAT_INTERVAL = 30_000;
 
 export function useLiveSocket() {
-  const setStatus = useConnectionStore((s) => s.setStatus);
+  const setStatus = useConnectionStore((s) => s.setSocketStatus);
   const setSessionId = useConnectionStore((s) => s.setSessionId);
   const setError = useConnectionStore((s) => s.setError);
   const setViewerCount = useViewerStore((s) => s.setViewerCount);
@@ -42,6 +42,7 @@ export function useLiveSocket() {
   const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const joinInfoRef = useRef<{ sessionId: string; role: string; displayName?: string } | null>(null);
+  const socketConnectingRef = useRef(false);
   const [reconnectAttempt, setReconnectAttempt] = useState(0);
 
   // Store handler refs for proper cleanup (fixes memory leak)
@@ -173,6 +174,8 @@ export function useLiveSocket() {
   }, []);
 
   const connect = useCallback(() => {
+    if (socketConnectingRef.current) return;
+    socketConnectingRef.current = true;
     setStatus("connecting");
     connectLive();
 
@@ -192,8 +195,9 @@ export function useLiveSocket() {
     cleanupSocketListeners();
 
     const onSocketConnect = () => {
+      socketConnectingRef.current = false;
       const joinInfo = joinInfoRef.current;
-      if (joinInfo && useConnectionStore.getState().status !== "connected") {
+      if (joinInfo && useConnectionStore.getState().socketStatus !== "connected") {
         joinRoom(joinInfo.sessionId, joinInfo.role, joinInfo.displayName);
       }
     };
@@ -211,7 +215,7 @@ export function useLiveSocket() {
 
     const onReconnectAttempt = (attempt: number) => {
       setReconnectAttempt(attempt);
-      if (useConnectionStore.getState().status !== "reconnecting") {
+      if (useConnectionStore.getState().socketStatus !== "reconnecting") {
         setStatus("reconnecting");
       }
     };
@@ -247,6 +251,7 @@ export function useLiveSocket() {
   ]);
 
   const disconnect = useCallback(() => {
+    socketConnectingRef.current = false;
     stopHeartbeat();
 
     offJoined(handleJoined);

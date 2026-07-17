@@ -18,6 +18,10 @@ export function useLiveMedia() {
   const connectingRef = useRef(false);
   const intentionalDisconnectRef = useRef(false);
   const [room, setRoom] = useState<LiveKitRoom | null>(null);
+  const localTracksRef = useRef<{
+    video?: LocalVideoTrack;
+    audio?: LocalAudioTrack;
+  }>({});
   const [localTracks, setLocalTracks] = useState<{
     video?: LocalVideoTrack;
     audio?: LocalAudioTrack;
@@ -27,7 +31,7 @@ export function useLiveMedia() {
   const micEnabled = useMediaStore((s) => s.micEnabled);
   const setCameraEnabled = useMediaStore((s) => s.setCameraEnabled);
   const setMicEnabled = useMediaStore((s) => s.setMicEnabled);
-  const setStatus = useConnectionStore((s) => s.setStatus);
+  const setMediaStatus = useConnectionStore((s) => s.setMediaStatus);
 
   const connect = useCallback(
     async (url: string, token: string, publishLocal = true) => {
@@ -35,11 +39,12 @@ export function useLiveMedia() {
 
       if (roomRef.current) {
         intentionalDisconnectRef.current = true;
-        localTracks.video?.stop();
-        localTracks.audio?.stop();
+        localTracksRef.current.video?.stop();
+        localTracksRef.current.audio?.stop();
         await roomRef.current.disconnect();
         roomRef.current.removeAllListeners();
         roomRef.current = null;
+        localTracksRef.current = {};
         setRoom(null);
         setLocalTracks({});
       }
@@ -56,19 +61,19 @@ export function useLiveMedia() {
         });
 
         r.on(RoomEvent.Connected, () => {
-          setStatus("connected");
+          setMediaStatus("connected");
         });
 
         r.on(RoomEvent.Disconnected, () => {
           if (!intentionalDisconnectRef.current) {
-            setStatus("disconnected");
+            setMediaStatus("disconnected");
           }
         });
 
         r.on(RoomEvent.ConnectionStateChanged, (state: ConnectionState) => {
-          if (state === ConnectionState.Connecting) setStatus("connecting");
-          else if (state === ConnectionState.Connected) setStatus("connected");
-          else if (state === ConnectionState.Reconnecting) setStatus("reconnecting");
+          if (state === ConnectionState.Connecting) setMediaStatus("connecting");
+          else if (state === ConnectionState.Connected) setMediaStatus("connected");
+          else if (state === ConnectionState.Reconnecting) setMediaStatus("reconnecting");
         });
 
         r.on(RoomEvent.TrackSubscribed, () => {});
@@ -77,17 +82,22 @@ export function useLiveMedia() {
 
         if (publishLocal) {
           try {
+            const tracks: typeof localTracksRef.current = {};
+
             if (cameraEnabled) {
               const videoTrack = await createLocalVideoTrack();
               await r.localParticipant.publishTrack(videoTrack);
-              setLocalTracks((prev) => ({ ...prev, video: videoTrack }));
+              tracks.video = videoTrack;
             }
 
             if (micEnabled) {
               const audioTrack = await createLocalAudioTrack();
               await r.localParticipant.publishTrack(audioTrack);
-              setLocalTracks((prev) => ({ ...prev, audio: audioTrack }));
+              tracks.audio = audioTrack;
             }
+
+            localTracksRef.current = tracks;
+            setLocalTracks(tracks);
           } catch (trackErr) {
             console.warn("Failed to publish local tracks (room still connected):", trackErr);
           }
@@ -100,22 +110,23 @@ export function useLiveMedia() {
         connectingRef.current = false;
       }
     },
-    [cameraEnabled, micEnabled, setStatus],
+    [cameraEnabled, micEnabled, setMediaStatus],
   );
 
   const disconnect = useCallback(async () => {
     const r = roomRef.current;
     if (r) {
       intentionalDisconnectRef.current = true;
-      localTracks.video?.stop();
-      localTracks.audio?.stop();
+      localTracksRef.current.video?.stop();
+      localTracksRef.current.audio?.stop();
       await r.disconnect();
       r.removeAllListeners();
       roomRef.current = null;
+      localTracksRef.current = {};
       setRoom(null);
       setLocalTracks({});
     }
-  }, [localTracks]);
+  }, []);
 
   const toggleCamera = useCallback(async () => {
     const r = roomRef.current;
@@ -133,6 +144,7 @@ export function useLiveMedia() {
       try {
         const track = await createLocalVideoTrack();
         await r.localParticipant.publishTrack(track);
+        localTracksRef.current = { ...localTracksRef.current, video: track };
         setLocalTracks((prev) => ({ ...prev, video: track }));
         setCameraEnabled(true);
       } catch (err) {
@@ -157,6 +169,7 @@ export function useLiveMedia() {
       try {
         const track = await createLocalAudioTrack();
         await r.localParticipant.publishTrack(track);
+        localTracksRef.current = { ...localTracksRef.current, audio: track };
         setLocalTracks((prev) => ({ ...prev, audio: track }));
         setMicEnabled(true);
       } catch (err) {
@@ -170,8 +183,8 @@ export function useLiveMedia() {
       const r = roomRef.current;
       if (r) {
         intentionalDisconnectRef.current = true;
-        localTracks.video?.stop();
-        localTracks.audio?.stop();
+        localTracksRef.current.video?.stop();
+        localTracksRef.current.audio?.stop();
         r.disconnect();
         r.removeAllListeners();
         roomRef.current = null;

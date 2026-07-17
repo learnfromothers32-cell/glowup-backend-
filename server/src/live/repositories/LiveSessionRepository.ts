@@ -135,6 +135,9 @@ export class LiveSessionRepository {
 
     if (filters.status) {
       query.status = filters.status;
+    } else {
+      // Default to only showing joinable sessions
+      query.status = { $in: ['live', 'paused'] };
     }
 
     if (filters.category) {

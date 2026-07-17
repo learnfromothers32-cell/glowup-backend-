@@ -161,18 +161,18 @@ export default function LiveRoomPage() {
 
   const isHost = useMemo(() => {
     if (!session || !user) return false;
-    const hostUserId =
-      session.stylistId && typeof session.stylistId === "object"
-        ? session.stylistId._id
-        : session.hostUserId;
-    return hostUserId === user.id || session.hostUserId === user.id;
+    return session.hostUserId === user.id;
   }, [session, user]);
 
   const stylistId = useMemo(() => {
     if (!session) return null;
-    return session.stylistId && typeof session.stylistId === "object"
-      ? session.stylistId._id
-      : session.hostUserId;
+    if (session.stylistId && typeof session.stylistId === "object") {
+      return session.stylistId._id;
+    }
+    if (typeof session.stylistId === "string") {
+      return session.stylistId;
+    }
+    return null;
   }, [session]);
 
   const stylist =

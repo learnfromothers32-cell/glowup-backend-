@@ -31,7 +31,19 @@ export function useLiveMedia() {
 
   const connect = useCallback(
     async (url: string, token: string, publishLocal = true) => {
-      if (connectingRef.current || roomRef.current) return roomRef.current;
+      if (connectingRef.current) return roomRef.current;
+
+      if (roomRef.current) {
+        intentionalDisconnectRef.current = true;
+        localTracks.video?.stop();
+        localTracks.audio?.stop();
+        await roomRef.current.disconnect();
+        roomRef.current.removeAllListeners();
+        roomRef.current = null;
+        setRoom(null);
+        setLocalTracks({});
+      }
+
       connectingRef.current = true;
       intentionalDisconnectRef.current = false;
 

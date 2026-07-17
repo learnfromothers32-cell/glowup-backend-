@@ -340,19 +340,19 @@ export default function LiveRoomPage() {
 
     // If host token was passed via navigation state, use it directly
     if (hostState?.token && hostState?.liveKitUrl) {
-      connectMedia(hostState.liveKitUrl, hostState.token).catch((err) => {
+      connectMedia(hostState.liveKitUrl, hostState.token, isHost).catch((err) => {
         console.error("Failed to connect host media:", err);
         setConnectError("Failed to connect to live stream. Please try again.");
       });
       return;
     }
 
-    // Otherwise join via API to get a viewer token
+    // Otherwise join via API (server detects host vs viewer by userId)
     joinMutation.mutate(id, {
       onSuccess: (result) => {
         if (result.liveKitUrl) {
-          connectMedia(result.liveKitUrl, result.token, false).catch((err) => {
-            console.error("Failed to connect viewer media:", err);
+          connectMedia(result.liveKitUrl, result.token, isHost).catch((err) => {
+            console.error("Failed to connect media:", err);
             setConnectError("Failed to connect to live stream. Please try again.");
           });
         } else {

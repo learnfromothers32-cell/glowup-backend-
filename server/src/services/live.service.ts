@@ -36,7 +36,7 @@ export async function createSession(
   title: string,
   category: string,
   thumbnail?: string
-): Promise<{ session: ILiveSession; token: string }> {
+): Promise<{ session: ILiveSession; token: string; wsUrl: string }> {
   const stylist = await Stylist.findOne({ userId: stylistUserId });
   if (!stylist) throw new ApiError(404, 'Stylist profile not found');
 
@@ -76,7 +76,7 @@ export async function createSession(
       room: roomId,
     });
     const token = await at.toJwt();
-    return { session, token };
+    return { session, token, wsUrl };
   } catch (err) {
     logger.error('Failed to generate LiveKit token', { error: err });
     await LiveSession.findByIdAndDelete(session._id);
@@ -140,13 +140,13 @@ export async function getSessionById(sessionId: string) {
   return session as any;
 }
 
-export async function joinSession(sessionId: string, userId: string): Promise<{ token: string; session: ILiveSession }> {
+export async function joinSession(sessionId: string, userId: string): Promise<{ token: string; wsUrl: string; session: ILiveSession }> {
   const session = await LiveSession.findById(sessionId);
   if (!session || session.status !== 'live') {
     throw new ApiError(404, 'Session not found or no longer live');
   }
 
-  const { apiKey, apiSecret } = appConfig.livekit;
+  const { apiKey, apiSecret, wsUrl } = appConfig.livekit;
   if (!apiKey || !apiSecret) {
     throw new ApiError(503, 'Live streaming is not configured on the server');
   }
@@ -163,7 +163,7 @@ export async function joinSession(sessionId: string, userId: string): Promise<{ 
   });
   const token = await lk.toJwt();
 
-  return { token, session: session as any };
+  return { token, wsUrl, session: session as any };
 }
 
 export async function incrementViewerCount(sessionId: string): Promise<number> {

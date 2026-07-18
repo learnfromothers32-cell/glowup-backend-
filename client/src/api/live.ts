@@ -25,7 +25,7 @@ export const createLiveSession = async (data: {
   title: string;
   category: string;
   thumbnail?: string;
-}) => {
+}): Promise<{ session: LiveSession; token: string; wsUrl: string }> => {
   const res = await api.post('/live', data);
   return res.data.data;
 };
@@ -52,7 +52,7 @@ export const getLiveSession = async (sessionId: string): Promise<{ session: Live
 
 export const joinLiveSession = async (
   sessionId: string
-): Promise<{ token: string; session: LiveSession }> => {
+): Promise<{ token: string; wsUrl: string; session: LiveSession }> => {
   const res = await api.post(`/live/${sessionId}/join`);
   return res.data.data;
 };

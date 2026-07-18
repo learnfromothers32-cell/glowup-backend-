@@ -123,14 +123,14 @@ export default function LiveStudio() {
     let sessionCreated = false;
     let sessionId = '';
     try {
-      const { session, token } = await liveApi.createLiveSession({
+      const { session, token, wsUrl } = await liveApi.createLiveSession({
         title: title.trim(),
         category,
       });
       sessionId = session._id;
       sessionCreated = true;
       setSessionId(session._id);
-      await connect(token);
+      await connect(wsUrl, token);
       await liveApi.startLiveSession(session._id);
       setStep('live');
       toast('success', 'You are now live!');

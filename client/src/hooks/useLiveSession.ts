@@ -42,7 +42,7 @@ export function useLiveSession({ sessionId: _sessionId, isBroadcaster = false, o
     reconnectAttemptsRef.current = 0;
   }, []);
 
-  const connect = useCallback(async (token: string) => {
+  const connect = useCallback(async (wsUrl: string, token: string) => {
     const lkRoom = new Room({
       adaptiveStream: true,
       dynacast: true,
@@ -110,7 +110,7 @@ export function useLiveSession({ sessionId: _sessionId, isBroadcaster = false, o
       }
     });
 
-    await lkRoom.connect(token);
+    await lkRoom.connect(wsUrl, token);
 
     if (isBroadcaster) {
       await lkRoom.localParticipant.setCameraEnabled(true);

@@ -15,8 +15,8 @@ export const createLiveSession = asyncHandler(async (req: Request, res: Response
     throw new ApiError(400, 'Title and category are required');
   }
 
-  const { session, token } = await liveService.createSession(userId, title, category, thumbnail);
-  sendSuccess(res, { session, token }, 'Session created', 201);
+  const { session, token, wsUrl } = await liveService.createSession(userId, title, category, thumbnail);
+  sendSuccess(res, { session, token, wsUrl }, 'Session created', 201);
 });
 
 export const startLiveSession = asyncHandler(async (req: Request, res: Response) => {
@@ -80,8 +80,8 @@ export const joinLiveSession = asyncHandler(async (req: Request, res: Response) 
   if (!userId) throw new ApiError(401, 'Authentication required');
 
   const { id } = req.params;
-  const { token, session } = await liveService.joinSession(id, userId);
-  sendSuccess(res, { token, session });
+  const { token, wsUrl, session } = await liveService.joinSession(id, userId);
+  sendSuccess(res, { token, wsUrl, session });
 });
 
 export const liveSessionWebhook = asyncHandler(async (req: Request, res: Response) => {

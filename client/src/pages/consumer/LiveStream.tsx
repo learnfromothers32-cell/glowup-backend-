@@ -109,9 +109,9 @@ export default function LiveStream() {
     if (!sessionId || !user) return;
     setJoining(true);
     try {
-      const { token, session: s } = await liveApi.joinLiveSession(sessionId);
+      const { token, wsUrl, session: s } = await liveApi.joinLiveSession(sessionId);
       setSession(s);
-      await connect(token);
+      await connect(wsUrl, token);
       setJoined(true);
       setViewerCount(s.viewerCount || 1);
     } catch (err: any) {

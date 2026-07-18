@@ -8,7 +8,7 @@ import {
 import { useLiveSession } from '../../hooks/useLiveSession';
 import { useToast } from '../../components/ui/Toast';
 import * as liveApi from '../../api/live';
-import { Track } from 'livekit-client';
+import { Track, RoomEvent } from 'livekit-client';
 
 
 const CATEGORIES = [

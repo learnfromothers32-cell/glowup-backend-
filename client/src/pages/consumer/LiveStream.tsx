@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/authUtils';
 import { useLiveSession } from '../../hooks/useLiveSession';
+import { RoomEvent } from 'livekit-client';
 import { useToast } from '../../components/ui/Toast';
 import LiveBadge from '../../components/live/LiveBadge';
 import LiveCommentFeed from '../../components/live/LiveCommentFeed';

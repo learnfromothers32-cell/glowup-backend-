@@ -40,11 +40,11 @@ export async function createSession(
   const stylist = await Stylist.findOne({ userId: stylistUserId });
   if (!stylist) throw new ApiError(404, 'Stylist profile not found');
 
-  const activeSession = await LiveSession.findOne({
+  // Clean up any orphaned pending/live sessions from previous failed attempts
+  await LiveSession.deleteMany({
     stylistId: stylist._id,
     status: { $in: ['pending', 'live'] },
   });
-  if (activeSession) throw new ApiError(409, 'You already have an active live session');
 
   const { apiKey, apiSecret, wsUrl } = appConfig.livekit;
   if (!apiKey || !apiSecret || !wsUrl) {

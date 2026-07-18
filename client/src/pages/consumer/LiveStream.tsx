@@ -12,7 +12,7 @@ import LiveCommentFeed from '../../components/live/LiveCommentFeed';
 import FloatingHeart from '../../components/live/FloatingHeart';
 import * as liveApi from '../../api/live';
 import type { LiveSession } from '../../api/live';
-import '@livekit/components-styles';
+
 
 export default function LiveStream() {
   const { sessionId } = useParams<{ sessionId: string }>();

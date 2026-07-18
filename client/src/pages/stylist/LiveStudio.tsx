@@ -9,7 +9,7 @@ import { useLiveSession } from '../../hooks/useLiveSession';
 import { useToast } from '../../components/ui/Toast';
 import * as liveApi from '../../api/live';
 import { Track } from 'livekit-client';
-import '@livekit/components-styles';
+
 
 const CATEGORIES = [
   'Braids', 'Nails', 'Barber', 'Colorist', 'Stylist',

@@ -43,6 +43,13 @@ export function useLiveSession({ sessionId: _sessionId, isBroadcaster = false, o
   }, []);
 
   const connect = useCallback(async (wsUrl: string, token: string) => {
+    if (!wsUrl || !token) {
+      console.error('LiveKit connect failed: missing wsUrl or token', { wsUrl: !!wsUrl, token: !!token });
+      throw new Error('Live streaming is not properly configured. Missing server URL or authentication token.');
+    }
+
+    console.log('LiveKit connecting to:', wsUrl);
+
     const lkRoom = new Room({
       adaptiveStream: true,
       dynacast: true,

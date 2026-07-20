@@ -86,7 +86,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 // ---------- Social Login ----------
 
 export const socialLogin = asyncHandler(async (req: Request, res: Response) => {
-  const { idToken, role = 'client' } = req.body;
+  const { idToken, role } = req.body;
 
   let decoded;
   try {
@@ -112,6 +112,10 @@ export const socialLogin = asyncHandler(async (req: Request, res: Response) => {
     role,
     providerId: uid
   });
+
+  if (!user) {
+    throw new ApiError(404, 'No account found with this email. Please sign up first.');
+  }
 
   const accessToken = signAccessToken({ id: user.id, role: user.role });
   const refreshToken = signRefreshToken({ id: user.id, role: user.role });

@@ -155,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const socialLogin = useCallback(
-    async (provider: "google" | "apple" | "instagram", role: UserRole = "client") => {
+    async (provider: "google" | "apple" | "instagram", role?: UserRole) => {
       let firebaseProvider;
       if (provider === "google") {
         firebaseProvider = getGoogleProvider();

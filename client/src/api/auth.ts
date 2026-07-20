@@ -35,8 +35,10 @@ export const getMe = async (): Promise<{ success: boolean; data: { user: User } 
   return data;
 };
 
-export const socialLogin = async (idToken: string, role: UserRole): Promise<AuthResponse> => {
-  const { data } = await api.post<AuthResponse>('/auth/social-login', { idToken, role });
+export const socialLogin = async (idToken: string, role?: UserRole): Promise<AuthResponse> => {
+  const payload: Record<string, unknown> = { idToken };
+  if (role) payload.role = role;
+  const { data } = await api.post<AuthResponse>('/auth/social-login', payload);
   return data;
 };
 

@@ -57,13 +57,15 @@ export const findOrCreateSocialUser = async (data: {
   email: string;
   name?: string;
   avatar?: string;
-  role: UserRole;
+  role?: UserRole;
   providerId: string;
 }) => {
   const normalizedEmail = data.email.toLowerCase().trim();
   let user = await User.findOne({ email: normalizedEmail });
 
   if (!user) {
+    if (!data.role) return null;
+
     // Generate a secure random password for social users
     const passwordHash = await bcrypt.hash(Math.random().toString(36), 12);
     

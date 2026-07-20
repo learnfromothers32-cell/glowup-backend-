@@ -4,6 +4,7 @@ import {
   Wallet, Image, Settings, MessageSquare, BarChart3,
   Clock, User, LogOut, Sparkles, Package, Crown, Percent,
   ShoppingCart, Timer, FileText, Star, Box, LayoutGrid, Radio,
+  ExternalLink,
 } from "lucide-react";
 import { useAuth } from "../../../context/authUtils";
 import { cn } from "../../../utils/cn";
@@ -159,7 +160,7 @@ export default function Sidebar({ collapsed, onClose }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="shrink-0 border-t border-gray-100 dark:border-gray-700/50 p-3">
+      <div className="shrink-0 border-t border-gray-100 dark:border-gray-700/50 p-3 space-y-1">
         {!collapsed && (
           <div className="flex items-center gap-3 px-3 py-2 mb-1">
             {user?.avatar ? (
@@ -175,6 +176,18 @@ export default function Sidebar({ collapsed, onClose }: SidebarProps) {
             </div>
           </div>
         )}
+        <button
+          onClick={() => { navigate("/app"); onClose?.(); }}
+          className={cn(
+            "flex items-center w-full rounded-xl text-sm font-medium transition-all",
+            "text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-950/20",
+            collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2.5",
+          )}
+          title={collapsed ? "Browse as Client" : undefined}
+        >
+          <ExternalLink size={collapsed ? 20 : 16} />
+          {!collapsed && <span>Browse as Client</span>}
+        </button>
         <button
           onClick={handleLogout}
           className={cn(

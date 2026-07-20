@@ -10,6 +10,7 @@ import {
   ChevronDown,
   Check,
   ChevronRight,
+  ExternalLink,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -140,6 +141,14 @@ export default function StylistNavbar({ onMenuToggle }: StylistNavbarProps) {
 
         {/* Right */}
         <div className="flex items-center gap-1 sm:gap-2">
+          <button
+            onClick={() => navigate("/app")}
+            className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-950/20 transition-colors"
+          >
+            <ExternalLink size={16} />
+            Client App
+          </button>
+
           <button
             onClick={() => navigate("/stylist/bookings")}
             className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-gray-500 dark:text-text-dark-secondary hover:bg-gray-100 dark:hover:bg-surface-dark-tertiary transition-colors"
@@ -314,6 +323,13 @@ export default function StylistNavbar({ onMenuToggle }: StylistNavbarProps) {
                   >
                     <Settings size={16} className="text-gray-400 dark:text-text-dark-muted" />
                     Settings
+                  </button>
+                  <button
+                    onClick={() => { setShowProfileMenu(false); navigate("/app"); }}
+                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/20 transition-colors"
+                  >
+                    <ExternalLink size={16} />
+                    Browse as Client
                   </button>
                 </div>
 

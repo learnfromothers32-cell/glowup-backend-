@@ -7,7 +7,6 @@ import {
   Menu,
   MessageSquare,
   Users,
-  ExternalLink,
 } from "lucide-react";
 
 const navItems = [
@@ -53,14 +52,7 @@ export default function MobileNav({ onOpenMenu }: MobileNavProps) {
         );
       })}
 
-      <button
-        onClick={() => navigate("/app")}
-        className="flex flex-col items-center gap-0.5 px-1.5 py-1.5 text-[10px] font-semibold min-h-[48px] rounded-lg text-brand-500 dark:text-brand-400 hover:text-brand-600 dark:hover:text-brand-300"
-        aria-label="Client App"
-      >
-        <ExternalLink size={18} />
-        <span>Client</span>
-      </button>
+
 
       <button
         onClick={onOpenMenu}

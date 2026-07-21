@@ -17,7 +17,6 @@ import {
   Bookmark,
   HelpCircle,
   Clock,
-  LayoutDashboard,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlobalSearchModal from "../../../features/consumer/components/GlobalSearchModal";
@@ -249,16 +248,7 @@ export default function ConsumerNavbar() {
 
             {/* ─── RIGHT: Actions ─────────────────────────── */}
             <div className="flex items-center gap-1 shrink-0">
-              {/* Stylist Dashboard CTA */}
-              {user?.role === "stylist" && (
-                <Link
-                  to="/stylist/dashboard"
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold bg-stylist-500 text-white hover:bg-stylist-600 shadow-sm hover:shadow-md transition-all"
-                >
-                  <LayoutDashboard size={15} />
-                  <span className="hidden lg:inline">Dashboard</span>
-                </Link>
-              )}
+
 
               {/* Mobile search */}
               <button
@@ -473,16 +463,7 @@ export default function ConsumerNavbar() {
                             {label}
                           </Link>
                         ))}
-                        {user?.role === "stylist" && (
-                          <Link
-                            to="/stylist/dashboard"
-                            onClick={() => setProfileMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-stylist-600 hover:bg-stylist-50 transition-colors dark:text-stylist-400 dark:hover:bg-stylist-950/20"
-                          >
-                            <LayoutDashboard size={16} />
-                            Switch to Dashboard
-                          </Link>
-                        )}
+
                       </div>
 
                       {/* Logout */}
@@ -611,16 +592,7 @@ export default function ConsumerNavbar() {
                   <Zap size={16} className="text-amber-400" />
                   Vibe Match
                 </Link>
-                {user?.role === "stylist" && (
-                  <Link
-                    to="/stylist/dashboard"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-stylist-500 text-white text-sm font-semibold shadow-md hover:bg-stylist-600 transition"
-                  >
-                    <LayoutDashboard size={16} />
-                    Switch to Dashboard
-                  </Link>
-                )}
+
               </motion.div>
 
               {/* Nav links */}

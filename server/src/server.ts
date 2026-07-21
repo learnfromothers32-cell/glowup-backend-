@@ -10,6 +10,7 @@ import { initSocket } from './socket';
 import { runMigrations } from './migrate';
 import { syncRedisEngagementToMongo } from './services/trending.service';
 import { runDatabaseBackup } from './scripts/backup';
+import { cleanupStaleSessions } from './services/live.service';
 import logger from './utils/logger';
 
 const server = http.createServer(app);
@@ -59,9 +60,21 @@ const start = async () => {
 
   await initSocket(server);
 
+  // Clean up any stale live sessions on startup
+  cleanupStaleSessions().catch((err) =>
+    logger.error('Failed to cleanup stale live sessions on startup', { error: (err as Error).message }),
+  );
+
   cron.schedule('*/5 * * * *', () => {
     syncRedisEngagementToMongo().catch((err) =>
       logger.error('Failed to sync Redis engagement to MongoDB', { error: (err as Error).message }),
+    );
+  });
+
+  // Auto-cleanup stale live sessions every 10 minutes
+  cron.schedule('*/10 * * * *', () => {
+    cleanupStaleSessions().catch((err) =>
+      logger.error('Failed to cleanup stale live sessions', { error: (err as Error).message }),
     );
   });
 

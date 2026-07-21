@@ -126,7 +126,11 @@ export async function endSession(sessionId: string, stylistUserId: string): Prom
 }
 
 export async function getActiveSessions() {
-  const sessions = await LiveSession.find({ status: 'live' })
+  const cutoff = new Date(Date.now() - STALE_SESSION_TIMEOUT_MS);
+  const sessions = await LiveSession.find({
+    status: 'live',
+    startedAt: { $gte: cutoff },
+  })
     .populate('stylistId', 'name image category followerCount')
     .sort({ startedAt: -1 })
     .lean();

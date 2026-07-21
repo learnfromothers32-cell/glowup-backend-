@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import {
   Video, VideoOff, Mic, MicOff, PhoneOff, Radio,
-  Loader2, X, Eye, Clock, Heart, MessageCircle,
+  Loader2, X, Eye, Clock, Heart, MessageCircle, Send,
 } from 'lucide-react';
 import { useLiveSession } from '../../hooks/useLiveSession';
+import { useAuth } from '../../context/authUtils';
 import { useToast } from '../../components/ui/Toast';
 import * as liveApi from '../../api/live';
 import { Track, RoomEvent } from 'livekit-client';
@@ -20,7 +21,9 @@ const CATEGORIES = [
 export default function LiveStudio() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const videoContainerRef = useRef<HTMLDivElement>(null);
+  const commentInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState<'setup' | 'preview' | 'live'>('setup');
   const [title, setTitle] = useState('');
@@ -31,7 +34,8 @@ export default function LiveStudio() {
   const [elapsed, setElapsed] = useState(0);
   const [micEnabled, setMicEnabled] = useState(true);
   const [camEnabled, setCamEnabled] = useState(true);
-  const [showComments, setShowComments] = useState(true);
+  const [showCommentSheet, setShowCommentSheet] = useState(false);
+  const [commentText, setCommentText] = useState('');
 
   const {
     room,
@@ -42,6 +46,7 @@ export default function LiveStudio() {
     comments,
     connect,
     disconnect,
+    sendComment,
     toggleCamera,
     toggleMicrophone,
   } = useLiveSession({ sessionId: sessionId || '', isBroadcaster: true });
@@ -150,6 +155,18 @@ export default function LiveStudio() {
   const handleToggleCam = async () => {
     await toggleCamera();
     setCamEnabled((prev) => !prev);
+  };
+
+  const handleSendComment = () => {
+    if (!commentText.trim() || !user) return;
+    sendComment(commentText.trim(), user.id, user.name, user.avatar);
+    setCommentText('');
+  };
+
+  const handleDragEnd = (_: any, info: PanInfo) => {
+    if (info.offset.y > 100) {
+      setShowCommentSheet(false);
+    }
   };
 
   return (
@@ -317,25 +334,6 @@ export default function LiveStudio() {
           {/* Bottom gradient */}
           <div className="absolute bottom-0 inset-x-0 h-44 bg-gradient-to-t from-black/70 to-transparent z-10 pointer-events-none" />
 
-          {/* ── Broadcaster comment feed (bottom-left) ── */}
-          {showComments && (
-            <div
-              className="absolute bottom-16 sm:bottom-20 left-0 z-20 pointer-events-auto"
-              style={{ width: 'min(70vw, 280px)', height: 'min(25vh, 200px)' }}
-            >
-              <LiveCommentFeed comments={comments} isBroadcaster />
-            </div>
-          )}
-
-          {/* Comment toggle (bottom-left, above controls) */}
-          <button
-            onClick={() => setShowComments((v) => !v)}
-            className="absolute bottom-16 sm:bottom-20 left-3 sm:left-4 z-30 flex items-center gap-1 bg-black/30 backdrop-blur-md rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5 hover:bg-black/50 transition-all"
-          >
-            <MessageCircle size={12} className={showComments ? 'text-white fill-white/20' : 'text-white/60'} />
-            <span className="text-[9px] sm:text-[10px] text-white/70 font-semibold">{comments.length}</span>
-          </button>
-
           {/* Bottom controls */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -344,6 +342,21 @@ export default function LiveStudio() {
             className="absolute bottom-0 inset-x-0 z-20 p-3 sm:p-4 pb-4 sm:pb-6"
           >
             <div className="flex items-center justify-center gap-3 sm:gap-5">
+              {/* Comment toggle */}
+              <button
+                onClick={() => setShowCommentSheet((v) => !v)}
+                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all backdrop-blur-md relative ${
+                  showCommentSheet ? 'bg-white/25 text-white' : 'bg-white/15 text-white hover:bg-white/25'
+                }`}
+              >
+                <MessageCircle size={20} />
+                {comments.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-[9px] text-white font-bold flex items-center justify-center">
+                    {comments.length > 99 ? '99+' : comments.length}
+                  </span>
+                )}
+              </button>
+
               {/* Camera toggle */}
               <button
                 onClick={handleToggleCam}
@@ -374,6 +387,99 @@ export default function LiveStudio() {
               </button>
             </div>
           </motion.div>
+
+          {/* ── Comment bottom sheet modal ── */}
+          <AnimatePresence>
+            {showCommentSheet && (
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setShowCommentSheet(false)}
+                  className="absolute inset-0 z-40 bg-black/40"
+                />
+
+                {/* Sheet */}
+                <motion.div
+                  initial={{ y: '100%' }}
+                  animate={{ y: 0 }}
+                  exit={{ y: '100%' }}
+                  transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                  drag="y"
+                  dragConstraints={{ top: 0, bottom: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={handleDragEnd}
+                  className="absolute bottom-0 inset-x-0 z-50 bg-gray-950/95 backdrop-blur-xl rounded-t-2xl border-t border-white/10 flex flex-col"
+                  style={{ height: 'min(65vh, 480px)' }}
+                >
+                  {/* Drag handle */}
+                  <div className="flex justify-center pt-2 pb-1 cursor-grab active:cursor-grabbing">
+                    <div className="w-10 h-1 rounded-full bg-white/20" />
+                  </div>
+
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/5">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold text-white">Comments</h3>
+                      <span className="text-[11px] text-white/40 font-medium">{comments.length}</span>
+                    </div>
+                    <button
+                      onClick={() => setShowCommentSheet(false)}
+                      className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                    >
+                      <X size={14} className="text-white/60" />
+                    </button>
+                  </div>
+
+                  {/* Comment feed */}
+                  <div className="flex-1 overflow-hidden">
+                    <LiveCommentFeed comments={comments} isBroadcaster />
+                  </div>
+
+                  {/* Broadcaster input */}
+                  <div className="px-3 py-2.5 border-t border-white/5">
+                    <div className="flex items-center gap-2">
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 ring-1 ring-white/10" />
+                      ) : (
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-[9px] font-bold text-white shrink-0">
+                          {user?.name?.[0]?.toUpperCase() || '?'}
+                        </div>
+                      )}
+                      <div className="flex-1 flex items-center bg-white/10 rounded-full px-3 py-2 border border-white/5">
+                        <input
+                          ref={commentInputRef}
+                          type="text"
+                          value={commentText}
+                          onChange={(e) => setCommentText(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              handleSendComment();
+                            }
+                          }}
+                          placeholder="Say something to viewers..."
+                          className="flex-1 bg-transparent text-white text-xs placeholder:text-white/30 focus:outline-none"
+                        />
+                        {commentText.trim() && (
+                          <motion.button
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            onClick={handleSendComment}
+                            className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center shrink-0 ml-1.5 hover:bg-red-600 transition-colors active:scale-90"
+                          >
+                            <Send size={10} className="text-white ml-0.5" />
+                          </motion.button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </>
       )}
     </div>

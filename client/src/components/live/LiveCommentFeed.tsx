@@ -7,6 +7,7 @@ interface LiveCommentFeedProps {
   comments: Comment[];
   isBroadcaster?: boolean;
   isLoading?: boolean;
+  inline?: boolean;
 }
 
 const TRUNCATE_LENGTH = 150;
@@ -38,7 +39,7 @@ function SkeletonItem() {
   );
 }
 
-export default function LiveCommentFeed({ comments, isBroadcaster = false, isLoading = false }: LiveCommentFeedProps) {
+export default function LiveCommentFeed({ comments, isBroadcaster = false, isLoading = false, inline = false }: LiveCommentFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [newCommentCount, setNewCommentCount] = useState(0);
@@ -87,11 +88,11 @@ export default function LiveCommentFeed({ comments, isBroadcaster = false, isLoa
   const visible = comments.slice(-VISIBLE_COUNT);
 
   return (
-    <div className="relative flex flex-col h-full" role="log" aria-live="polite" aria-label="Live comments">
+    <div className={`relative flex flex-col h-full ${inline ? '' : ''}`} role="log" aria-live="polite" aria-label="Live comments">
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-1 flex flex-col overflow-y-auto scrollbar-none px-3 sm:px-4 py-2 sm:py-3"
+        className={`flex-1 flex flex-col overflow-y-auto scrollbar-none ${inline ? 'px-2 py-1.5 gap-0.5' : 'px-3 sm:px-4 py-2 sm:py-3'}`}
       >
         {/* Loading skeleton */}
         {isLoading && visible.length === 0 && (
@@ -104,17 +105,21 @@ export default function LiveCommentFeed({ comments, isBroadcaster = false, isLoa
 
         {/* Empty state */}
         {!isLoading && visible.length === 0 && (
-          <div className="flex-1 flex flex-col items-center justify-center gap-3 py-10">
-            <div className="w-14 h-14 rounded-full bg-white/[0.04] flex items-center justify-center">
-              <MessageCircle size={24} className="text-white/15" />
-            </div>
+          <div className={`flex-1 flex flex-col items-center justify-center gap-3 ${inline ? 'py-4' : 'py-10'}`}>
+            {!inline && (
+              <div className="w-14 h-14 rounded-full bg-white/[0.04] flex items-center justify-center">
+                <MessageCircle size={24} className="text-white/15" />
+              </div>
+            )}
             <div className="text-center space-y-1">
-              <p className="text-[13px] text-white/30 font-medium">
+              <p className={`${inline ? 'text-[11px]' : 'text-[13px]'} text-white/30 font-medium`}>
                 {isBroadcaster ? 'Waiting for comments...' : 'No comments yet'}
               </p>
-              <p className="text-[11px] text-white/15">
-                {isBroadcaster ? 'Comments from viewers will appear here' : 'Be the first to say something'}
-              </p>
+              {!inline && (
+                <p className="text-[11px] text-white/15">
+                  {isBroadcaster ? 'Comments from viewers will appear here' : 'Be the first to say something'}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -141,7 +146,7 @@ export default function LiveCommentFeed({ comments, isBroadcaster = false, isLoa
               );
             }
 
-            return <CommentItem key={item.id} comment={item} />;
+            return <CommentItem key={item.id} comment={item} inline={inline} />;
           })}
         </AnimatePresence>
       </div>
@@ -167,12 +172,27 @@ export default function LiveCommentFeed({ comments, isBroadcaster = false, isLoa
   );
 }
 
-const CommentItem = memo(function CommentItem({ comment }: { comment: Comment }) {
+const CommentItem = memo(function CommentItem({ comment, inline = false }: { comment: Comment; inline?: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [liked, setLiked] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const needsTruncation = comment.text.length > TRUNCATE_LENGTH;
   const displayText = needsTruncation && !expanded ? comment.text.slice(0, TRUNCATE_LENGTH) + '...' : comment.text;
+
+  if (inline) {
+    return (
+      <motion.div
+        initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -8 }}
+        transition={{ duration: prefersReducedMotion ? 0.05 : 0.2, ease: 'easeOut' }}
+        className="flex items-center gap-1.5"
+      >
+        <span className="text-[12px] font-bold text-white/90 shrink-0">{comment.userName}</span>
+        <span className="text-[12px] text-white/70 truncate">{comment.text}</span>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div

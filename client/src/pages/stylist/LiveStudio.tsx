@@ -4,16 +4,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Video, VideoOff, Mic, MicOff, PhoneOff, Radio,
   Loader2, X, Eye, Clock, Heart, MessageCircle,
-  AlertTriangle, CheckCircle2, Users,
+  AlertTriangle, CheckCircle2, Users, Gift,
 } from 'lucide-react';
 import CommentModal from '../../components/live/CommentModal';
+import LiveCommentFeed from '../../components/live/LiveCommentFeed';
 import { useLiveSession } from '../../hooks/useLiveSession';
 import { useAuth } from '../../context/authUtils';
 import { useToast } from '../../components/ui/Toast';
 import * as liveApi from '../../api/live';
 import { Track, RoomEvent } from 'livekit-client';
 import FloatingHeart from '../../components/live/FloatingHeart';
-import { FloatingCommentBubble, SystemCommentPill } from '../../components/live/FloatingCommentBubble';
 import type { Comment } from '../../hooks/useLiveSession';
 
 const CATEGORIES = [
@@ -21,13 +21,20 @@ const CATEGORIES = [
   'Makeup', 'Locs', 'Twists', 'Natural Hair', 'Extensions',
 ];
 
-const MAX_VISIBLE_FLOATING = 12;
-const COMMENT_FADE_MS = 6000;
-
-interface FloatingComment {
-  comment: Comment;
-  createdAt: number;
+interface GiftAnimation {
+  id: number;
+  type: string;
+  emoji: string;
 }
+
+const GIFT_OPTIONS = [
+  { type: 'rose', emoji: '🌹', label: 'Rose' },
+  { type: 'heart', emoji: '❤️', label: 'Heart' },
+  { type: 'star', emoji: '⭐', label: 'Star' },
+  { type: 'fire', emoji: '🔥', label: 'Fire' },
+  { type: 'clap', emoji: '👏', label: 'Clap' },
+  { type: 'diamond', emoji: '💎', label: 'Diamond' },
+];
 
 interface StreamSummary {
   duration: number;
@@ -53,15 +60,15 @@ export default function LiveStudio() {
   const [camEnabled, setCamEnabled] = useState(true);
   const [showCommentSheet, setShowCommentSheet] = useState(false);
   const [commentText, setCommentText] = useState('');
-  const [floatingComments, setFloatingComments] = useState<FloatingComment[]>([]);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState<string | null>(null);
   const [noCamera, setNoCamera] = useState(false);
   const [streamSummary, setStreamSummary] = useState<StreamSummary | null>(null);
   const [peakViewerCount, setPeakViewerCount] = useState(0);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
-  const commentTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
-  const seenCommentIdsRef = useRef(new Set<string>());
+  const [showGiftPanel, setShowGiftPanel] = useState(false);
+  const [giftAnimations, setGiftAnimations] = useState<GiftAnimation[]>([]);
+  const giftIdRef = useRef(0);
 
   const {
     room,
@@ -269,30 +276,15 @@ export default function LiveStudio() {
     }
   }, [comments.length, canSendComment, getCooldownRemaining]);
 
-  useEffect(() => {
-    if (comments.length === 0) return;
-    const latest = comments[comments.length - 1];
-    if (seenCommentIdsRef.current.has(latest.id)) return;
-    seenCommentIdsRef.current.add(latest.id);
-    if (seenCommentIdsRef.current.size > MAX_VISIBLE_FLOATING * 2) {
-      const ids = Array.from(seenCommentIdsRef.current);
-      seenCommentIdsRef.current = new Set(ids.slice(-MAX_VISIBLE_FLOATING));
-    }
-    const floating: FloatingComment = { comment: latest, createdAt: Date.now() };
-    setFloatingComments((prev) => [...prev.slice(-(MAX_VISIBLE_FLOATING - 1)), floating]);
-    const timer = setTimeout(() => {
-      commentTimersRef.current.delete(latest.id);
-      setFloatingComments((prev) => prev.filter((fc) => fc.comment.id !== latest.id));
-    }, COMMENT_FADE_MS);
-    commentTimersRef.current.set(latest.id, timer);
-  }, [comments]);
-
-  useEffect(() => {
-    return () => {
-      for (const t of commentTimersRef.current.values()) clearTimeout(t);
-      commentTimersRef.current.clear();
-    };
-  }, []);
+  const handleSendGift = (gift: typeof GIFT_OPTIONS[number]) => {
+    setShowGiftPanel(false);
+    const id = ++giftIdRef.current;
+    const anim: GiftAnimation = { id, type: gift.type, emoji: gift.emoji };
+    setGiftAnimations((prev) => [...prev.slice(-4), anim]);
+    setTimeout(() => {
+      setGiftAnimations((prev) => prev.filter((a) => a.id !== id));
+    }, 3000);
+  };
 
   const handleSummaryDone = () => {
     setStep('setup');
@@ -303,7 +295,6 @@ export default function LiveStudio() {
     setStreamSummary(null);
     setTitle('');
     setCategory('');
-    setFloatingComments([]);
   };
 
   return (
@@ -316,20 +307,34 @@ export default function LiveStudio() {
         ))}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {giftAnimations.map((g) => (
+          <motion.div
+            key={g.id}
+            initial={{ opacity: 0, scale: 0.3, y: 20 }}
+            animate={{ opacity: [0, 1, 1, 0], scale: [0.3, 1.2, 1, 0.8], y: [20, -40, -60, -80] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 2.5, ease: 'easeOut' }}
+            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50"
+          >
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-5xl drop-shadow-lg">{g.emoji}</span>
+              <span className="text-[11px] text-white/80 font-semibold bg-black/40 backdrop-blur-sm rounded-full px-2 py-0.5">
+                You sent a {GIFT_OPTIONS.find((o) => o.type === g.type)?.label}
+              </span>
+            </div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+
       {step === 'live' && (
         <div
-          className="absolute bottom-[148px] sm:bottom-[168px] left-3 right-3 sm:right-[60px] z-[15] flex flex-col-reverse gap-1.5 pointer-events-none overflow-hidden max-h-[35vh]"
+          className="absolute bottom-[80px] sm:bottom-[88px] left-3 right-3 sm:right-[60px] z-[15] max-h-[30vh] bg-black/20 backdrop-blur-sm rounded-2xl overflow-hidden"
           role="log"
           aria-live="polite"
           aria-label="Live comments"
         >
-          <AnimatePresence mode="popLayout" initial={false}>
-            {floatingComments.map((fc) => (
-              fc.comment.type === 'system'
-                ? <SystemCommentPill key={fc.comment.id} text={fc.comment.text} />
-                : <FloatingCommentBubble key={fc.comment.id} comment={fc.comment} />
-            ))}
-          </AnimatePresence>
+          <LiveCommentFeed comments={comments} inline />
         </div>
       )}
 

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Video, VideoOff, Mic, MicOff, PhoneOff, Radio,
   Loader2, X, Eye, Clock, Heart, MessageCircle,
-  AlertTriangle, CheckCircle2, Users, Gift,
+  AlertTriangle, CheckCircle2, Users,
 } from 'lucide-react';
 import CommentModal from '../../components/live/CommentModal';
 import LiveCommentFeed from '../../components/live/LiveCommentFeed';
@@ -18,21 +18,6 @@ import FloatingHeart from '../../components/live/FloatingHeart';
 const CATEGORIES = [
   'Braids', 'Nails', 'Barber', 'Colorist', 'Stylist',
   'Makeup', 'Locs', 'Twists', 'Natural Hair', 'Extensions',
-];
-
-interface GiftAnimation {
-  id: number;
-  type: string;
-  emoji: string;
-}
-
-const GIFT_OPTIONS = [
-  { type: 'rose', emoji: '🌹', label: 'Rose' },
-  { type: 'heart', emoji: '❤️', label: 'Heart' },
-  { type: 'star', emoji: '⭐', label: 'Star' },
-  { type: 'fire', emoji: '🔥', label: 'Fire' },
-  { type: 'clap', emoji: '👏', label: 'Clap' },
-  { type: 'diamond', emoji: '💎', label: 'Diamond' },
 ];
 
 interface StreamSummary {
@@ -65,9 +50,6 @@ export default function LiveStudio() {
   const [streamSummary, setStreamSummary] = useState<StreamSummary | null>(null);
   const [peakViewerCount, setPeakViewerCount] = useState(0);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
-  const [showGiftPanel, setShowGiftPanel] = useState(false);
-  const [giftAnimations, setGiftAnimations] = useState<GiftAnimation[]>([]);
-  const giftIdRef = useRef(0);
 
   const {
     room,
@@ -84,7 +66,6 @@ export default function LiveStudio() {
     toggleMicrophone,
     canSendComment,
     getCooldownRemaining,
-    COMMENT_COOLDOWN_MS,
     MAX_COMMENT_LENGTH,
   } = useLiveSession({ sessionId: sessionId || '', isBroadcaster: true });
 
@@ -275,16 +256,6 @@ export default function LiveStudio() {
     }
   }, [comments.length, canSendComment, getCooldownRemaining]);
 
-  const handleSendGift = (gift: typeof GIFT_OPTIONS[number]) => {
-    setShowGiftPanel(false);
-    const id = ++giftIdRef.current;
-    const anim: GiftAnimation = { id, type: gift.type, emoji: gift.emoji };
-    setGiftAnimations((prev) => [...prev.slice(-4), anim]);
-    setTimeout(() => {
-      setGiftAnimations((prev) => prev.filter((a) => a.id !== id));
-    }, 3000);
-  };
-
   const handleSummaryDone = () => {
     setStep('setup');
     setElapsed(0);
@@ -303,26 +274,6 @@ export default function LiveStudio() {
       <AnimatePresence>
         {hearts.map((h) => (
           <FloatingHeart key={h.id} id={h.id} x={h.x} />
-        ))}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {giftAnimations.map((g) => (
-          <motion.div
-            key={g.id}
-            initial={{ opacity: 0, scale: 0.3, y: 20 }}
-            animate={{ opacity: [0, 1, 1, 0], scale: [0.3, 1.2, 1, 0.8], y: [20, -40, -60, -80] }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 2.5, ease: 'easeOut' }}
-            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50"
-          >
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-5xl drop-shadow-lg">{g.emoji}</span>
-              <span className="text-[11px] text-white/80 font-semibold bg-black/40 backdrop-blur-sm rounded-full px-2 py-0.5">
-                You sent a {GIFT_OPTIONS.find((o) => o.type === g.type)?.label}
-              </span>
-            </div>
-          </motion.div>
         ))}
       </AnimatePresence>
 
@@ -569,6 +520,49 @@ export default function LiveStudio() {
                 {isEnding ? <Loader2 size={22} className="animate-spin" /> : <PhoneOff size={22} />}
               </button>
             </div>
+          </motion.div>
+
+          {/* ── RIGHT-SIDE HOST CONTROLS ── Same position as viewer action rail */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="absolute right-2 sm:right-3 bottom-[180px] sm:bottom-[200px] z-20 flex flex-col items-center gap-3 sm:gap-4"
+          >
+            {/* Flip camera */}
+            <button
+              onClick={handleToggleCam}
+              className="flex flex-col items-center gap-0.5 group"
+              aria-label="Flip camera"
+            >
+              <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full backdrop-blur-md flex items-center justify-center transition-all duration-200 active:scale-90 ${
+                camEnabled ? 'bg-black/30 group-hover:bg-black/50' : 'bg-red-500/80'
+              }`}>
+                {camEnabled ? <Video size={20} className="text-white" /> : <VideoOff size={20} className="text-white" />}
+              </div>
+            </button>
+
+            {/* Effects placeholder */}
+            <button
+              className="flex flex-col items-center gap-0.5 group"
+              aria-label="Effects"
+            >
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center group-hover:bg-black/50 transition-all duration-200 active:scale-90">
+                <span className="text-lg">✨</span>
+              </div>
+            </button>
+
+            {/* End Live */}
+            <button
+              onClick={() => setShowEndConfirm(true)}
+              disabled={isEnding}
+              className="flex flex-col items-center gap-0.5 group"
+              aria-label="End live"
+            >
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-red-600 flex items-center justify-center shadow-lg shadow-red-600/30 group-hover:bg-red-700 transition-all duration-200 active:scale-90">
+                {isEnding ? <Loader2 size={18} className="text-white animate-spin" /> : <PhoneOff size={18} className="text-white" />}
+              </div>
+            </button>
           </motion.div>
 
           <CommentModal

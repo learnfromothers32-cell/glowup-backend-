@@ -3,11 +3,10 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
 import {
   Heart, Eye, Loader2, WifiOff, Wifi,
-  Share2, MessageCircle, X, RefreshCw, Send,
-  Volume2, VolumeX, Gift, UserPlus,
+  Share2, X, RefreshCw, Send,
+  Volume2, UserPlus, ShoppingCart,
 } from 'lucide-react';
 import { useAuth } from '../../context/authUtils';
-import CommentModal from '../../components/live/CommentModal';
 import LiveCommentFeed from '../../components/live/LiveCommentFeed';
 import { useLiveSession } from '../../hooks/useLiveSession';
 import { RoomEvent, Track } from 'livekit-client';
@@ -24,21 +23,6 @@ interface TapHeart {
   x: number;
   y: number;
 }
-
-interface GiftAnimation {
-  id: number;
-  type: string;
-  emoji: string;
-}
-
-const GIFT_OPTIONS = [
-  { type: 'rose', emoji: '🌹', label: 'Rose' },
-  { type: 'heart', emoji: '❤️', label: 'Heart' },
-  { type: 'star', emoji: '⭐', label: 'Star' },
-  { type: 'fire', emoji: '🔥', label: 'Fire' },
-  { type: 'clap', emoji: '👏', label: 'Clap' },
-  { type: 'diamond', emoji: '💎', label: 'Diamond' },
-];
 
 export default function LiveStream() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -60,19 +44,14 @@ export default function LiveStream() {
   const [error, setError] = useState<string | null>(null);
   const [streamEnded, setStreamEnded] = useState(false);
   const [userLiked, setUserLiked] = useState(false);
-  const [showCommentModal, setShowCommentModal] = useState(false);
   const [showShareToast, setShowShareToast] = useState(false);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [commentFailed, setCommentFailed] = useState(false);
   const [tapHearts, setTapHearts] = useState<TapHeart[]>([]);
-  const [joinedToast, setJoinedToast] = useState<string | null>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [audioMuted, setAudioMuted] = useState(true);
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
-  const [showGiftPanel, setShowGiftPanel] = useState(false);
-  const [giftAnimations, setGiftAnimations] = useState<GiftAnimation[]>([]);
   const likeInFlightRef = useRef(false);
-  const giftIdRef = useRef(0);
   const audioElementsRef = useRef<HTMLMediaElement[]>([]);
 
   useEffect(() => {
@@ -109,7 +88,6 @@ export default function LiveStream() {
     viewerCount,
     setViewerCount,
     comments,
-    totalCommentCount,
     hearts,
     likeCount,
     setLikeCount,
@@ -162,16 +140,6 @@ export default function LiveStream() {
       });
     return () => { mounted = false; };
   }, [sessionId, setLikeCount, user]);
-
-  useEffect(() => {
-    if (comments.length === 0) return;
-    const latest = comments[comments.length - 1];
-    if (latest.type === 'system' && latest.text.includes('joined')) {
-      setJoinedToast(latest.text);
-      const timer = setTimeout(() => setJoinedToast(null), 2500);
-      return () => clearTimeout(timer);
-    }
-  }, [comments]);
 
   const attachedElementsRef = useRef<HTMLMediaElement[]>([]);
 
@@ -262,22 +230,6 @@ export default function LiveStream() {
     };
   }, [detachAllTracks]);
 
-  const toggleMute = useCallback(() => {
-    const newMuted = !audioMuted;
-    setAudioMuted(newMuted);
-    for (const el of audioElementsRef.current) {
-      el.muted = newMuted;
-    }
-    if (!newMuted) {
-      setAutoplayBlocked(false);
-      for (const el of audioElementsRef.current) {
-        if (el.paused) {
-          el.play().catch(() => setAutoplayBlocked(true));
-        }
-      }
-    }
-  }, [audioMuted]);
-
   const handleUnmute = useCallback(() => {
     setAudioMuted(false);
     setAutoplayBlocked(false);
@@ -342,24 +294,17 @@ export default function LiveStream() {
     }
   }, [sessionId, user, userLiked, likeCount, setLikeCount, broadcastLikeUpdate, sendReaction, toast]);
 
-  const spawnTapHeart = useCallback((clientX: number, clientY: number) => {
+  const spawnTapHeart = useCallback(() => {
     const id = ++tapHeartIdRef.current;
-    const rect = videoContainerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const xPct = ((clientX - rect.left) / rect.width) * 100;
-    const yPx = clientY - rect.top;
-    setTapHearts((prev) => [...prev.slice(-8), { id, x: xPct, y: yPx }]);
+    setTapHearts((prev) => [...prev.slice(-8), { id, x: 88, y: window.innerHeight - 280 }]);
     setTimeout(() => setTapHearts((prev) => prev.filter((h) => h.id !== id)), 1400);
   }, []);
 
-  const handleDoubleTap = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+  const handleDoubleTap = useCallback((_e: React.TouchEvent | React.MouseEvent) => {
     const now = Date.now();
-    const clientX = 'touches' in e ? e.changedTouches[0]?.clientX ?? 0 : e.clientX;
-    const clientY = 'touches' in e ? e.changedTouches[0]?.clientY ?? 0 : e.clientY;
-
     if (now - lastTapRef.current < 300) {
       performLike();
-      spawnTapHeart(clientX, clientY);
+      spawnTapHeart();
     }
     lastTapRef.current = now;
   }, [performLike, spawnTapHeart]);
@@ -378,19 +323,12 @@ export default function LiveStream() {
     }
   };
 
-  const handleSendGift = (gift: typeof GIFT_OPTIONS[number]) => {
-    setShowGiftPanel(false);
-    const id = ++giftIdRef.current;
-    const anim: GiftAnimation = { id, type: gift.type, emoji: gift.emoji };
-    setGiftAnimations((prev) => [...prev.slice(-4), anim]);
-    setTimeout(() => {
-      setGiftAnimations((prev) => prev.filter((a) => a.id !== id));
-    }, 3000);
-  };
-
   const handleBack = () => {
-    disconnect();
-    navigate(-1);
+    setJoined(false);
+    setTimeout(() => {
+      disconnect();
+      navigate(-1);
+    }, 250);
   };
 
   const handleRetry = () => {
@@ -514,6 +452,8 @@ export default function LiveStream() {
   return (
     <motion.div
       style={{ opacity: dragOpacity }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: joined ? 1 : 0.7 }}
       className="h-dvh w-full bg-black relative overflow-hidden select-none"
     >
       <motion.div
@@ -537,33 +477,18 @@ export default function LiveStream() {
           <motion.div
             key={h.id}
             initial={{ opacity: 1, scale: 0.3 }}
-            animate={{ opacity: [1, 1, 0], scale: 1.3, y: -180, x: [0, 8, -6, 10, -4] }}
+            animate={{
+              opacity: [1, 1, 0],
+              scale: 1.3,
+              y: -200,
+              x: [0, (Math.random() - 0.5) * 60, (Math.random() - 0.5) * 80, (Math.random() - 0.5) * 40],
+            }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1.2, ease: 'easeOut' }}
+            transition={{ duration: 1.4, ease: 'easeOut' }}
             className="absolute pointer-events-none z-50"
             style={{ left: `${h.x}%`, top: h.y }}
           >
             <span className="text-4xl drop-shadow-lg">❤️</span>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {giftAnimations.map((g) => (
-          <motion.div
-            key={g.id}
-            initial={{ opacity: 0, scale: 0.3, y: 20 }}
-            animate={{ opacity: [0, 1, 1, 0], scale: [0.3, 1.2, 1, 0.8], y: [20, -40, -60, -80] }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 2.5, ease: 'easeOut' }}
-            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50"
-          >
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-5xl drop-shadow-lg">{g.emoji}</span>
-              <span className="text-[11px] text-white/80 font-semibold bg-black/40 backdrop-blur-sm rounded-full px-2 py-0.5">
-                {user?.name || 'You'} sent a {GIFT_OPTIONS.find((o) => o.type === g.type)?.label}
-              </span>
-            </div>
           </motion.div>
         ))}
       </AnimatePresence>
@@ -623,59 +548,57 @@ export default function LiveStream() {
         </div>
       )}
 
-      {/* ── TOP BAR ── TikTok-style: X | avatar name LIVE ... viewer count */}
+      {/* ── TOP BAR ── TikTok-style */}
       <div className="absolute top-0 inset-x-0 z-20 pointer-events-none">
         <div className="absolute inset-x-0 h-28 bg-gradient-to-b from-black/60 via-black/20 to-transparent" />
 
         <div className="relative flex items-center justify-between px-3 pt-3 sm:pt-4">
-          {/* Left: close + streamer info */}
-          <div className="flex items-center gap-2 min-w-0 pointer-events-auto">
-            <button
-              onClick={handleBack}
-              className="w-9 h-9 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center text-white/80 hover:text-white hover:bg-black/50 transition-all active:scale-90 shrink-0"
-              aria-label="Close stream"
-            >
-              <X size={16} />
-            </button>
-
-            {joined && (
-              <Link
-                to={`/app/stylist/${session.stylistId?._id}`}
-                className="pointer-events-auto"
-                aria-label={`View ${session.stylistId?.name}'s profile`}
-              >
-                <motion.div
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center gap-1.5 bg-black/30 backdrop-blur-md rounded-full pr-3 pl-1 py-1 min-w-0 max-w-[55vw] active:scale-95 transition-transform"
-                >
-                  {session.stylistId?.image ? (
-                    <img src={session.stylistId.image} alt="" className="w-7 h-7 rounded-full object-cover ring-1 ring-white/20 shrink-0" />
-                  ) : (
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-[10px] font-bold text-white ring-1 ring-white/20 shrink-0">
-                      {session.stylistId?.name?.[0]}
-                    </div>
-                  )}
-                  <span className="text-[11px] font-semibold text-white truncate">{session.stylistId?.name}</span>
-                  <LiveBadge size="sm" />
-                </motion.div>
-              </Link>
-            )}
-          </div>
-
-          {/* Right: viewer count */}
+          {/* Left: avatar + name + Follow pill + LIVE badge + viewer count */}
           {joined && (
             <motion.div
-              initial={{ opacity: 0, x: 12 }}
+              initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="flex items-center gap-1 bg-black/30 backdrop-blur-md rounded-full px-2.5 py-1.5 shrink-0 pointer-events-auto"
+              className="flex items-center gap-1.5 min-w-0 pointer-events-auto"
             >
-              <Eye size={11} className="text-white/70" />
-              <span className="text-[11px] text-white font-semibold tabular-nums">{viewerCount}</span>
+              <Link
+                to={`/app/stylist/${session.stylistId?._id}`}
+                className="shrink-0"
+                aria-label={`View ${session.stylistId?.name}'s profile`}
+              >
+                {session.stylistId?.image ? (
+                  <img src={session.stylistId.image} alt="" className="w-8 h-8 rounded-full object-cover ring-1 ring-white/20" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-[10px] font-bold text-white ring-1 ring-white/20">
+                    {session.stylistId?.name?.[0]}
+                  </div>
+                )}
+              </Link>
+
+              <span className="text-[11px] font-semibold text-white truncate max-w-[100px]">{session.stylistId?.name}</span>
+
+              <button className="flex items-center gap-1 bg-white/15 backdrop-blur-md rounded-full px-2 py-0.5 text-[10px] font-semibold text-white active:scale-95 transition-transform shrink-0" aria-label="Follow stylist">
+                <UserPlus size={9} />
+                Follow
+              </button>
+
+              <LiveBadge size="sm" />
+
+              <div className="flex items-center gap-0.5 bg-black/30 backdrop-blur-md rounded-full px-2 py-0.5 shrink-0">
+                <Eye size={9} className="text-white/70" />
+                <span className="text-[10px] text-white font-semibold tabular-nums">{viewerCount}</span>
+              </div>
             </motion.div>
           )}
+
+          {/* Right: X close button */}
+          <button
+            onClick={handleBack}
+            className="w-9 h-9 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center text-white/80 hover:text-white hover:bg-black/50 transition-all active:scale-90 shrink-0 pointer-events-auto"
+            aria-label="Close stream"
+          >
+            <X size={16} />
+          </button>
         </div>
       </div>
 
@@ -719,22 +642,6 @@ export default function LiveStream() {
         ))}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {joinedToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.9 }}
-            className="absolute top-16 left-1/2 -translate-x-1/2 z-30"
-          >
-            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md text-white/80 text-[11px] font-medium px-3 py-1.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-              {joinedToast}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* ── BOTTOM GRADIENT ── */}
       <div className="absolute bottom-0 inset-x-0 h-[180px] sm:h-[200px] bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10 pointer-events-none" />
 
@@ -766,16 +673,6 @@ export default function LiveStream() {
               </div>
             </div>
           </Link>
-
-          {/* Follow button */}
-          <button
-            className="flex flex-col items-center gap-0.5 group"
-            aria-label="Follow stylist"
-          >
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center group-hover:bg-black/50 transition-all duration-200 active:scale-90">
-              <UserPlus size={20} className="text-white" />
-            </div>
-          </button>
 
           {/* Like */}
           <button
@@ -817,18 +714,6 @@ export default function LiveStream() {
             <span className="text-[10px] text-white font-semibold tabular-nums">{likeCount}</span>
           </button>
 
-          {/* Comments */}
-          <button
-            onClick={() => setShowCommentModal(true)}
-            className="flex flex-col items-center gap-0.5 group"
-            aria-label="Open comments"
-          >
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center group-hover:bg-black/50 transition-all duration-200 active:scale-90">
-              <MessageCircle size={20} className="text-white" />
-            </div>
-            <span className="text-[10px] text-white font-semibold">{totalCommentCount}</span>
-          </button>
-
           {/* Share */}
           <button onClick={handleShare} className="flex flex-col items-center gap-0.5 group" aria-label="Share stream">
             <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center group-hover:bg-black/50 transition-all duration-200 active:scale-90">
@@ -837,45 +722,19 @@ export default function LiveStream() {
             <span className="text-[10px] text-white font-semibold">Share</span>
           </button>
 
-          {/* Gift */}
-          <button
-            onClick={() => setShowGiftPanel(!showGiftPanel)}
-            className="flex flex-col items-center gap-0.5 group"
-            aria-label="Send a gift"
+          {/* Book / View services CTA */}
+          <Link
+            to={`/app/stylist/${session.stylistId?._id}`}
+            className="flex flex-col items-center gap-0.5"
+            aria-label="View services"
           >
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30 group-hover:shadow-amber-500/50 transition-all duration-200 active:scale-90">
-              <Gift size={18} className="text-white" />
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30 active:scale-90 transition-transform">
+              <ShoppingCart size={18} className="text-white" />
             </div>
-            <span className="text-[10px] text-white font-semibold">Gift</span>
-          </button>
+            <span className="text-[10px] text-white font-semibold">Book</span>
+          </Link>
         </motion.div>
       )}
-
-      {/* ── GIFT PANEL ── */}
-      <AnimatePresence>
-        {joined && showGiftPanel && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute right-2 sm:right-3 bottom-[360px] sm:bottom-[390px] z-30 bg-gray-900/95 backdrop-blur-xl rounded-2xl p-3 border border-white/10 shadow-2xl"
-          >
-            <div className="grid grid-cols-3 gap-2">
-              {GIFT_OPTIONS.map((gift) => (
-                <button
-                  key={gift.type}
-                  onClick={() => handleSendGift(gift)}
-                  className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-white/10 transition-colors active:scale-90"
-                >
-                  <span className="text-2xl">{gift.emoji}</span>
-                  <span className="text-[9px] text-white/60 font-medium">{gift.label}</span>
-                </button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* ── INLINE COMMENT FEED ── TikTok-style bottom-left scrollable */}
       {joined && (
@@ -935,20 +794,6 @@ export default function LiveStream() {
           )}
         </motion.div>
       )}
-
-      <CommentModal
-        open={joined && showCommentModal}
-        onClose={() => setShowCommentModal(false)}
-        comments={comments}
-        commentText={commentText}
-        onCommentTextChange={setCommentText}
-        onSendComment={handleSendComment}
-        user={user}
-        maxCommentLength={MAX_COMMENT_LENGTH}
-        cooldownRemaining={cooldownRemaining}
-        commentFailed={commentFailed}
-        totalCount={totalCommentCount}
-      />
 
       <AnimatePresence>
         {showShareToast && (

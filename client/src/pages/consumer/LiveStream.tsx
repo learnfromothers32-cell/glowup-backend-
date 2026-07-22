@@ -556,24 +556,30 @@ export default function LiveStream() {
             </button>
 
             {joined && (
-              <motion.div
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="flex items-center gap-1.5 sm:gap-2 bg-black/30 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1 min-w-0 max-w-[45vw]"
+              <Link
+                to={`/app/stylist/${session.stylistId?._id}`}
+                className="pointer-events-auto"
+                aria-label={`View ${session.stylistId?.name}'s profile`}
               >
-                {session.stylistId?.image ? (
-                  <img src={session.stylistId.image} alt="" className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-white/20 shrink-0" />
-                ) : (
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white ring-2 ring-white/20 shrink-0">
-                    {session.stylistId?.name?.[0]}
+                <motion.div
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex items-center gap-1.5 sm:gap-2 bg-black/30 backdrop-blur-md rounded-full pr-3 sm:pr-4 pl-1 py-1 min-w-0 max-w-[45vw] active:scale-95 transition-transform"
+                >
+                  {session.stylistId?.image ? (
+                    <img src={session.stylistId.image} alt="" className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover ring-2 ring-white/20 shrink-0" />
+                  ) : (
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white ring-2 ring-white/20 shrink-0">
+                      {session.stylistId?.name?.[0]}
+                    </div>
+                  )}
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[11px] sm:text-xs font-semibold text-white leading-tight truncate">{session.stylistId?.name}</span>
+                    <span className="text-[9px] sm:text-[10px] text-white/50 leading-tight">Host</span>
                   </div>
-                )}
-                <div className="flex flex-col min-w-0">
-                  <span className="text-[11px] sm:text-xs font-semibold text-white leading-tight truncate">{session.stylistId?.name}</span>
-                  <span className="text-[9px] sm:text-[10px] text-white/50 leading-tight">Host</span>
-                </div>
-              </motion.div>
+                </motion.div>
+              </Link>
             )}
           </div>
 

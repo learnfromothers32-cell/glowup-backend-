@@ -110,7 +110,7 @@ export default function CommentModal({
             <div className="flex items-center justify-between px-4 py-2.5 sm:py-3 border-b border-white/[0.06]">
               <div className="flex items-center gap-2.5">
                 <h3 className="text-[13px] font-bold text-white tracking-tight">Comments</h3>
-                <span className="text-[11px] text-white/30 font-semibold tabular-nums bg-white/[0.06] rounded-full px-2 py-0.5">
+                <span className="text-[11px] text-white/60 font-semibold tabular-nums bg-white/10 rounded-full px-2.5 py-0.5">
                   {comments.length}
                 </span>
               </div>

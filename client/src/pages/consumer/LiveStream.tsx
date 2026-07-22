@@ -849,7 +849,7 @@ export default function LiveStream() {
 
       {joined && (
         <div
-          className="absolute bottom-[110px] sm:bottom-[120px] left-3 right-[60px] sm:right-[68px] z-20 flex flex-col-reverse gap-1.5 pointer-events-none overflow-hidden max-h-[40vh]"
+          className="absolute bottom-[116px] sm:bottom-[128px] left-3 right-[60px] sm:right-[68px] z-20 flex flex-col-reverse gap-1.5 pointer-events-none overflow-hidden max-h-[40vh]"
           role="log"
           aria-live="polite"
           aria-label="Live comments"

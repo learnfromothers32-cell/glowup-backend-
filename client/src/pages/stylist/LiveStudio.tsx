@@ -318,7 +318,7 @@ export default function LiveStudio() {
 
       {step === 'live' && (
         <div
-          className="absolute bottom-[140px] sm:bottom-[160px] left-3 right-3 sm:right-[60px] z-15 flex flex-col-reverse gap-1.5 pointer-events-none overflow-hidden max-h-[35vh]"
+          className="absolute bottom-[148px] sm:bottom-[168px] left-3 right-3 sm:right-[60px] z-[15] flex flex-col-reverse gap-1.5 pointer-events-none overflow-hidden max-h-[35vh]"
           role="log"
           aria-live="polite"
           aria-label="Live comments"

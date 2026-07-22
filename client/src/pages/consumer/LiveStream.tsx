@@ -778,24 +778,23 @@ export default function LiveStream() {
       )}
 
       {/* ── FLOATING COMMENTS ── TikTok-style: comments float on the page */}
-      <AnimatePresence>
-        {joined && floatingComments.map((fc, idx) => (
-          <motion.div
-            key={fc.id}
-            initial={{ opacity: 0, x: -20, y: 0 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            exit={{ opacity: 0, x: -30, transition: { duration: 0.25 } }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="absolute left-3 z-20 pointer-events-none"
-            style={{ bottom: `${130 + idx * 36}px` }}
-          >
-            <div className="flex items-center gap-1.5 max-w-[70vw]">
-              <span className="text-[12px] font-bold text-white shrink-0 drop-shadow-md">{fc.userName}</span>
-              <span className="text-[12px] text-white/80 truncate drop-shadow-md">{fc.text}</span>
-            </div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+      <div className="absolute left-0 right-[56px] bottom-[110px] z-[25] pointer-events-none px-3" aria-live="polite">
+        <AnimatePresence initial={false}>
+          {joined && floatingComments.map((fc) => (
+            <motion.div
+              key={fc.id}
+              initial={{ opacity: 0, x: -16, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -16, scale: 0.95, transition: { duration: 0.2 } }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5 mb-1.5 w-fit max-w-full"
+            >
+              <span className="text-[12px] font-bold text-white shrink-0">{fc.userName}</span>
+              <span className="text-[12px] text-white/90 truncate">{fc.text}</span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
 
       {/* ── BOTTOM INPUT BAR ── TikTok-style: input bar at bottom-left */}
       {joined && !keyboardVisible && (

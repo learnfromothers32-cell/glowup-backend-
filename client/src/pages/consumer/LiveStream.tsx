@@ -4,11 +4,12 @@ import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-mo
 import {
   Heart, Eye, Loader2, WifiOff, Wifi,
   Share2, MessageCircle, X, RefreshCw, Calendar, Send,
+  Volume2, VolumeX,
 } from 'lucide-react';
 import { useAuth } from '../../context/authUtils';
 import CommentModal from '../../components/live/CommentModal';
 import { useLiveSession } from '../../hooks/useLiveSession';
-import { RoomEvent } from 'livekit-client';
+import { RoomEvent, Track } from 'livekit-client';
 import { useToast } from '../../components/ui/Toast';
 import LiveBadge from '../../components/live/LiveBadge';
 import FloatingHeart from '../../components/live/FloatingHeart';
@@ -25,7 +26,13 @@ interface TapHeart {
   y: number;
 }
 
+interface FloatingComment {
+  comment: Comment;
+  createdAt: number;
+}
+
 const MAX_VISIBLE_FLOATING = 15;
+const COMMENT_FADE_MS = 6000;
 
 export default function LiveStream() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -52,10 +59,14 @@ export default function LiveStream() {
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [commentFailed, setCommentFailed] = useState(false);
   const [tapHearts, setTapHearts] = useState<TapHeart[]>([]);
-  const [floatingComments, setFloatingComments] = useState<Comment[]>([]);
+  const [floatingComments, setFloatingComments] = useState<FloatingComment[]>([]);
   const [joinedToast, setJoinedToast] = useState<string | null>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [audioMuted, setAudioMuted] = useState(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const likeInFlightRef = useRef(false);
+  const commentTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const audioElementsRef = useRef<HTMLMediaElement[]>([]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -91,6 +102,7 @@ export default function LiveStream() {
     viewerCount,
     setViewerCount,
     comments,
+    totalCommentCount,
     hearts,
     likeCount,
     setLikeCount,
@@ -155,8 +167,21 @@ export default function LiveStream() {
       const ids = Array.from(seenCommentIdsRef.current);
       seenCommentIdsRef.current = new Set(ids.slice(-MAX_VISIBLE_FLOATING));
     }
-    setFloatingComments((prev) => [...prev.slice(-(MAX_VISIBLE_FLOATING - 1)), latest]);
+    const floating: FloatingComment = { comment: latest, createdAt: Date.now() };
+    setFloatingComments((prev) => [...prev.slice(-(MAX_VISIBLE_FLOATING - 1)), floating]);
+    const timer = setTimeout(() => {
+      commentTimersRef.current.delete(latest.id);
+      setFloatingComments((prev) => prev.filter((f) => f.comment.id !== latest.id));
+    }, COMMENT_FADE_MS);
+    commentTimersRef.current.set(latest.id, timer);
   }, [comments]);
+
+  useEffect(() => {
+    return () => {
+      for (const t of commentTimersRef.current.values()) clearTimeout(t);
+      commentTimersRef.current.clear();
+    };
+  }, []);
 
   useEffect(() => {
     if (comments.length === 0) return;
@@ -170,33 +195,57 @@ export default function LiveStream() {
 
   const attachedElementsRef = useRef<HTMLMediaElement[]>([]);
 
+  const detachAllTracks = useCallback(() => {
+    for (const el of attachedElementsRef.current) {
+      try {
+        el.remove();
+        if ('srcObject' in el) {
+          (el as HTMLMediaElement).srcObject = null;
+        }
+      } catch {}
+    }
+    attachedElementsRef.current = [];
+  }, []);
+
   useEffect(() => {
     if (!room || !videoContainerRef.current || !joined) return;
     const container = videoContainerRef.current;
 
-    const detachAll = () => {
-      for (const el of attachedElementsRef.current) {
-        try {
-          el.remove();
-          if ('srcObject' in el) {
-            (el as HTMLMediaElement).srcObject = null;
-          }
-        } catch {}
-      }
-      attachedElementsRef.current = [];
-    };
-
     const attachTracks = () => {
-      detachAll();
+      detachAllTracks();
       const participants = Array.from(room.remoteParticipants.values());
+      let hasAudio = false;
       for (const p of participants) {
-        const pub = p.getTrackPublication('camera');
-        if (pub?.track) {
-          const el = pub.track.attach();
+        const camPub = p.getTrackPublication(Track.Source.Camera);
+        if (camPub?.track) {
+          const el = camPub.track.attach();
           el.className = 'w-full h-full object-cover';
           container.appendChild(el);
           attachedElementsRef.current.push(el);
         }
+        const audioPub = p.getTrackPublication(Track.Source.Microphone);
+        if (audioPub?.track) {
+          const audioEl = audioPub.track.attach() as HTMLMediaElement;
+          audioEl.className = 'sr-only';
+          audioEl.muted = audioMuted;
+          document.body.appendChild(audioEl);
+          audioElementsRef.current.push(audioEl);
+          attachedElementsRef.current.push(audioEl);
+          hasAudio = true;
+        }
+      }
+      if (hasAudio && !audioMuted) {
+        const tryPlay = () => {
+          for (const el of audioElementsRef.current) {
+            if (el.paused) {
+              el.play().catch(() => {
+                setAutoplayBlocked(true);
+                el.muted = true;
+              });
+            }
+          }
+        };
+        tryPlay();
       }
     };
 
@@ -215,22 +264,49 @@ export default function LiveStream() {
       room.off(RoomEvent.TrackSubscribed, attachTracks);
       room.off(RoomEvent.ParticipantConnected, attachTracks);
       room.off(RoomEvent.ParticipantDisconnected, attachTracks);
-      detachAll();
+      detachAllTracks();
+      for (const el of audioElementsRef.current) {
+        try { el.remove(); } catch {}
+      }
+      audioElementsRef.current = [];
     };
-  }, [room, joined]);
+  }, [room, joined, audioMuted, detachAllTracks]);
 
   useEffect(() => {
     return () => {
-      for (const el of attachedElementsRef.current) {
-        try {
-          el.remove();
-          if ('srcObject' in el) {
-            (el as HTMLMediaElement).srcObject = null;
-          }
-        } catch {}
+      detachAllTracks();
+      for (const el of audioElementsRef.current) {
+        try { el.remove(); } catch {}
       }
-      attachedElementsRef.current = [];
+      audioElementsRef.current = [];
     };
+  }, [detachAllTracks]);
+
+  const toggleMute = useCallback(() => {
+    const newMuted = !audioMuted;
+    setAudioMuted(newMuted);
+    for (const el of audioElementsRef.current) {
+      el.muted = newMuted;
+    }
+    if (!newMuted) {
+      setAutoplayBlocked(false);
+      for (const el of audioElementsRef.current) {
+        if (el.paused) {
+          el.play().catch(() => setAutoplayBlocked(true));
+        }
+      }
+    }
+  }, [audioMuted]);
+
+  const handleUnmute = useCallback(() => {
+    setAudioMuted(false);
+    setAutoplayBlocked(false);
+    for (const el of audioElementsRef.current) {
+      el.muted = false;
+      if (el.paused) {
+        el.play().catch(() => setAutoplayBlocked(true));
+      }
+    }
   }, []);
 
   const handleJoin = async () => {
@@ -620,6 +696,21 @@ export default function LiveStream() {
       </AnimatePresence>
 
       <AnimatePresence>
+        {joined && autoplayBlocked && (
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            onClick={handleUnmute}
+            className="absolute bottom-[180px] sm:bottom-[200px] left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-black/60 backdrop-blur-md text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg border border-white/10 active:scale-95 transition-transform"
+          >
+            <Volume2 size={14} />
+            Tap to unmute
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {hearts.map((h) => (
           <FloatingHeart key={h.id} id={h.id} x={h.x} />
         ))}
@@ -720,7 +811,7 @@ export default function LiveStream() {
             <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center group-hover:bg-black/50 transition-all duration-200 active:scale-90">
               <MessageCircle size={20} className="text-white" />
             </div>
-            <span className="text-[10px] text-white font-semibold">{comments.length}</span>
+            <span className="text-[10px] text-white font-semibold">{totalCommentCount}</span>
           </button>
 
           <button onClick={handleShare} className="flex flex-col items-center gap-0.5 group" aria-label="Share stream">
@@ -728,6 +819,19 @@ export default function LiveStream() {
               <Share2 size={20} className="text-white" />
             </div>
             <span className="text-[10px] text-white font-semibold">Share</span>
+          </button>
+
+          <button
+            onClick={toggleMute}
+            className="flex flex-col items-center gap-0.5 group"
+            aria-label={audioMuted ? 'Unmute audio' : 'Mute audio'}
+          >
+            <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full backdrop-blur-md flex items-center justify-center transition-all duration-200 active:scale-90 ${
+              audioMuted ? 'bg-red-500/25 group-hover:bg-red-500/40' : 'bg-black/30 group-hover:bg-black/50'
+            }`}>
+              {audioMuted ? <VolumeX size={20} className="text-red-400" /> : <Volume2 size={20} className="text-white" />}
+            </div>
+            <span className="text-[10px] text-white font-semibold">{audioMuted ? 'Muted' : 'Sound'}</span>
           </button>
 
           <Link
@@ -751,10 +855,10 @@ export default function LiveStream() {
           aria-label="Live comments"
         >
           <AnimatePresence mode="popLayout" initial={false}>
-            {floatingComments.slice(-MAX_VISIBLE_FLOATING).map((c) => (
-              c.type === 'system'
-                ? <SystemCommentPill key={c.id} text={c.text} />
-                : <FloatingCommentBubble key={c.id} comment={c} />
+            {floatingComments.slice(-MAX_VISIBLE_FLOATING).map((fc) => (
+              fc.comment.type === 'system'
+                ? <SystemCommentPill key={fc.comment.id} text={fc.comment.text} />
+                : <FloatingCommentBubble key={fc.comment.id} comment={fc.comment} />
             ))}
           </AnimatePresence>
         </div>
@@ -820,6 +924,7 @@ export default function LiveStream() {
         maxCommentLength={MAX_COMMENT_LENGTH}
         cooldownRemaining={cooldownRemaining}
         commentFailed={commentFailed}
+        totalCount={totalCommentCount}
       />
 
       <AnimatePresence>

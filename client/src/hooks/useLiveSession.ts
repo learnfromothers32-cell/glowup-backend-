@@ -61,6 +61,7 @@ export function useLiveSession({
   const lastCommentTimeRef = useRef(0);
   const lastReactionTimeRef = useRef(0);
   const seenCommentIdsRef = useRef(new Set<string>());
+  const totalCommentCountRef = useRef(0);
   const MAX_RECONNECT_ATTEMPTS = 5;
 
   const addSystemComment = useCallback((text: string) => {
@@ -139,6 +140,7 @@ export function useLiveSession({
           const sanitizedText = sanitizeText(String(data.text || '').slice(0, MAX_COMMENT_LENGTH));
           const sanitizedUserName = sanitizeText(String(data.userName || 'Anonymous').slice(0, 30));
           if (!sanitizedText) return;
+          totalCommentCountRef.current += 1;
           setComments((prev) => [
             ...prev.slice(-(MAX_VISIBLE_COMMENTS - 1)),
             {
@@ -294,6 +296,7 @@ export function useLiveSession({
     viewerCount,
     setViewerCount,
     comments,
+    totalCommentCount: totalCommentCountRef.current,
     hearts,
     likeCount,
     setLikeCount,

@@ -21,6 +21,14 @@ const CATEGORIES = [
   'Makeup', 'Locs', 'Twists', 'Natural Hair', 'Extensions',
 ];
 
+const MAX_VISIBLE_FLOATING = 12;
+const COMMENT_FADE_MS = 6000;
+
+interface FloatingComment {
+  comment: Comment;
+  createdAt: number;
+}
+
 interface StreamSummary {
   duration: number;
   peakViewers: number;
@@ -45,14 +53,15 @@ export default function LiveStudio() {
   const [camEnabled, setCamEnabled] = useState(true);
   const [showCommentSheet, setShowCommentSheet] = useState(false);
   const [commentText, setCommentText] = useState('');
-  const [floatingComments, setFloatingComments] = useState<Comment[]>([]);
+  const [floatingComments, setFloatingComments] = useState<FloatingComment[]>([]);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState<string | null>(null);
   const [noCamera, setNoCamera] = useState(false);
   const [streamSummary, setStreamSummary] = useState<StreamSummary | null>(null);
   const [peakViewerCount, setPeakViewerCount] = useState(0);
-
-  const MAX_VISIBLE_FLOATING = 12;
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  const commentTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const seenCommentIdsRef = useRef(new Set<string>());
 
   const {
     room,
@@ -61,11 +70,16 @@ export default function LiveStudio() {
     hearts,
     likeCount,
     comments,
+    totalCommentCount,
     connect,
     disconnect,
     sendComment,
     toggleCamera,
     toggleMicrophone,
+    canSendComment,
+    getCooldownRemaining,
+    COMMENT_COOLDOWN_MS,
+    MAX_COMMENT_LENGTH,
   } = useLiveSession({ sessionId: sessionId || '', isBroadcaster: true });
 
   useEffect(() => {
@@ -205,7 +219,7 @@ export default function LiveStudio() {
         duration: elapsed,
         peakViewers: peakViewerCount,
         totalHearts: likeCount,
-        totalComments: comments.length,
+        totalComments: totalCommentCount,
       });
       setStep('summary');
     } catch {
@@ -236,16 +250,49 @@ export default function LiveStudio() {
 
   const handleSendComment = () => {
     if (!commentText.trim() || !user) return;
-    sendComment(commentText.trim(), user.id, user.name, user.avatar);
-    setCommentText('');
+    if (!canSendComment()) {
+      toast('error', 'Please wait before sending another comment');
+      return;
+    }
+    const sent = sendComment(commentText.trim(), user.id, user.name, user.avatar);
+    if (sent) setCommentText('');
   };
+
+  useEffect(() => {
+    if (!canSendComment()) {
+      const remaining = getCooldownRemaining();
+      setCooldownRemaining(remaining);
+      const timer = setTimeout(() => setCooldownRemaining(0), remaining);
+      return () => clearTimeout(timer);
+    } else {
+      setCooldownRemaining(0);
+    }
+  }, [comments.length, canSendComment, getCooldownRemaining]);
 
   useEffect(() => {
     if (comments.length === 0) return;
     const latest = comments[comments.length - 1];
-    if (floatingComments.some((c) => c.id === latest.id)) return;
-    setFloatingComments((prev) => [...prev.slice(-(MAX_VISIBLE_FLOATING - 1)), latest]);
-  }, [comments, floatingComments, MAX_VISIBLE_FLOATING]);
+    if (seenCommentIdsRef.current.has(latest.id)) return;
+    seenCommentIdsRef.current.add(latest.id);
+    if (seenCommentIdsRef.current.size > MAX_VISIBLE_FLOATING * 2) {
+      const ids = Array.from(seenCommentIdsRef.current);
+      seenCommentIdsRef.current = new Set(ids.slice(-MAX_VISIBLE_FLOATING));
+    }
+    const floating: FloatingComment = { comment: latest, createdAt: Date.now() };
+    setFloatingComments((prev) => [...prev.slice(-(MAX_VISIBLE_FLOATING - 1)), floating]);
+    const timer = setTimeout(() => {
+      commentTimersRef.current.delete(latest.id);
+      setFloatingComments((prev) => prev.filter((fc) => fc.comment.id !== latest.id));
+    }, COMMENT_FADE_MS);
+    commentTimersRef.current.set(latest.id, timer);
+  }, [comments]);
+
+  useEffect(() => {
+    return () => {
+      for (const t of commentTimersRef.current.values()) clearTimeout(t);
+      commentTimersRef.current.clear();
+    };
+  }, []);
 
   const handleSummaryDone = () => {
     setStep('setup');
@@ -277,10 +324,10 @@ export default function LiveStudio() {
           aria-label="Live comments"
         >
           <AnimatePresence mode="popLayout" initial={false}>
-            {floatingComments.map((c) => (
-              c.type === 'system'
-                ? <SystemCommentPill key={c.id} text={c.text} />
-                : <FloatingCommentBubble key={c.id} comment={c} />
+            {floatingComments.map((fc) => (
+              fc.comment.type === 'system'
+                ? <SystemCommentPill key={fc.comment.id} text={fc.comment.text} />
+                : <FloatingCommentBubble key={fc.comment.id} comment={fc.comment} />
             ))}
           </AnimatePresence>
         </div>
@@ -482,9 +529,9 @@ export default function LiveStudio() {
                 aria-label={showCommentSheet ? 'Hide comments' : 'Show comments'}
               >
                 <MessageCircle size={20} />
-                {comments.length > 0 && (
+                {totalCommentCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-red-500 text-[9px] text-white font-bold flex items-center justify-center px-1">
-                    {comments.length > 99 ? '99+' : comments.length}
+                    {totalCommentCount > 99 ? '99+' : totalCommentCount}
                   </span>
                 )}
               </button>
@@ -530,6 +577,9 @@ export default function LiveStudio() {
             user={user}
             isBroadcaster
             placeholder="Say something to viewers..."
+            cooldownRemaining={cooldownRemaining}
+            maxCommentLength={MAX_COMMENT_LENGTH}
+            totalCount={totalCommentCount}
           />
         </>
       )}

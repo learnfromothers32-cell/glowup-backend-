@@ -18,6 +18,7 @@ interface CommentModalProps {
   cooldownRemaining?: number;
   commentFailed?: boolean;
   placeholder?: string;
+  totalCount?: number;
 }
 
 export default function CommentModal({
@@ -34,6 +35,7 @@ export default function CommentModal({
   cooldownRemaining = 0,
   commentFailed = false,
   placeholder,
+  totalCount,
 }: CommentModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -111,7 +113,7 @@ export default function CommentModal({
               <div className="flex items-center gap-2.5">
                 <h3 className="text-[13px] font-bold text-white tracking-tight">Comments</h3>
                 <span className="text-[11px] text-white/60 font-semibold tabular-nums bg-white/10 rounded-full px-2.5 py-0.5">
-                  {comments.length}
+                  {totalCount ?? comments.length}
                 </span>
               </div>
               <button

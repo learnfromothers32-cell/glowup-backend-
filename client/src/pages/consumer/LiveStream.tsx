@@ -2,10 +2,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Heart, Send, Eye, Calendar, Loader2, WifiOff, Wifi,
+  Heart, Eye, Calendar, Loader2, WifiOff, Wifi,
   Share2, MessageCircle, X, RefreshCw,
 } from 'lucide-react';
-import LiveCommentFeed from '../../components/live/LiveCommentFeed';
+import CommentModal from '../../components/live/CommentModal';
 import { useAuth } from '../../context/authUtils';
 import { useLiveSession } from '../../hooks/useLiveSession';
 import { RoomEvent } from 'livekit-client';
@@ -41,7 +41,6 @@ export default function LiveStream() {
   const { user } = useAuth();
   const { toast } = useToast();
   const videoContainerRef = useRef<HTMLDivElement>(null);
-  const commentInputRef = useRef<HTMLInputElement>(null);
   const lastTapRef = useRef(0);
   const tapHeartIdRef = useRef(0);
   const emojiIdRef = useRef(0);
@@ -58,26 +57,9 @@ export default function LiveStream() {
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [commentFailed, setCommentFailed] = useState(false);
   const [tapHearts, setTapHearts] = useState<TapHeart[]>([]);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [floatingComments, setFloatingComments] = useState<Comment[]>([]);
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmojiItem[]>([]);
   const likeInFlightRef = useRef(false);
-
-  useEffect(() => {
-    const vp = window.visualViewport;
-    if (!vp) return;
-    const onResize = () => {
-      const height = window.innerHeight;
-      const diff = height - vp.height - vp.offsetTop;
-      setKeyboardHeight(Math.max(0, diff));
-    };
-    vp.addEventListener('resize', onResize);
-    vp.addEventListener('scroll', onResize);
-    return () => {
-      vp.removeEventListener('resize', onResize);
-      vp.removeEventListener('scroll', onResize);
-    };
-  }, []);
 
   const handleStreamEnded = useCallback(() => {
     toast('info', 'Stream has ended');
@@ -268,18 +250,6 @@ export default function LiveStream() {
     }
   }, [sessionId, user, userLiked, likeCount, setLikeCount, broadcastLikeUpdate, sendReaction, toast]);
 
-  const handleCommentDragEnd = (_: any, info: { offset: { y: number } }) => {
-    if (info.offset.y > 100) {
-      setShowCommentModal(false);
-    }
-  };
-
-  useEffect(() => {
-    if (showCommentModal) {
-      setTimeout(() => commentInputRef.current?.focus(), 400);
-    }
-  }, [showCommentModal]);
-
   const spawnTapHeart = useCallback((clientX: number, clientY: number) => {
     const id = ++tapHeartIdRef.current;
     const rect = videoContainerRef.current?.getBoundingClientRect();
@@ -413,10 +383,6 @@ export default function LiveStream() {
       </div>
     );
   }
-
-  const charCount = commentText.length;
-  const isOverLimit = charCount > MAX_COMMENT_LENGTH;
-  const canType = cooldownRemaining <= 0;
 
   return (
     <div className="h-dvh w-full bg-black relative overflow-hidden select-none" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
@@ -727,146 +693,20 @@ export default function LiveStream() {
       )}
 
       {/* ═══════════════════════════════════════════════════ */}
-      {/* ── TIKTOK-STYLE COMMENT BOTTOM SHEET MODAL ── */}
+      {/* ── COMMENT MODAL ── */}
       {/* ═══════════════════════════════════════════════════ */}
-      <AnimatePresence>
-        {joined && showCommentModal && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => setShowCommentModal(false)}
-              className="absolute inset-0 z-40 bg-black/50 backdrop-blur-[2px]"
-            />
-
-            {/* Sheet */}
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 35, stiffness: 350, mass: 0.8 }}
-              drag="y"
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={0.15}
-              onDragEnd={handleCommentDragEnd}
-              className="absolute bottom-0 inset-x-0 z-50 bg-gray-950/98 backdrop-blur-2xl rounded-t-[20px] border-t border-white/[0.08] flex flex-col overflow-hidden"
-              style={{ height: 'min(65vh, 480px)' }}
-              role="dialog"
-              aria-label="Live comments"
-            >
-              {/* Drag handle */}
-              <div className="flex justify-center pt-2.5 pb-1.5 cursor-grab active:cursor-grabbing">
-                <div className="w-9 h-[3px] rounded-full bg-white/20" />
-              </div>
-
-              {/* Header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
-                <div className="flex items-center gap-2.5">
-                  <h3 className="text-[13px] font-bold text-white tracking-tight">Comments</h3>
-                  <span className="text-[11px] text-white/30 font-semibold tabular-nums bg-white/[0.06] rounded-full px-2 py-0.5">{comments.length}</span>
-                </div>
-                <button
-                  onClick={() => setShowCommentModal(false)}
-                  className="w-8 h-8 rounded-full bg-white/[0.08] flex items-center justify-center hover:bg-white/[0.15] transition-colors active:scale-90"
-                  aria-label="Close comments"
-                >
-                  <X size={14} className="text-white/50" />
-                </button>
-              </div>
-
-              {/* Emoji reaction tray (horizontal row above comments) */}
-              <div className="flex justify-center gap-1.5 px-4 py-2.5 border-b border-white/[0.04]">
-                {EMOJI_OPTIONS.map((emoji) => (
-                  <motion.button
-                    key={emoji}
-                    whileTap={{ scale: 1.6 }}
-                    whileHover={{ scale: 1.15 }}
-                    onClick={() => spawnEmojiReaction(emoji)}
-                    className="w-9 h-9 rounded-full bg-white/[0.06] flex items-center justify-center text-lg hover:bg-white/[0.12] transition-colors active:bg-white/[0.15]"
-                    aria-label={`React with ${emoji}`}
-                  >
-                    {emoji}
-                  </motion.button>
-                ))}
-              </div>
-
-              {/* Comment feed */}
-              <div className="flex-1 overflow-hidden">
-                <LiveCommentFeed comments={comments} />
-              </div>
-
-              {/* Input bar */}
-              <div className="px-3 py-3 border-t border-white/[0.06]" style={{ paddingBottom: keyboardHeight > 0 ? keyboardHeight + 12 : undefined }}>
-                <div className="flex items-center gap-2.5">
-                  {user?.avatar ? (
-                    <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-white/10" />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
-                      {user?.name?.[0]?.toUpperCase() || '?'}
-                    </div>
-                  )}
-                  <div className={`flex-1 flex items-center rounded-full px-4 py-2.5 border transition-all duration-200 ${
-                    commentFailed
-                      ? 'bg-red-500/15 border-red-500/30'
-                      : isOverLimit
-                        ? 'bg-white/[0.08] border-red-400/30'
-                        : 'bg-white/[0.08] border-white/[0.06] focus-within:border-white/[0.12] focus-within:bg-white/[0.1]'
-                  }`}>
-                    <input
-                      ref={commentInputRef}
-                      type="text"
-                      value={commentText}
-                      onChange={(e) => setCommentText(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendComment();
-                        }
-                      }}
-                      placeholder={
-                        cooldownRemaining > 0
-                          ? `Wait ${cooldownRemaining}s...`
-                          : commentFailed
-                            ? 'Failed to send'
-                            : 'Say something...'
-                      }
-                      disabled={!canType && cooldownRemaining > 0}
-                      maxLength={MAX_COMMENT_LENGTH + 20}
-                      aria-label="Type a comment"
-                      className="flex-1 bg-transparent text-white text-[13px] placeholder:text-white/25 focus:outline-none disabled:opacity-40"
-                    />
-
-                    {charCount > 0 && (
-                      <span className={`text-[10px] tabular-nums mr-2 shrink-0 font-medium ${
-                        isOverLimit ? 'text-red-400' : charCount > MAX_COMMENT_LENGTH * 0.8 ? 'text-amber-400' : 'text-white/20'
-                      }`}>
-                        {charCount}/{MAX_COMMENT_LENGTH}
-                      </span>
-                    )}
-
-                    {commentText.trim() && !isOverLimit && (
-                      <motion.button
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                        onClick={handleSendComment}
-                        aria-label="Send comment"
-                        className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center shrink-0 ml-2 hover:bg-red-400 transition-colors active:scale-90 shadow-lg shadow-red-500/30"
-                      >
-                        <Send size={11} className="text-white ml-0.5" />
-                      </motion.button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <CommentModal
+        open={joined && showCommentModal}
+        onClose={() => setShowCommentModal(false)}
+        comments={comments}
+        commentText={commentText}
+        onCommentTextChange={setCommentText}
+        onSendComment={handleSendComment}
+        user={user}
+        maxCommentLength={MAX_COMMENT_LENGTH}
+        cooldownRemaining={cooldownRemaining}
+        commentFailed={commentFailed}
+      />
 
       {/* ── Share toast ── */}
       <AnimatePresence>

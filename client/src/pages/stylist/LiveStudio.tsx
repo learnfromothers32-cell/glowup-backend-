@@ -356,7 +356,11 @@ export default function LiveStudio() {
 
   return (
     <div className="h-dvh w-full bg-black relative overflow-hidden select-none" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div ref={videoContainerRef} className="absolute inset-0 bg-gray-900" />
+      <div
+        ref={videoContainerRef}
+        className="absolute inset-0 mx-auto bg-gray-900 overflow-hidden"
+        style={{ aspectRatio: '9 / 16', maxHeight: '100%', top: 0, bottom: 0 }}
+      />
 
       <AnimatePresence>
         {hearts.map((h) => (
@@ -615,12 +619,10 @@ export default function LiveStudio() {
           </div>
 
           {/* ── FLOATING COMMENTS ── */}
-          <div className="absolute left-3 bottom-[120px] sm:bottom-[135px] w-[65%] z-[25]">
-            <FloatingComments comments={comments} shiftUp={stylistInputFocused} />
-          </div>
+          <FloatingComments comments={comments} shiftUp={stylistInputFocused} />
 
           {/* ── BOTTOM BAR ── */}
-          <div className="fixed bottom-0 inset-x-0 z-30" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 20px), 12px)' }}>
+          <div className="absolute bottom-0 inset-x-0 z-30" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 20px), 12px)' }}>
             <div className="bg-black/45 backdrop-blur-sm px-3 pt-2 pb-2 flex items-end gap-2">
               <div className="flex-1 min-w-0">
                 <LiveCommentInput

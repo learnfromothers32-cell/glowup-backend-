@@ -519,22 +519,19 @@ export default function LiveStream() {
       animate={{ opacity: joined ? 1 : 0.7 }}
       className="h-dvh w-full bg-black relative overflow-hidden select-none"
     >
-      {/* Layer 1: Full screen camera */}
+      {/* 9:16 video container — all overlays are children of this */}
       <motion.div
         drag="y"
         dragConstraints={{ top: 0, bottom: 0 }}
         dragElastic={0.4}
         onDrag={(_, info) => dragY.set(info.offset.y)}
         onDragEnd={handleDragEnd}
-        className="absolute inset-0"
-      >
-        <div
-          ref={videoContainerRef}
-          className="absolute inset-0 bg-gray-900"
-          onClick={handleDoubleTap}
-          onTouchEnd={handleDoubleTap}
-        />
-      </motion.div>
+        ref={videoContainerRef}
+        onClick={handleDoubleTap}
+        onTouchEnd={handleDoubleTap}
+        className="absolute inset-0 mx-auto bg-gray-900 overflow-hidden"
+        style={{ aspectRatio: '9 / 16', maxHeight: '100%', top: 0, bottom: 0 }}
+      />
 
       {/* Layer 2: Dark gradient — bottom 50% */}
       <div className="absolute bottom-0 inset-x-0 h-[50%] bg-gradient-to-t from-black/70 via-black/30 to-transparent z-10 pointer-events-none" />
@@ -690,7 +687,7 @@ export default function LiveStream() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute top-14 left-1/2 -translate-x-1/2 z-30"
+            className="absolute top-14 left-0 right-0 flex justify-center z-30"
           >
             <div className="flex items-center gap-2 bg-yellow-500/90 text-black text-[11px] font-semibold px-4 py-2 rounded-full shadow-lg">
               <WifiOff size={12} />
@@ -704,7 +701,7 @@ export default function LiveStream() {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="absolute inset-x-4 bottom-1/3 z-[55] rounded-2xl p-5 border border-white/10 shadow-2xl"
+            className="fixed inset-x-4 bottom-1/3 z-[55] rounded-2xl p-5 border border-white/10 shadow-2xl"
             style={{ backgroundColor: '#1a1a1a' }}
           >
             <div className="flex flex-col items-center text-center">
@@ -730,7 +727,7 @@ export default function LiveStream() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute top-14 left-1/2 -translate-x-1/2 z-30"
+            className="absolute top-14 left-0 right-0 flex justify-center z-30"
           >
             <div className="flex items-center gap-2 bg-green-500/90 text-white text-[11px] font-semibold px-4 py-2 rounded-full shadow-lg">
               <span className="relative flex h-2 w-2">
@@ -763,9 +760,7 @@ export default function LiveStream() {
       {/* ── FLOATING COMMENTS ── */}
       {/* ═══════════════════════════════════════════════════ */}
       {joined && (
-        <div className="absolute left-3 w-[60%] z-[25]" style={{ bottom: 'calc(env(safe-area-inset-bottom, 20px) + 130px)' }}>
-          <FloatingComments comments={comments} shiftUp={inputFocused} />
-        </div>
+        <FloatingComments comments={comments} shiftUp={inputFocused} />
       )}
 
       {/* ═══════════════════════════════════════════════════ */}
@@ -881,7 +876,7 @@ export default function LiveStream() {
       {/* ═══════════════════════════════════════════════════ */}
       {joined && (
         <div
-          className="fixed bottom-0 inset-x-0 z-30 px-3 pb-2"
+          className="absolute bottom-0 inset-x-0 z-30 px-3 pb-2"
           style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 20px), 8px)' }}
         >
           <LiveCommentInput

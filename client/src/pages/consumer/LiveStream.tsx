@@ -3,8 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
 import {
   Heart, Eye, Loader2, WifiOff, Wifi,
-  Share2, X, RefreshCw, Send,
-  Volume2, UserPlus, ShoppingCart,
+  Share2, Volume2, Gift, Calendar,
+  ChevronLeft,
 } from 'lucide-react';
 import { useAuth } from '../../context/authUtils';
 import { useLiveSession } from '../../hooks/useLiveSession';
@@ -12,6 +12,11 @@ import { RoomEvent, Track } from 'livekit-client';
 import { useToast } from '../../components/ui/Toast';
 import LiveBadge from '../../components/live/LiveBadge';
 import FloatingHeart from '../../components/live/FloatingHeart';
+import FloatingComments from '../../components/live/FloatingComments';
+import LiveCommentInput from '../../components/live/LiveCommentInput';
+import GiftPickerModal from '../../components/live/GiftPickerModal';
+import GiftAnimation, { useGiftQueue } from '../../components/live/GiftAnimation';
+import BookingPromptCard from '../../components/live/BookingPromptCard';
 import * as liveApi from '../../api/live';
 import type { LiveSession } from '../../api/live';
 import { getSocketUrl } from '../../services/socket';
@@ -23,15 +28,10 @@ interface TapHeart {
   y: number;
 }
 
-interface FloatingComment {
-  id: number;
-  userName: string;
-  text: string;
-  createdAt: number;
+interface ShowcaseData {
+  serviceName: string;
+  servicePrice: string;
 }
-
-const MAX_FLOATING_COMMENTS = 4;
-const FLOATING_COMMENT_DURATION_MS = 5000;
 
 export default function LiveStream() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -41,7 +41,6 @@ export default function LiveStream() {
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
   const tapHeartIdRef = useRef(0);
-  const commentInputRef = useRef<HTMLInputElement>(null);
   const dragY = useMotionValue(0);
   const dragOpacity = useTransform(dragY, [0, 150], [1, 0]);
 
@@ -49,22 +48,20 @@ export default function LiveStream() {
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
   const [joined, setJoined] = useState(false);
-  const [commentText, setCommentText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [streamEnded, setStreamEnded] = useState(false);
   const [userLiked, setUserLiked] = useState(false);
-  const [showShareToast, setShowShareToast] = useState(false);
-  const [cooldownRemaining, setCooldownRemaining] = useState(0);
-  const [commentFailed, setCommentFailed] = useState(false);
   const [tapHearts, setTapHearts] = useState<TapHeart[]>([]);
-  const [floatingComments, setFloatingComments] = useState<FloatingComment[]>([]);
-  const floatingCommentIdRef = useRef(0);
-  const floatingTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [audioMuted, setAudioMuted] = useState(true);
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const likeInFlightRef = useRef(false);
   const audioElementsRef = useRef<HTMLMediaElement[]>([]);
+
+  const [giftPickerOpen, setGiftPickerOpen] = useState(false);
+  const { gifts, addGift } = useGiftQueue();
+  const [showcase, setShowcase] = useState<ShowcaseData | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -109,23 +106,12 @@ export default function LiveStream() {
     broadcastLikeUpdate,
     sendReaction,
     getCooldownRemaining,
-    COMMENT_COOLDOWN_MS,
     MAX_COMMENT_LENGTH,
   } = useLiveSession({
     sessionId: sessionId || '',
     onStreamEnded: handleStreamEnded,
     initialLikeCount: 0,
   });
-
-  useEffect(() => {
-    if (cooldownRemaining <= 0) return;
-    const timer = setInterval(() => {
-      const remaining = getCooldownRemaining();
-      setCooldownRemaining(remaining);
-      if (remaining <= 0) clearInterval(timer);
-    }, 250);
-    return () => clearInterval(timer);
-  }, [cooldownRemaining, getCooldownRemaining]);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -242,6 +228,24 @@ export default function LiveStream() {
     };
   }, [detachAllTracks]);
 
+  useEffect(() => {
+    if (!room || !joined) return;
+
+    const handleData = (payload: Uint8Array) => {
+      try {
+        const data = JSON.parse(new TextDecoder().decode(payload));
+        if (data.type === 'showcase') {
+          setShowcase({ serviceName: data.serviceName || '', servicePrice: data.servicePrice || '' });
+        } else if (data.type === 'gift') {
+          addGift(data.emoji || '🎁', data.giftName || 'Gift', data.senderName || 'Someone');
+        }
+      } catch {}
+    };
+
+    room.on(RoomEvent.DataReceived, handleData);
+    return () => { room.off(RoomEvent.DataReceived, handleData); };
+  }, [room, joined, addGift]);
+
   const handleUnmute = useCallback(() => {
     setAudioMuted(false);
     setAutoplayBlocked(false);
@@ -321,48 +325,40 @@ export default function LiveStream() {
     lastTapRef.current = now;
   }, [performLike, spawnTapHeart]);
 
-  const prevCommentsLenRef = useRef(0);
-  useEffect(() => {
-    if (comments.length <= prevCommentsLenRef.current) {
-      prevCommentsLenRef.current = comments.length;
-      return;
-    }
-    const newComments = comments.slice(prevCommentsLenRef.current);
-    prevCommentsLenRef.current = comments.length;
+  const handleSendComment = useCallback(
+    (text: string): boolean => {
+      if (!user) return false;
+      const sent = sendComment(text, user.id, user.name, user.avatar);
+      return sent;
+    },
+    [user, sendComment]
+  );
 
-    for (const c of newComments) {
-      if (c.type === 'system') continue;
-      const id = ++floatingCommentIdRef.current;
-      const fc: FloatingComment = { id, userName: c.userName, text: c.text, createdAt: Date.now() };
-      setFloatingComments((prev) => [...prev.slice(-(MAX_FLOATING_COMMENTS - 1)), fc]);
-      const timer = setTimeout(() => {
-        floatingTimersRef.current.delete(id);
-        setFloatingComments((prev) => prev.filter((f) => f.id !== id));
-      }, FLOATING_COMMENT_DURATION_MS);
-      floatingTimersRef.current.set(id, timer);
-    }
-  }, [comments]);
+  const handleSendGift = useCallback(
+    (gift: { type: string; emoji: string; label: string; coins: number }) => {
+      if (!room || !user) return;
+      try {
+        const data = new TextEncoder().encode(
+          JSON.stringify({
+            type: 'gift',
+            giftType: gift.type,
+            giftName: gift.label,
+            emoji: gift.emoji,
+            senderName: user.name,
+            value: gift.coins,
+          })
+        );
+        room.localParticipant.publishData(data, { reliable: true });
+      } catch {}
+      addGift(gift.emoji, gift.label, user.name);
+    },
+    [room, user, addGift]
+  );
 
-  useEffect(() => {
-    return () => {
-      for (const timer of floatingTimersRef.current.values()) clearTimeout(timer);
-      floatingTimersRef.current.clear();
-    };
-  }, []);
-
-  const handleSendComment = () => {
-    if (!commentText.trim() || !user) return;
-
-    setCommentFailed(false);
-    const sent = sendComment(commentText.trim(), user.id, user.name, user.avatar);
-    if (sent) {
-      setCommentText('');
-      setCooldownRemaining(getCooldownRemaining() || Math.ceil(COMMENT_COOLDOWN_MS / 1000));
-    } else {
-      setCommentFailed(true);
-      setTimeout(() => setCommentFailed(false), 1500);
-    }
-  };
+  const handleFollow = useCallback(async () => {
+    setIsFollowing(true);
+    toast('success', 'Following!');
+  }, [toast]);
 
   const handleBack = () => {
     setJoined(false);
@@ -400,8 +396,7 @@ export default function LiveStream() {
       try { await navigator.share({ title: session?.title || 'Live Stream', url }); } catch {}
     } else {
       await navigator.clipboard.writeText(url);
-      setShowShareToast(true);
-      setTimeout(() => setShowShareToast(false), 2000);
+      toast('success', 'Link copied!');
     }
   };
 
@@ -411,19 +406,15 @@ export default function LiveStream() {
     }
   };
 
+  const stylistId = session?.stylistId?._id;
+  const stylistName = session?.stylistId?.name || 'Stylist';
+  const stylistImage = session?.stylistId?.image;
+  const stylistInitial = stylistName[0] || '?';
+
   if (loading) {
     return (
       <div className="h-dvh w-full bg-black relative overflow-hidden select-none" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="absolute inset-0 bg-gray-900 animate-pulse" />
-        <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-b from-black/60 via-black/20 to-transparent z-10 pointer-events-none" />
-        <div className="absolute top-5 left-4 z-20 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
-          <div className="h-9 w-32 rounded-full bg-white/10 animate-pulse" />
-        </div>
-        <div className="absolute top-5 right-4 z-20">
-          <div className="h-8 w-20 rounded-full bg-white/10 animate-pulse" />
-        </div>
-        <div className="absolute bottom-0 inset-x-0 h-72 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10 pointer-events-none" />
         <div className="absolute inset-0 z-40 flex flex-col items-center justify-center">
           <Loader2 size={28} className="animate-spin text-white/60" />
           <p className="text-xs text-white/40 mt-3 font-medium">Loading stream...</p>
@@ -446,15 +437,13 @@ export default function LiveStream() {
           <button
             onClick={handleRetry}
             className="px-5 py-2.5 rounded-full bg-white/10 text-white text-sm font-medium flex items-center gap-2 hover:bg-white/20 transition-all active:scale-95"
-            aria-label="Retry loading stream"
           >
-            <RefreshCw size={14} />
+            <Loader2 size={14} />
             Retry
           </button>
           <button
             onClick={() => navigate(-1)}
             className="px-5 py-2.5 rounded-full bg-white/5 text-white/60 text-sm font-medium hover:bg-white/10 hover:text-white transition-all active:scale-95"
-            aria-label="Go back"
           >
             Go back
           </button>
@@ -465,38 +454,53 @@ export default function LiveStream() {
 
   if (streamEnded) {
     return (
-      <div className="h-dvh w-full bg-black flex flex-col items-center justify-center gap-5 text-white px-6" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center">
-          <WifiOff size={32} className="text-white/40" />
+      <div className="h-dvh w-full bg-black relative overflow-hidden select-none" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div ref={videoContainerRef} className="absolute inset-0 bg-gray-900" />
+        <div className="absolute inset-0 z-10" style={{ backgroundColor: 'rgba(0,0,0,0.75)' }} />
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-6 gap-6">
+          <div className="relative">
+            {stylistImage ? (
+              <img src={stylistImage} alt="" className="w-16 h-16 rounded-full object-cover" />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
+                <span className="text-2xl font-bold text-white">{stylistInitial}</span>
+              </div>
+            )}
+          </div>
+          <div className="text-center">
+            <p className="text-[16px] font-bold text-white">@{stylistName}&apos;s live has ended</p>
+            <p className="text-[14px] text-white/70 mt-1">Thanks for watching</p>
+          </div>
+          <div className="flex flex-col gap-3 w-full max-w-xs">
+            {stylistId && (
+              <button
+                onClick={() => navigate(`/app/stylist/${stylistId}`)}
+                className="w-full h-12 rounded-2xl text-white text-[15px] font-bold active:scale-[0.98] transition-transform"
+                style={{ backgroundColor: '#FE2C55' }}
+              >
+                Book with {stylistName}
+              </button>
+            )}
+            <button
+              onClick={() => navigate(-1)}
+              className="w-full h-12 rounded-2xl border border-white/20 text-white text-[15px] font-semibold active:scale-[0.98] transition-transform"
+            >
+              Go Back
+            </button>
+          </div>
         </div>
-        <div className="text-center">
-          <p className="text-xl font-bold mb-1">Stream Ended</p>
-          <p className="text-sm text-white/50">
-            {session.stylistId?.name}'s live stream has ended.
-          </p>
-          {session.duration > 0 && (
-            <p className="text-xs text-white/30 mt-2">
-              Duration: {Math.floor(session.duration / 60)}m {session.duration % 60}s
-            </p>
-          )}
-        </div>
-        <button
-          onClick={() => navigate(-1)}
-          className="px-6 py-3 rounded-full bg-white/10 text-white text-sm font-semibold hover:bg-white/20 transition-all active:scale-95"
-        >
-          Go back
-        </button>
       </div>
     );
   }
 
   return (
     <motion.div
-      style={{ opacity: dragOpacity }}
+      style={{ opacity: dragOpacity, paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
       initial={{ opacity: 1 }}
       animate={{ opacity: joined ? 1 : 0.7 }}
       className="h-dvh w-full bg-black relative overflow-hidden select-none"
     >
+      {/* Layer 1: Full screen camera */}
       <motion.div
         drag="y"
         dragConstraints={{ top: 0, bottom: 0 }}
@@ -513,6 +517,13 @@ export default function LiveStream() {
         />
       </motion.div>
 
+      {/* Layer 2: Dark gradient — bottom 50% */}
+      <div className="absolute bottom-0 inset-x-0 h-[50%] bg-gradient-to-t from-black/70 via-black/30 to-transparent z-10 pointer-events-none" />
+
+      {/* Top gradient for top bar readability */}
+      <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-black/40 to-transparent z-10 pointer-events-none" />
+
+      {/* Tap hearts */}
       <AnimatePresence>
         {tapHearts.map((h) => (
           <motion.div
@@ -534,42 +545,58 @@ export default function LiveStream() {
         ))}
       </AnimatePresence>
 
+      {/* Heuristic hearts */}
+      <AnimatePresence>
+        {hearts.map((h) => (
+          <FloatingHeart key={h.id} id={h.id} x={h.x} />
+        ))}
+      </AnimatePresence>
+
+      {/* Gift animation center */}
+      <div className="absolute inset-0 z-[35] pointer-events-none flex items-center justify-center">
+        <GiftAnimation gifts={gifts} />
+      </div>
+
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* ── PRE-JOIN OVERLAY ── */}
+      {/* ═══════════════════════════════════════════════════ */}
       {!joined && (
-        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="flex flex-col items-center gap-5 px-6"
+            className="flex flex-col items-center gap-4 px-6 w-full max-w-[320px]"
           >
-            <div className="relative">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-red-500 via-pink-500 to-purple-500 p-[3px] shadow-2xl shadow-red-500/30">
-                <div className="w-full h-full rounded-full bg-gray-900 p-[2px] overflow-hidden">
-                  {session.stylistId?.image ? (
-                    <img src={session.stylistId.image} alt="" className="w-full h-full rounded-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
-                      <span className="text-2xl font-bold text-white">{session.stylistId?.name?.[0] || '?'}</span>
-                    </div>
-                  )}
-                </div>
+            {stylistImage ? (
+              <img src={stylistImage} alt="" className="w-20 h-20 rounded-full object-cover border-2 border-white/20" />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center border-2 border-white/20">
+                <span className="text-3xl font-bold text-white">{stylistInitial}</span>
               </div>
-              <LiveBadge size="sm" className="absolute -bottom-1 left-1/2 -translate-x-1/2" />
-            </div>
+            )}
 
             <div className="text-center">
-              <h2 className="text-lg sm:text-xl font-bold text-white">{session.title}</h2>
-              <p className="text-sm text-white/60 mt-1">{session.stylistId?.name}</p>
-              {session.category && (
-                <span className="inline-block mt-2 px-3 py-1 rounded-full bg-white/10 text-xs text-white/70 font-medium">{session.category}</span>
-              )}
+              <p className="text-[18px] font-bold text-white">{stylistName}</p>
+              <p className="text-[14px] mt-1" style={{ color: 'rgba(255,255,255,0.7)' }}>is live now</p>
             </div>
+
+            <div className="flex items-center gap-1.5 text-white/60">
+              <Eye size={13} />
+              <span className="text-[13px] font-semibold">{viewerCount} watching</span>
+            </div>
+
+            {(session.title || session.category) && (
+              <p className="text-[13px] text-white/50 italic text-center">
+                {session.title}{session.category ? ` · ${session.category}` : ''}
+              </p>
+            )}
 
             <button
               onClick={handleJoin}
               disabled={joining}
-              aria-label={joining ? 'Joining stream' : 'Join live stream'}
-              className="px-10 py-3.5 rounded-full bg-gradient-to-r from-red-500 via-pink-500 to-red-600 text-white font-bold text-sm disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all active:scale-95"
+              className="w-full h-12 rounded-2xl text-white text-[15px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+              style={{ backgroundColor: '#FE2C55' }}
             >
               {joining ? (
                 <><Loader2 size={16} className="animate-spin" /> Joining...</>
@@ -584,72 +611,66 @@ export default function LiveStream() {
               )}
             </button>
 
-            <button onClick={handleBack} className="text-sm text-white/40 hover:text-white/70 transition-colors active:scale-95" aria-label="Go back">Go back</button>
+            <p className="text-[12px] text-white/30">Tap anywhere to join</p>
           </motion.div>
         </div>
       )}
 
-      {/* ── TOP BAR ── TikTok-style */}
-      <div className="absolute top-0 inset-x-0 z-20 pointer-events-none">
-        <div className="absolute inset-x-0 h-28 bg-gradient-to-b from-black/60 via-black/20 to-transparent" />
-
-        <div className="relative flex items-center justify-between px-3 pt-3 sm:pt-4">
-          {/* Left: avatar + name + Follow pill + LIVE badge + viewer count */}
-          {joined && (
-            <motion.div
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="flex items-center gap-1.5 min-w-0 pointer-events-auto"
-            >
-              <Link
-                to={`/app/stylist/${session.stylistId?._id}`}
-                className="shrink-0"
-                aria-label={`View ${session.stylistId?.name}'s profile`}
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* ── TOP BAR ── */}
+      {/* ═══════════════════════════════════════════════════ */}
+      {joined && (
+        <div className="absolute top-0 inset-x-0 z-20 pointer-events-none">
+          <div className="relative flex items-center justify-between px-3 pt-3 sm:pt-4">
+            {/* Left: back + avatar + name + badge */}
+            <div className="flex items-center gap-2 min-w-0 pointer-events-auto">
+              <button
+                onClick={handleBack}
+                className="w-7 h-7 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center active:scale-90"
+                aria-label="Go back"
               >
-                {session.stylistId?.image ? (
-                  <img src={session.stylistId.image} alt="" className="w-8 h-8 rounded-full object-cover ring-1 ring-white/20" />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-[10px] font-bold text-white ring-1 ring-white/20">
-                    {session.stylistId?.name?.[0]}
-                  </div>
-                )}
-              </Link>
-
-              <span className="text-[11px] font-semibold text-white truncate max-w-[100px]">{session.stylistId?.name}</span>
-
-              <button className="flex items-center gap-1 bg-white/15 backdrop-blur-md rounded-full px-2 py-0.5 text-[10px] font-semibold text-white active:scale-95 transition-transform shrink-0" aria-label="Follow stylist">
-                <UserPlus size={9} />
-                Follow
+                <ChevronLeft size={18} className="text-white" />
               </button>
 
+              {stylistImage ? (
+                <img src={stylistImage} alt="" className="w-8 h-8 rounded-full object-cover" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-white">{stylistInitial}</span>
+                </div>
+              )}
+
+              <span className="text-[14px] font-bold text-white truncate max-w-[100px]">{stylistName}</span>
+
               <LiveBadge size="sm" />
+            </div>
 
-              <div className="flex items-center gap-0.5 bg-black/30 backdrop-blur-md rounded-full px-2 py-0.5 shrink-0">
-                <Eye size={9} className="text-white/70" />
-                <span className="text-[10px] text-white font-semibold tabular-nums">{viewerCount}</span>
+            {/* Right: viewer count + share */}
+            <div className="flex items-center gap-3 pointer-events-auto">
+              <div className="flex items-center gap-1">
+                <Eye size={12} className="text-white/70" />
+                <span className="text-[12px] text-white font-semibold tabular-nums">{viewerCount}</span>
               </div>
-            </motion.div>
-          )}
-
-          {/* Right: X close button */}
-          <button
-            onClick={handleBack}
-            className="w-9 h-9 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center text-white/80 hover:text-white hover:bg-black/50 transition-all active:scale-90 shrink-0 pointer-events-auto"
-            aria-label="Close stream"
-          >
-            <X size={16} />
-          </button>
+              <button
+                onClick={handleShare}
+                className="active:scale-90"
+                aria-label="Share stream"
+              >
+                <Share2 size={20} className="text-white" />
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
+      {/* Connection state indicator */}
       <AnimatePresence>
         {joined && connectionState !== 'connected' && (
           <motion.div
             initial={{ opacity: 0, y: -10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            className="absolute top-16 left-1/2 -translate-x-1/2 z-30"
+            className="absolute top-14 left-1/2 -translate-x-1/2 z-30"
           >
             <div className="flex items-center gap-2 bg-yellow-500/90 text-black text-xs font-semibold px-4 py-2 rounded-full shadow-lg">
               {connectionState === 'reconnecting' ? (
@@ -662,6 +683,7 @@ export default function LiveStream() {
         )}
       </AnimatePresence>
 
+      {/* Autoplay unmute prompt */}
       <AnimatePresence>
         {joined && autoplayBlocked && (
           <motion.button
@@ -669,7 +691,7 @@ export default function LiveStream() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             onClick={handleUnmute}
-            className="absolute bottom-[200px] left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-black/60 backdrop-blur-md text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg border border-white/10 active:scale-95 transition-transform"
+            className="absolute bottom-[160px] left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-black/60 backdrop-blur-md text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg border border-white/10 active:scale-95 transition-transform"
           >
             <Volume2 size={14} />
             Tap to unmute
@@ -677,184 +699,160 @@ export default function LiveStream() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {hearts.map((h) => (
-          <FloatingHeart key={h.id} id={h.id} x={h.x} />
-        ))}
-      </AnimatePresence>
-
-      {/* ── BOTTOM GRADIENT ── */}
-      <div className="absolute bottom-0 inset-x-0 h-[180px] sm:h-[200px] bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10 pointer-events-none" />
-
-      {/* ── RIGHT-SIDE ACTION RAIL ── TikTok-style vertical stack */}
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* ── FLOATING COMMENTS ── */}
+      {/* ═══════════════════════════════════════════════════ */}
       {joined && (
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className="absolute right-2 sm:right-3 bottom-[180px] sm:bottom-[200px] z-20 flex flex-col items-center gap-3 sm:gap-4"
-        >
-          {/* Profile photo */}
+        <div className="absolute left-3 bottom-[130px] w-[60%] z-[25]">
+          <FloatingComments comments={comments} />
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* ── RIGHT SIDE ICON BAR ── */}
+      {/* ═══════════════════════════════════════════════════ */}
+      {joined && (
+        <div className="absolute right-3 bottom-[140px] z-20 flex flex-col items-center gap-5">
+          {/* Stylist Avatar + Follow */}
           <Link
-            to={`/app/stylist/${session.stylistId?._id}`}
-            className="flex flex-col items-center gap-0.5"
-            aria-label={`View ${session.stylistId?.name}'s profile`}
+            to={`/app/stylist/${stylistId}`}
+            className="flex flex-col items-center gap-1"
+            aria-label={`View ${stylistName}'s profile`}
           >
             <div className="relative">
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-red-500 via-pink-500 to-purple-500 p-[2.5px] shadow-lg">
-                <div className="w-full h-full rounded-full bg-gray-900 p-[2px] overflow-hidden">
-                  {session.stylistId?.image ? (
-                    <img src={session.stylistId.image} alt="" className="w-full h-full rounded-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
-                      <span className="text-xs font-bold text-white">{session.stylistId?.name?.[0]}</span>
-                    </div>
-                  )}
+              {stylistImage ? (
+                <div className="w-[52px] h-[52px] rounded-full border-2 border-white overflow-hidden">
+                  <img src={stylistImage} alt="" className="w-full h-full object-cover" />
                 </div>
-              </div>
+              ) : (
+                <div className="w-[52px] h-[52px] rounded-full border-2 border-white bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
+                  <span className="text-lg font-bold text-white">{stylistInitial}</span>
+                </div>
+              )}
+              {!isFollowing && (
+                <button
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleFollow(); }}
+                  className="absolute -bottom-1 -right-1 w-[18px] h-[18px] rounded-full flex items-center justify-center active:scale-90"
+                  style={{ backgroundColor: '#FE2C55' }}
+                  aria-label={`Follow ${stylistName}`}
+                >
+                  <span className="text-white text-[11px] font-bold leading-none">+</span>
+                </button>
+              )}
+              {isFollowing && (
+                <div className="absolute -bottom-1 -right-1 w-[18px] h-[18px] rounded-full bg-green-500 flex items-center justify-center">
+                  <span className="text-white text-[10px] font-bold leading-none">✓</span>
+                </div>
+              )}
             </div>
           </Link>
 
           {/* Like */}
           <button
-            onClick={() => performLike()}
-            className="flex flex-col items-center gap-0.5 group"
-            aria-label={userLiked ? 'Unlike stream' : 'Like stream'}
+            onClick={() => { performLike(); spawnTapHeart(); }}
+            className="flex flex-col items-center gap-1"
+            aria-label={userLiked ? 'Unlike' : 'Like'}
           >
             <motion.div
-              animate={userLiked ? { scale: [1, 1.5, 0.9, 1.1, 1] } : {}}
-              transition={{ duration: 0.5, ease: [0.17, 0.67, 0.21, 1.21] }}
-              className="relative"
+              animate={userLiked ? { scale: [1, 1.3, 0.9, 1.1, 1] } : {}}
+              transition={{ duration: 0.4 }}
+              className="w-[52px] h-[52px] rounded-full flex items-center justify-center"
+              style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
             >
-              <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full backdrop-blur-md flex items-center justify-center transition-all duration-200 active:scale-90 ${
-                userLiked ? 'bg-red-500/25' : 'bg-black/30 group-hover:bg-black/50'
-              }`}>
-                <Heart size={22} className={`transition-all duration-200 ${userLiked ? 'text-red-500 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]' : 'text-white'}`} />
-              </div>
-              {userLiked && (
-                <>
-                  {[0, 1, 2, 3, 4, 5].map((i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 1, scale: 0, x: 0, y: 0 }}
-                      animate={{
-                        opacity: 0,
-                        scale: 1,
-                        x: (i % 2 === 0 ? 1 : -1) * (15 + Math.random() * 15),
-                        y: -10 - Math.random() * 25,
-                      }}
-                      transition={{ duration: 0.5, delay: i * 0.03, ease: 'easeOut' }}
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                    </motion.div>
-                  ))}
-                </>
-              )}
+              <Heart
+                size={32}
+                className={userLiked ? 'text-red-500 fill-red-500' : 'text-white'}
+              />
             </motion.div>
-            <span className="text-[10px] text-white font-semibold tabular-nums">{likeCount}</span>
+            <span className="text-[11px] text-white font-bold tabular-nums">{likeCount}</span>
           </button>
+
+          {/* Gift */}
+          <button
+            onClick={() => setGiftPickerOpen(true)}
+            className="flex flex-col items-center gap-1"
+            aria-label="Send a gift"
+          >
+            <div
+              className="w-[52px] h-[52px] rounded-full flex items-center justify-center"
+              style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+            >
+              <Gift size={32} className="text-white" />
+            </div>
+            <span className="text-[11px] text-white font-bold">Gift</span>
+          </button>
+
+          {/* Book */}
+          {stylistId && (
+            <button
+              onClick={() => navigate(`/app/stylist/${stylistId}`)}
+              className="flex flex-col items-center gap-1"
+              aria-label="Book a service"
+            >
+              <div
+                className="w-[56px] h-[56px] rounded-full flex items-center justify-center"
+                style={{ backgroundColor: '#FE2C55' }}
+              >
+                <Calendar size={32} className="text-white" />
+              </div>
+              <span className="text-[11px] text-white font-bold">Book</span>
+            </button>
+          )}
 
           {/* Share */}
-          <button onClick={handleShare} className="flex flex-col items-center gap-0.5 group" aria-label="Share stream">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center group-hover:bg-black/50 transition-all duration-200 active:scale-90">
-              <Share2 size={20} className="text-white" />
-            </div>
-            <span className="text-[10px] text-white font-semibold">Share</span>
-          </button>
-
-          {/* Book / View services CTA */}
-          <Link
-            to={`/app/stylist/${session.stylistId?._id}`}
-            className="flex flex-col items-center gap-0.5"
-            aria-label="View services"
+          <button
+            onClick={handleShare}
+            className="flex flex-col items-center gap-1"
+            aria-label="Share stream"
           >
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30 active:scale-90 transition-transform">
-              <ShoppingCart size={18} className="text-white" />
-            </div>
-            <span className="text-[10px] text-white font-semibold">Book</span>
-          </Link>
-        </motion.div>
-      )}
-
-      {/* ── FLOATING COMMENTS ── TikTok-style: comments float on the page */}
-      <div className="absolute left-0 right-[56px] bottom-[110px] z-[25] pointer-events-none px-3" aria-live="polite">
-        <AnimatePresence initial={false}>
-          {joined && floatingComments.map((fc) => (
-            <motion.div
-              key={fc.id}
-              initial={{ opacity: 0, x: -16, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: -16, scale: 0.95, transition: { duration: 0.2 } }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5 mb-1.5 w-fit max-w-full"
+            <div
+              className="w-[52px] h-[52px] rounded-full flex items-center justify-center"
+              style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
             >
-              <span className="text-[12px] font-bold text-white shrink-0">{fc.userName}</span>
-              <span className="text-[12px] text-white/90 truncate">{fc.text}</span>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
-
-      {/* ── BOTTOM INPUT BAR ── TikTok-style: input bar at bottom-left */}
-      {joined && !keyboardVisible && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="absolute bottom-0 inset-x-0 z-30 px-3 pb-3 sm:px-4 sm:pb-4"
-          style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 12px)' }}
-        >
-          <div className="flex items-center gap-2">
-            <div className="flex-1 flex items-center bg-white/10 backdrop-blur-md rounded-full px-4 py-2.5 border border-white/[0.08] focus-within:border-white/[0.15] focus-within:bg-white/[0.15] transition-all">
-              <input
-                ref={commentInputRef}
-                type="text"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    if (commentText.trim()) handleSendComment();
-                  }
-                }}
-                placeholder={cooldownRemaining > 0 ? `Wait ${cooldownRemaining}s...` : 'Add comment...'}
-                disabled={cooldownRemaining > 0}
-                maxLength={MAX_COMMENT_LENGTH + 20}
-                aria-label="Type a comment"
-                className="flex-1 bg-transparent text-white text-[13px] placeholder:text-white/30 focus:outline-none disabled:opacity-40"
-              />
-              {commentText.trim() && (
-                <motion.button
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  onClick={handleSendComment}
-                  aria-label="Send comment"
-                  className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center shrink-0 ml-2 active:scale-90 shadow-md shadow-red-500/30"
-                >
-                  <Send size={11} className="text-white ml-0.5" />
-                </motion.button>
-              )}
+              <Share2 size={28} className="text-white" />
             </div>
-          </div>
-          {commentFailed && (
-            <p className="text-[10px] text-red-400 text-center mt-1">Failed to send. Try again.</p>
-          )}
-        </motion.div>
+            <span className="text-[11px] text-white font-bold">Share</span>
+          </button>
+        </div>
       )}
 
-      <AnimatePresence>
-        {showShareToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="absolute bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 z-50 bg-white/90 backdrop-blur-sm text-black text-[11px] sm:text-xs font-semibold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-lg"
-          >
-            Link copied!
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* ── BOTTOM BAR ── */}
+      {/* ═══════════════════════════════════════════════════ */}
+      {joined && !keyboardVisible && (
+        <div
+          className="absolute bottom-0 inset-x-0 z-30 px-3 pb-2"
+          style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)' }}
+        >
+          <LiveCommentInput
+            onSend={handleSendComment}
+            cooldownRemaining={getCooldownRemaining()}
+            maxLength={MAX_COMMENT_LENGTH}
+          />
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* ── BOOKING PROMPT CARD ── */}
+      {/* ═══════════════════════════════════════════════════ */}
+      {joined && (
+        <BookingPromptCard
+          visible={!!showcase}
+          serviceName={showcase?.serviceName || ''}
+          servicePrice={showcase?.servicePrice || ''}
+          stylistId={stylistId || ''}
+          onDismiss={() => setShowcase(null)}
+        />
+      )}
+
+      {/* ═══════════════════════════════════════════════════ */}
+      {/* ── GIFT PICKER MODAL ── */}
+      {/* ═══════════════════════════════════════════════════ */}
+      <GiftPickerModal
+        open={giftPickerOpen}
+        onClose={() => setGiftPickerOpen(false)}
+        onSelect={handleSendGift}
+      />
     </motion.div>
   );
 }
